@@ -11,11 +11,11 @@
    That indirection is what lets you re-theme, add dark mode, or fix a
    contrast failure without touching a single component.
 
-   ⚠ EVERY VALUE BELOW IS A PLACEHOLDER.
-   The ramp is pure neutral (equal R/G/B) precisely so it looks untuned
-   — most palettes want a temperature, warm or cool. The accent is a
-   generic blue. Replace both. The STRUCTURE is the contribution here;
-   the values are yours.
+   The six hues are Apple's system tones, with separate light and dark
+   values as Apple publishes them.
+
+   ⚠ The NEUTRAL ramp is still a placeholder — pure neutral (equal R/G/B),
+   deliberately untuned, since most palettes want a temperature.
    ============================================================ */
 
 :root {
@@ -36,23 +36,30 @@
   --gray-950:  #0a0a0a;
   --gray-1000: #000000;
 
-  /* Accent ramp — placeholder */
-  --accent-100: #dbeafe;
-  --accent-300: #93c5fd;
-  --accent-500: #3b82f6;
-  --accent-600: #2563eb;
-  --accent-700: #1d4ed8;
+  /* ---------- Apple system hues ----------
+     Values are Apple's published systemColor tones. Each hue is stored as
+     raw CHANNELS so a fill can be derived from it at low alpha rather than
+     hand-picked.
 
-  /* Status hues as raw CHANNELS, not hex. One value per hue drives both
-     the text and the fill, so the two can never drift apart — the fill is
-     literally the text colour at low alpha. */
-  --green-rgb: 34 197 94;
-  --amber-rgb: 245 158 11;
-  --red-rgb:   239 68 68;
+     Every hue carries a second, darker "-text" channel. This is not
+     decoration: Apple's tones are tuned to sit on a light ground as FILLS,
+     and most of them fail contrast as text. systemYellow on white is about
+     1.2:1 — invisible. The -text variants are darkened until they clear AA. */
 
-  --green: rgb(var(--green-rgb));
-  --amber: rgb(var(--amber-rgb));
-  --red:   rgb(var(--red-rgb));
+  --yellow-rgb: 255 204 0;      /* systemYellow */
+  --green-rgb:   52 199 89;     /* systemGreen  */
+  --blue-rgb:     0 122 255;    /* systemBlue   */
+  --purple-rgb: 175  82 222;    /* systemPurple */
+  --red-rgb:    255  59  48;    /* systemRed    */
+  --orange-rgb: 255 149   0;    /* systemOrange */
+
+  /* Text-safe darkenings, light ground */
+  --yellow-text-rgb: 151 112   0;
+  --green-text-rgb:   26 127  55;
+  --blue-text-rgb:     0  85 204;
+  --purple-text-rgb: 130  49 168;
+  --red-text-rgb:    193  18  31;
+  --orange-text-rgb: 185  87   0;
 }
 
 /* ---------- TIER 2 · semantic · LIGHT ---------- */
@@ -71,20 +78,46 @@
   --border:        var(--gray-200);   /* default hairline */
   --border-strong: var(--gray-300);   /* emphasised division */
 
-  --accent:        var(--accent-600);
-  --accent-hover:  var(--accent-700);
-  --accent-subtle: var(--accent-100);
+  /* ---------- Palette ----------
+     Three roles per hue:
+       --x        the solid tone   (fills, dots, bars, icons)
+       --x-text   legible on --bg  (labels, status text)
+       --x-fill   the tone at low alpha (badge grounds) */
+  --fill-alpha: 0.14;
 
-  /* Status text — the saturated hue itself. */
-  --success-text:  rgb(var(--green-rgb));
-  --warning-text:  rgb(var(--amber-rgb));
-  --danger-text:   rgb(var(--red-rgb));
+  --yellow:      rgb(var(--yellow-rgb));
+  --yellow-text: rgb(var(--yellow-text-rgb));
+  --yellow-fill: rgb(var(--yellow-rgb) / var(--fill-alpha));
+  --green:       rgb(var(--green-rgb));
+  --green-text:  rgb(var(--green-text-rgb));
+  --green-fill:  rgb(var(--green-rgb) / var(--fill-alpha));
+  --blue:        rgb(var(--blue-rgb));
+  --blue-text:   rgb(var(--blue-text-rgb));
+  --blue-fill:   rgb(var(--blue-rgb) / var(--fill-alpha));
+  --purple:      rgb(var(--purple-rgb));
+  --purple-text: rgb(var(--purple-text-rgb));
+  --purple-fill: rgb(var(--purple-rgb) / var(--fill-alpha));
+  --red:         rgb(var(--red-rgb));
+  --red-text:    rgb(var(--red-text-rgb));
+  --red-fill:    rgb(var(--red-rgb) / var(--fill-alpha));
+  --orange:      rgb(var(--orange-rgb));
+  --orange-text: rgb(var(--orange-text-rgb));
+  --orange-fill: rgb(var(--orange-rgb) / var(--fill-alpha));
 
-  /* Status fill — the same hue at low alpha. Derived, never hand-picked. */
-  --fill-alpha:    0.14;
-  --success:       rgb(var(--green-rgb) / var(--fill-alpha));
-  --warning:       rgb(var(--amber-rgb) / var(--fill-alpha));
-  --danger:        rgb(var(--red-rgb)   / var(--fill-alpha));
+  /* ---------- Roles mapped onto the palette ---------- */
+  --accent:        var(--blue);
+  --accent-text:   var(--blue-text);
+  --accent-subtle: var(--blue-fill);
+  /* Shifts toward the foreground, so it darkens on light and lightens
+     on dark without needing a per-theme value. */
+  --accent-hover:  color-mix(in srgb, var(--blue) 78%, var(--fg));
+
+  --success:       var(--green-fill);
+  --success-text:  var(--green-text);
+  --warning:       var(--orange-fill);
+  --warning-text:  var(--orange-text);
+  --danger:        var(--red-fill);
+  --danger-text:   var(--red-text);
 }
 
 /* ---------- TIER 2 · semantic · DARK ----------
@@ -106,22 +139,22 @@
   --border:        var(--gray-800);
   --border-strong: var(--gray-700);
 
-  --accent:        var(--accent-500);
-  --accent-hover:  var(--accent-300);
-  --accent-subtle: #172554;
+  /* Apple publishes separate dark tones — brighter and slightly desaturated.
+     On a dark ground the tone itself is legible as text, so -text collapses
+     back onto the tone. Fill alpha rises: a tint reads weaker against dark. */
+  --yellow-rgb: 255 214  10;
+  --green-rgb:   48 209  88;
+  --blue-rgb:    10 132 255;
+  --purple-rgb: 191  90 242;
+  --red-rgb:    255  69  58;
+  --orange-rgb: 255 159  10;
 
-  /* Hues lift on a dark ground; fill alpha rises because a tint reads
-     weaker against dark than against white. */
-  --green-rgb: 74 222 128;
-  --amber-rgb: 251 191 36;
-  --red-rgb:   248 113 113;
+  --yellow-text-rgb: var(--yellow-rgb);
+  --green-text-rgb:  var(--green-rgb);
+  --blue-text-rgb:   var(--blue-rgb);
+  --purple-text-rgb: var(--purple-rgb);
+  --red-text-rgb:    var(--red-rgb);
+  --orange-text-rgb: var(--orange-rgb);
 
-  --success-text:  rgb(var(--green-rgb));
-  --warning-text:  rgb(var(--amber-rgb));
-  --danger-text:   rgb(var(--red-rgb));
-
-  --fill-alpha:    0.20;
-  --success:       rgb(var(--green-rgb) / var(--fill-alpha));
-  --warning:       rgb(var(--amber-rgb) / var(--fill-alpha));
-  --danger:        rgb(var(--red-rgb)   / var(--fill-alpha));
+  --fill-alpha: 0.17;
 }

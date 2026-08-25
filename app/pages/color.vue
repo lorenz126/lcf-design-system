@@ -41,9 +41,8 @@ function measure() {
       if (alpha < 1) entry.alpha = alpha
 
       if (g.checkContrast) {
-        // A -text token is read on its own fill, not on the page. Grade it
-        // where it actually lives.
-        const fill = token.endsWith('-text') ? flat(token.replace('-text', '')) : null
+        // Badge text never sits on the page — grade it where it lives.
+        const fill = g.against === 'fill' ? flat(token.replace('-text', '')) : null
         const against = fill ?? page
         entry.ratio = contrast(eff, against)
         entry.grade = grade(entry.ratio)
@@ -79,9 +78,11 @@ onBeforeUnmount(() => observer?.disconnect())
         single component.
       </p>
       <p class="t-caption warn">
-        Every value here is a placeholder. The neutral ramp is deliberately untuned
-        (equal R/G/B) and the accent is a generic blue. Replace them in
-        <code>tokens/color.css</code>.
+        The six hues are Apple’s system tones, light and dark values as published.
+        Each carries a darkened <code>-text</code> variant, because Apple tunes those
+        tones to work as fills — most of them fail as text on a light ground
+        (systemYellow on white is about 1.2:1). The neutral ramp is still a
+        placeholder.
       </p>
     </div>
 
@@ -106,7 +107,10 @@ onBeforeUnmount(() => observer?.disconnect())
               <div
                 v-if="t.endsWith('-text')"
                 class="preview"
-                :style="{ color: `var(${t})`, background: `var(${t.replace('-text','')})` }"
+                :style="{
+                  color: `var(${t})`,
+                  background: `var(${t.replace('-text', g.against === 'fill' ? '' : '-fill')})`
+                }"
               >Badge</div>
               <div v-if="resolved[t]?.ratio" class="ratio">
                 <span :class="['badge', resolved[t]!.grade === 'Fail' ? 'bad' : 'good']">

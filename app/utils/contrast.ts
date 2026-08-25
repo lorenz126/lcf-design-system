@@ -2,13 +2,18 @@
 export function parseRgb(s: string): [number, number, number] | null {
   const m = s.match(/-?[\d.]+/g)
   if (!m || m.length < 3) return null
-  return [Number(m[0]), Number(m[1]), Number(m[2])]
+  // color-mix() computes to `color(srgb r g b)` with 0–1 channels, while
+  // rgb() gives 0–255. Reading one as the other turns light blue into black.
+  const scale = s.startsWith('color(') ? 255 : 1
+  return [Number(m[0]) * scale, Number(m[1]) * scale, Number(m[2]) * scale]
 }
 
 /** Alpha of a computed colour string; 1 when opaque. */
 export function parseAlpha(s: string): number {
   const m = s.match(/-?[\d.]+/g)
-  return m && m.length >= 4 ? Number(m[3]) : 1
+  if (!m) return 1
+  const want = s.startsWith('color(') ? 4 : 4
+  return m.length >= want ? Number(m[m.length - 1]) : 1
 }
 
 /** Flatten a translucent colour onto an opaque backdrop. Contrast maths
