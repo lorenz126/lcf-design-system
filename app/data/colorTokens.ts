@@ -5,7 +5,7 @@ export interface TokenGroup {
   checkContrast?: boolean
   /** What to grade against: the page ('bg', default) or the token's own
    *  fill ('fill' — for badge text, which never sits on the page). */
-  against?: 'bg' | 'fill'
+  against?: 'bg' | 'fill' | 'badge'
   tokens: string[]
 }
 
@@ -43,6 +43,14 @@ export const semantic: TokenGroup[] = [
     checkContrast: true,
     tokens: ['--yellow-text', '--green-text', '--blue-text',
              '--purple-text', '--red-text', '--orange-text']
+  },
+  {
+    group: 'Palette · badge',
+    scope: 'Light hues invert to a solid ground; dark hues keep the tint.',
+    tokens: ['--yellow-badge-fg', '--green-badge-fg', '--blue-badge-fg',
+             '--purple-badge-fg', '--red-badge-fg', '--orange-badge-fg'],
+    checkContrast: true,
+    against: 'badge'
   },
   {
     group: 'Palette · fill',

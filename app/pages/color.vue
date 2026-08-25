@@ -42,8 +42,10 @@ function measure() {
 
       if (g.checkContrast) {
         // Badge text never sits on the page — grade it where it lives.
-        const fill = g.against === 'fill' ? flat(token.replace('-text', '')) : null
-        const against = fill ?? page
+        const ground =
+          g.against === 'fill'  ? flat(token.replace('-text', '')) :
+          g.against === 'badge' ? flat(token.replace('-badge-fg', '-badge-bg')) : null
+        const against = ground ?? page
         entry.ratio = contrast(eff, against)
         entry.grade = grade(entry.ratio)
       }
@@ -105,11 +107,13 @@ onBeforeUnmount(() => observer?.disconnect())
                 </span>
               </div>
               <div
-                v-if="t.endsWith('-text')"
+                v-if="t.endsWith('-text') || t.endsWith('-badge-fg')"
                 class="preview"
                 :style="{
                   color: `var(${t})`,
-                  background: `var(${t.replace('-text', g.against === 'fill' ? '' : '-fill')})`
+                  background: t.endsWith('-badge-fg')
+                    ? `var(${t.replace('-badge-fg', '-badge-bg')})`
+                    : `var(${t.replace('-text', g.against === 'fill' ? '' : '-fill')})`
                 }"
               >Badge</div>
               <div v-if="resolved[t]?.ratio" class="ratio">

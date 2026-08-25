@@ -104,6 +104,34 @@
   --orange-text: rgb(var(--orange-text-rgb));
   --orange-fill: rgb(var(--orange-rgb) / var(--fill-alpha));
 
+  /* ---------- Badges ----------
+     Two recipes, chosen by the hue's own lightness — not by preference.
+
+     Yellow and orange are light hues. To clear 4.5:1 as text on a pale
+     tint they must be darkened so far that they lose their chroma and
+     turn muddy; measured, yellow's maximum chroma at that lightness is
+     0.1175 against 0.177 for the pure tone. Dark yellow is brown, and no
+     colour space escapes that.
+
+     So the light hues invert: the SOLID tone becomes the ground and the
+     text goes dark. The yellow stays fully saturated, and contrast is
+     better than the tint version ever was.
+
+     The darker hues keep the tint recipe, where they read cleanly. */
+  --yellow-badge-bg: var(--yellow);
+  --yellow-badge-fg: rgb(56 40 0);
+  --orange-badge-bg: var(--orange);
+  --orange-badge-fg: rgb(64 27 0);
+
+  --green-badge-bg:  var(--green-fill);
+  --green-badge-fg:  var(--green-text);
+  --blue-badge-bg:   var(--blue-fill);
+  --blue-badge-fg:   var(--blue-text);
+  --purple-badge-bg: var(--purple-fill);
+  --purple-badge-fg: var(--purple-text);
+  --red-badge-bg:    var(--red-fill);
+  --red-badge-fg:    var(--red-text);
+
   /* ---------- Roles mapped onto the palette ---------- */
   --accent:        var(--blue);
   --accent-text:   var(--blue-text);
@@ -157,4 +185,11 @@
   --orange-text-rgb: var(--orange-rgb);
 
   --fill-alpha: 0.17;
+
+  /* On a dark ground every tone is legible as text, so all six hues use
+     the tint recipe — the light-hue inversion is a light-mode problem. */
+  --yellow-badge-bg: var(--yellow-fill);
+  --yellow-badge-fg: var(--yellow-text);
+  --orange-badge-bg: var(--orange-fill);
+  --orange-badge-fg: var(--orange-text);
 }
