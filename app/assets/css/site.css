@@ -1,0 +1,27 @@
+/* Specimen-site chrome. Not part of the design system — this styles the
+   viewer, not the thing being viewed. */
+
+:root {
+  --ink:#16181d; --ink-2:#6b7280; --ink-3:#a1a7b0;
+  --bg:#fff; --bg-2:#f6f7f9; --rule:#e6e8ec;
+  --never:#c2410c; --always:#15803d;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --ink:#f2f4f7; --ink-2:#9aa3ae; --ink-3:#656d78;
+  --bg:#0d0f13; --bg-2:#16191f; --rule:#262b33;
+  --never:#fb923c; --always:#4ade80;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 40px 140px; }
+.sec-label {
+  color: var(--ink-3); text-transform: uppercase; letter-spacing: .09em;
+  font-size: 11px; font-weight: var(--w-semibold); margin-bottom: 28px;
+}

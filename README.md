@@ -8,14 +8,17 @@ Typography foundation for a personal design framework. SF Pro, systematised.
   couples size + line-height + weight + tracking as one bundle, plus weights,
   families, a tracking formula for off-ramp sizes, and tabular-numeral and
   measure utilities.
-- **`specimen/principles.js`** — the design principles, as data. The rules
-  behind the tokens. Adding one is a one-line object.
-- **`specimen/index.html`** — a tabbed viewer: **Principles** and **Type**.
-  Scaffolding for judging the system, not part of it.
+- **`app/data/principles.ts`** — the design principles, as typed data. The
+  rules behind the tokens. Adding one is a one-line object.
+- **`app/`** — a Nuxt 4 site for viewing the system: **Principles** and
+  **Type**. Scaffolding for judging the system, not part of it.
+
+`tokens/` stays framework-agnostic on purpose — the Nuxt app consumes it the
+same way any consuming project would, so the CSS never grows a Nuxt dependency.
 
 ## Principles
 
-The full list lives in `specimen/principles.js`. The typography rules, in short:
+The full list lives in `app/data/principles.ts`. The typography rules, in short:
 
 1. **A type step is not a font-size.** Size, line-height, weight and tracking
    are not independently choosable in SF, so they travel together. Never set
@@ -38,10 +41,9 @@ devices, with Inter as the cross-platform fallback. Note that Apple's SF
 license covers development for Apple platforms, not general webfont
 redistribution — self-hosting SF for a public site falls outside it.
 
-## Viewing the specimen
+## Running it
 
 ```
-python3 -m http.server 8931
+pnpm install
+pnpm dev
 ```
-
-Then open `http://localhost:8931/specimen/`.
