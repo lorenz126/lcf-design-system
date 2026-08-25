@@ -43,13 +43,16 @@
   --accent-600: #2563eb;
   --accent-700: #1d4ed8;
 
-  /* Status ramps — placeholder.
-     Three steps each, because a status colour has two different jobs:
-     a FILL (badge, dot, bar) wants to be bright, and TEXT wants to be
-     legible. One value cannot do both. */
-  --green-300: #86efac;  --green-500: #22c55e;  --green-700: #15803d;
-  --amber-300: #fcd34d;  --amber-500: #f59e0b;  --amber-700: #b45309;
-  --red-300:   #fca5a5;  --red-500:   #ef4444;  --red-700:   #b91c1c;
+  /* Status hues as raw CHANNELS, not hex. One value per hue drives both
+     the text and the fill, so the two can never drift apart — the fill is
+     literally the text colour at low alpha. */
+  --green-rgb: 34 197 94;
+  --amber-rgb: 245 158 11;
+  --red-rgb:   239 68 68;
+
+  --green: rgb(var(--green-rgb));
+  --amber: rgb(var(--amber-rgb));
+  --red:   rgb(var(--red-rgb));
 }
 
 /* ---------- TIER 2 · semantic · LIGHT ---------- */
@@ -72,15 +75,16 @@
   --accent-hover:  var(--accent-700);
   --accent-subtle: var(--accent-100);
 
-  /* Fills — bright. Put DARK text on these, never white. */
-  --success:       var(--green-500);
-  --warning:       var(--amber-500);
-  --danger:        var(--red-500);
+  /* Status text — the saturated hue itself. */
+  --success-text:  rgb(var(--green-rgb));
+  --warning-text:  rgb(var(--amber-rgb));
+  --danger-text:   rgb(var(--red-rgb));
 
-  /* Text — legible on --bg. Same hue, different job. */
-  --success-text:  var(--green-700);
-  --warning-text:  var(--amber-700);
-  --danger-text:   var(--red-700);
+  /* Status fill — the same hue at low alpha. Derived, never hand-picked. */
+  --fill-alpha:    0.14;
+  --success:       rgb(var(--green-rgb) / var(--fill-alpha));
+  --warning:       rgb(var(--amber-rgb) / var(--fill-alpha));
+  --danger:        rgb(var(--red-rgb)   / var(--fill-alpha));
 }
 
 /* ---------- TIER 2 · semantic · DARK ----------
@@ -106,12 +110,18 @@
   --accent-hover:  var(--accent-300);
   --accent-subtle: #172554;
 
-  --success:       #4ade80;
-  --warning:       #fbbf24;
-  --danger:        #f87171;
+  /* Hues lift on a dark ground; fill alpha rises because a tint reads
+     weaker against dark than against white. */
+  --green-rgb: 74 222 128;
+  --amber-rgb: 251 191 36;
+  --red-rgb:   248 113 113;
 
-  /* On a dark ground the text variant goes LIGHTER, not darker. */
-  --success-text:  var(--green-300);
-  --warning-text:  var(--amber-300);
-  --danger-text:   var(--red-300);
+  --success-text:  rgb(var(--green-rgb));
+  --warning-text:  rgb(var(--amber-rgb));
+  --danger-text:   rgb(var(--red-rgb));
+
+  --fill-alpha:    0.20;
+  --success:       rgb(var(--green-rgb) / var(--fill-alpha));
+  --warning:       rgb(var(--amber-rgb) / var(--fill-alpha));
+  --danger:        rgb(var(--red-rgb)   / var(--fill-alpha));
 }

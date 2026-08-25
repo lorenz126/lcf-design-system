@@ -31,12 +31,12 @@ export const semantic: TokenGroup[] = [
   },
   {
     group: 'Status · fill',
-    scope: 'Badges, dots, bars. Not graded — these are grounds, not text.',
+    scope: 'The text hue at low alpha. Grounds, not text — not graded.',
     tokens: ['--success', '--warning', '--danger']
   },
   {
     group: 'Status · text',
-    scope: 'Graded against --bg. Must clear 4.5:1.',
+    scope: 'Graded against its own fill — that is where it actually sits.',
     checkContrast: true,
     tokens: ['--success-text', '--warning-text', '--danger-text']
   }
@@ -58,10 +58,6 @@ export const primitives: TokenGroup[] = [
   },
   {
     group: 'Status',
-    tokens: [
-      '--green-300', '--green-500', '--green-700',
-      '--amber-300', '--amber-500', '--amber-700',
-      '--red-300', '--red-500', '--red-700'
-    ]
+    tokens: ['--green', '--amber', '--red']
   }
 ]

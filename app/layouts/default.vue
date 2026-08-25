@@ -40,7 +40,7 @@ const tabs = [
 <style scoped>
 header {
   position: sticky; top: 0; z-index: 10;
-  background: var(--bg);
+  background: var(--ui-bg);
   border-bottom: 1px solid var(--rule);
   margin-bottom: 56px;
 }
@@ -59,8 +59,8 @@ header {
   color: var(--ink-2); padding: 7px 12px; border-radius: 7px;
   text-decoration: none;
 }
-.tab:hover { background: var(--bg-2); color: var(--ink); }
-.tab.router-link-exact-active { background: var(--bg-2); color: var(--ink); }
+.tab:hover { background: var(--ui-bg-2); color: var(--ink); }
+.tab.router-link-exact-active { background: var(--ui-bg-2); color: var(--ink); }
 .ghost {
   font: var(--w-medium) var(--fs-caption)/1 var(--font-sans);
   padding: 7px 12px; border-radius: 7px;

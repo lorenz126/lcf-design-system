@@ -124,7 +124,7 @@ section { margin-bottom: 72px; }
 .vals { white-space: pre-line; }
 .sample { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-.cmp > div { padding: 24px; background: var(--bg-2); border-radius: 12px; }
+.cmp > div { padding: 24px; background: var(--ui-bg-2); border-radius: 12px; }
 h4 {
   margin: 0 0 14px; font-size: 11px; letter-spacing: .09em;
   text-transform: uppercase; color: var(--ink-3); font-weight: var(--w-semibold);

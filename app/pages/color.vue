@@ -2,7 +2,7 @@
 import { semantic, primitives } from '~/data/colorTokens'
 useHead({ title: 'Colour — Design Framework' })
 
-interface Resolved { hex: string; ratio?: number; grade?: string }
+interface Resolved { hex: string; ratio?: number; grade?: string; alpha?: number }
 
 const resolved = ref<Record<string, Resolved>>({})
 const probe = useTemplateRef<HTMLElement>('probe')
@@ -13,21 +13,39 @@ function measure() {
   const el = probe.value
   if (!el) return
 
-  const read = (token: string) => {
+  const raw = (token: string) => {
     el.style.backgroundColor = `var(${token})`
-    return parseRgb(getComputedStyle(el).backgroundColor)
+    const c = getComputedStyle(el).backgroundColor
+    return { rgb: parseRgb(c), alpha: parseAlpha(c) }
   }
 
-  const bg = read('--bg')
+  const page = raw('--bg').rgb
+  if (!page) return
+
+  /** Effective colour as the eye sees it — translucent tokens flattened
+   *  onto the page. */
+  const flat = (token: string) => {
+    const { rgb, alpha } = raw(token)
+    if (!rgb) return null
+    return alpha < 1 ? composite(rgb, alpha, page) : rgb
+  }
+
   const out: Record<string, Resolved> = {}
 
   for (const g of [...semantic, ...primitives]) {
     for (const token of g.tokens) {
-      const rgb = read(token)
+      const { rgb, alpha } = raw(token)
       if (!rgb) continue
-      const entry: Resolved = { hex: toHex(rgb) }
-      if (g.checkContrast && bg) {
-        entry.ratio = contrast(rgb, bg)
+      const eff = alpha < 1 ? composite(rgb, alpha, page) : rgb
+      const entry: Resolved = { hex: toHex(eff) }
+      if (alpha < 1) entry.alpha = alpha
+
+      if (g.checkContrast) {
+        // A -text token is read on its own fill, not on the page. Grade it
+        // where it actually lives.
+        const fill = token.endsWith('-text') ? flat(token.replace('-text', '')) : null
+        const against = fill ?? page
+        entry.ratio = contrast(eff, against)
         entry.grade = grade(entry.ratio)
       }
       out[token] = entry
@@ -79,7 +97,17 @@ onBeforeUnmount(() => observer?.disconnect())
             <div class="chip" :style="{ background: `var(${t})` }" />
             <div class="info">
               <div class="name">{{ t }}</div>
-              <div class="hex">{{ resolved[t]?.hex ?? '…' }}</div>
+              <div class="hex">
+                {{ resolved[t]?.hex ?? '…' }}
+                <span v-if="resolved[t]?.alpha" class="alpha">
+                  · α{{ resolved[t]!.alpha }}
+                </span>
+              </div>
+              <div
+                v-if="t.endsWith('-text')"
+                class="preview"
+                :style="{ color: `var(${t})`, background: `var(${t.replace('-text','')})` }"
+              >Badge</div>
               <div v-if="resolved[t]?.ratio" class="ratio">
                 <span :class="['badge', resolved[t]!.grade === 'Fail' ? 'bad' : 'good']">
                   {{ resolved[t]!.grade }}
@@ -143,6 +171,11 @@ h2 {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .hex { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+.alpha { color: var(--ink-3); }
+.preview {
+  display: inline-block; margin-top: 5px; padding: 2px 8px; border-radius: 999px;
+  font: var(--w-medium) 11px var(--font-sans);
+}
 .ratio { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
 .badge {
   font-size: 10px; font-weight: var(--w-semibold); padding: 1px 5px; border-radius: 4px;

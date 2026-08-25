@@ -1,8 +1,24 @@
-/** Parse a computed colour string ("rgb(r, g, b)" / "rgba(...)") to [r,g,b]. */
+/** Parse a computed colour string ("rgb(r, g, b)" / "rgba(r,g,b,a)") to [r,g,b]. */
 export function parseRgb(s: string): [number, number, number] | null {
   const m = s.match(/-?[\d.]+/g)
   if (!m || m.length < 3) return null
   return [Number(m[0]), Number(m[1]), Number(m[2])]
+}
+
+/** Alpha of a computed colour string; 1 when opaque. */
+export function parseAlpha(s: string): number {
+  const m = s.match(/-?[\d.]+/g)
+  return m && m.length >= 4 ? Number(m[3]) : 1
+}
+
+/** Flatten a translucent colour onto an opaque backdrop. Contrast maths
+ *  is only meaningful against what the eye actually sees. */
+export function composite(
+  fg: [number, number, number],
+  alpha: number,
+  bg: [number, number, number]
+): [number, number, number] {
+  return [0, 1, 2].map(i => fg[i]! * alpha + bg[i]! * (1 - alpha)) as [number, number, number]
 }
 
 export function toHex(rgb: [number, number, number]): string {
