@@ -44,9 +44,9 @@
   --accent-700: #1d4ed8;
 
   /* Status ramps — placeholder */
-  --green-500: #16a34a;
-  --amber-500: #d97706;
-  --red-500:   #dc2626;
+  --green-500: #22c55e;
+  --amber-500: #f59e0b;
+  --red-500:   #ef4444;
 }
 
 /* ---------- TIER 2 · semantic · LIGHT ---------- */
@@ -97,7 +97,7 @@
   --accent-hover:  var(--accent-300);
   --accent-subtle: #172554;
 
-  --success:       #22c55e;
-  --warning:       #f59e0b;
-  --danger:        #ef4444;
+  --success:       #4ade80;
+  --warning:       #fbbf24;
+  --danger:        #f87171;
 }
