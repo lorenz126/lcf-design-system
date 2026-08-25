@@ -18,21 +18,13 @@ same way any consuming project would, so the CSS never grows a Nuxt dependency.
 
 ## Principles
 
-The full list lives in `app/data/principles.ts`. The typography rules, in short:
+The design principles live in `app/data/principles.ts` and render on the
+Principles tab. Currently empty — groups are scaffolded, rules are not yet
+written.
 
-1. **A type step is not a font-size.** Size, line-height, weight and tracking
-   are not independently choosable in SF, so they travel together. Never set
-   `font-size` alone.
-2. **Hand-tuned, not modular.** Ratio-generated scales produce values like
-   12.8px that land off the pixel grid and render soft. Every step is a whole
-   number.
-3. **Line-height ratio tightens as size grows** — 1.47 at body, 1.06 at
-   display. A single global line-height always leaves headlines loose.
-4. **Tracking follows SF's curve** — positive below 13px, zero at 13,
-   increasingly negative above. `.t-auto` applies the fitted curve to any
-   ad-hoc size.
-5. **Four weights, not nine.** More than four makes hierarchy read as
-   accidental.
+House style for writing them: start with *Always* or *Never*, one rule per
+entry, and always give the reason. A rule you can't justify is a habit, not a
+principle.
 
 ## Fonts
 
