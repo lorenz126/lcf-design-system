@@ -30,10 +30,15 @@ export const semantic: TokenGroup[] = [
     tokens: ['--accent', '--accent-hover']
   },
   {
-    group: 'Status',
-    scope: 'Graded for text use.',
-    checkContrast: true,
+    group: 'Status · fill',
+    scope: 'Badges, dots, bars. Not graded — these are grounds, not text.',
     tokens: ['--success', '--warning', '--danger']
+  },
+  {
+    group: 'Status · text',
+    scope: 'Graded against --bg. Must clear 4.5:1.',
+    checkContrast: true,
+    tokens: ['--success-text', '--warning-text', '--danger-text']
   }
 ]
 
@@ -53,6 +58,10 @@ export const primitives: TokenGroup[] = [
   },
   {
     group: 'Status',
-    tokens: ['--green-500', '--amber-500', '--red-500']
+    tokens: [
+      '--green-300', '--green-500', '--green-700',
+      '--amber-300', '--amber-500', '--amber-700',
+      '--red-300', '--red-500', '--red-700'
+    ]
   }
 ]
