@@ -1,0 +1,108 @@
+/* ============================================================
+   TYPOGRAPHY — SF Pro
+   ------------------------------------------------------------
+   Three ideas drive this file:
+
+   1. A type step is NOT a font-size. It is a coupled bundle of
+      size + line-height + weight + tracking. These are not
+      independently choosable in SF, so they travel together.
+
+   2. Tracking is the detail that separates "using SF" from
+      "using SF well". SF needs POSITIVE tracking below ~13px
+      and increasingly NEGATIVE tracking as it grows. Left at
+      zero, large text looks loose and amateur.
+
+   3. Line-height RATIO tightens as size grows. 1.5 at body is
+      comfortable; 1.5 at 72px is a broken headline.
+   ============================================================ */
+
+:root {
+  /* ---- Families ----
+     No font files shipped. -apple-system resolves to real SF Pro
+     on Apple devices. Inter is the closest cross-platform fallback. */
+  --font-sans:    -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                  Inter, "Helvetica Neue", system-ui, sans-serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", var(--font-sans);
+  --font-mono:    ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  --font-serif:   ui-serif, "New York", Georgia, serif;
+
+  /* ---- Weights ----
+     SF ships 9 weights. Four are actually useful in UI; more than
+     that and hierarchy stops reading as intentional. */
+  --w-regular:  400;   /* body copy */
+  --w-medium:   500;   /* UI labels, buttons, subtle emphasis */
+  --w-semibold: 600;   /* headings — the workhorse */
+  --w-bold:     700;   /* reserve for display and hard emphasis */
+
+  /* ============================================================
+     THE RAMP
+     11 steps: dense app UI at the bottom, marketing hero at the top.
+     Sizes are px because UI type should not scale with browser font
+     settings in unpredictable ways — but see --type-scale below.
+     ============================================================ */
+
+  /* --- Interface range --- */
+  --fs-micro:      11px; --lh-micro:      14px; --tr-micro:       0.006em;
+  --fs-caption:    12px; --lh-caption:    16px; --tr-caption:     0.002em;
+  --fs-small:      13px; --lh-small:      18px; --tr-small:       0em;
+  --fs-body:       15px; --lh-body:       22px; --tr-body:       -0.006em;
+  --fs-lead:       17px; --lh-lead:       26px; --tr-lead:       -0.011em;
+
+  /* --- Heading range (SF switches Text→Display at 20px) --- */
+  --fs-title-sm:   20px; --lh-title-sm:   26px; --tr-title-sm:   -0.013em;
+  --fs-title:      24px; --lh-title:      30px; --tr-title:      -0.016em;
+  --fs-title-lg:   32px; --lh-title-lg:   38px; --tr-title-lg:   -0.021em;
+
+  /* --- Display range --- */
+  --fs-display-sm: 40px; --lh-display-sm: 46px; --tr-display-sm: -0.024em;
+  --fs-display:    56px; --lh-display:    60px; --tr-display:    -0.027em;
+  --fs-display-lg: 72px; --lh-display-lg: 76px; --tr-display-lg: -0.029em;
+}
+
+/* ============================================================
+   TEXT STYLES
+   One class sets the whole bundle. Never set font-size alone.
+   ============================================================ */
+
+.t-micro      { font: var(--w-medium)   var(--fs-micro)/var(--lh-micro)           var(--font-sans); letter-spacing: var(--tr-micro); }
+.t-caption    { font: var(--w-regular)  var(--fs-caption)/var(--lh-caption)       var(--font-sans); letter-spacing: var(--tr-caption); }
+.t-small      { font: var(--w-regular)  var(--fs-small)/var(--lh-small)           var(--font-sans); letter-spacing: var(--tr-small); }
+.t-body       { font: var(--w-regular)  var(--fs-body)/var(--lh-body)             var(--font-sans); letter-spacing: var(--tr-body); }
+.t-lead       { font: var(--w-regular)  var(--fs-lead)/var(--lh-lead)             var(--font-sans); letter-spacing: var(--tr-lead); }
+.t-title-sm   { font: var(--w-semibold) var(--fs-title-sm)/var(--lh-title-sm)     var(--font-sans); letter-spacing: var(--tr-title-sm); }
+.t-title      { font: var(--w-semibold) var(--fs-title)/var(--lh-title)           var(--font-sans); letter-spacing: var(--tr-title); }
+.t-title-lg   { font: var(--w-semibold) var(--fs-title-lg)/var(--lh-title-lg)     var(--font-sans); letter-spacing: var(--tr-title-lg); }
+.t-display-sm { font: var(--w-bold)     var(--fs-display-sm)/var(--lh-display-sm) var(--font-sans); letter-spacing: var(--tr-display-sm); }
+.t-display    { font: var(--w-bold)     var(--fs-display)/var(--lh-display)       var(--font-sans); letter-spacing: var(--tr-display); }
+.t-display-lg { font: var(--w-bold)     var(--fs-display-lg)/var(--lh-display-lg) var(--font-sans); letter-spacing: var(--tr-display-lg); }
+
+/* ============================================================
+   TRACKING FORMULA
+   For one-off sizes outside the ramp. Fitted to SF's curve:
+   positive below ~13px, asymptotic to about -0.035em when large.
+   Usage:  <h1 style="--fs: 44">  class="t-auto"
+   ============================================================ */
+.t-auto {
+  font-family: var(--font-sans);
+  font-size: calc(var(--fs) * 1px);
+  letter-spacing: calc((-0.035 + (0.45 / var(--fs))) * 1em);
+}
+
+/* ============================================================
+   ESSENTIALS
+   ============================================================ */
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Lets SF pick Text vs Display optical sizing automatically */
+  font-optical-sizing: auto;
+}
+
+/* Numbers that must line up in columns — tables, prices, timers.
+   SF's default figures are proportional and will jitter. */
+.nums-tabular { font-variant-numeric: tabular-nums; }
+
+/* Reading measure. 65-75 characters is the legible range. */
+.measure      { max-width: 68ch; }
+.measure-tight{ max-width: 52ch; }
