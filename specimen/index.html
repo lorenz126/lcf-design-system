@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design Framework</title>
+<link rel="stylesheet" href="../tokens/type.css">
+<style>
+  :root { --ink:#16181d; --ink-2:#6b7280; --ink-3:#a1a7b0;
+          --bg:#fff; --bg-2:#f6f7f9; --rule:#e6e8ec; --accent:#2563eb;
+          --never:#c2410c; --always:#15803d; }
+  [data-theme="dark"] { --ink:#f2f4f7; --ink-2:#9aa3ae; --ink-3:#656d78;
+          --bg:#0d0f13; --bg-2:#16191f; --rule:#262b33; --accent:#5b9cff;
+          --never:#fb923c; --always:#4ade80; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:var(--font-sans); transition:background .2s,color .2s; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 40px 140px; }
+
+  /* ---- Tab bar ---- */
+  header { position:sticky; top:0; z-index:10; background:var(--bg);
+           border-bottom:1px solid var(--rule); margin-bottom:56px; }
+  .bar { max-width:1080px; margin:0 auto; padding:0 40px;
+         display:flex; align-items:center; gap:28px; height:60px; }
+  .brand { font-weight:var(--w-semibold); letter-spacing:-0.01em; margin-right:8px; }
+  .tabs { display:flex; gap:2px; margin-right:auto; }
+  .tab { appearance:none; border:0; background:transparent; cursor:pointer;
+         font:var(--w-medium) var(--fs-small)/1 var(--font-sans);
+         color:var(--ink-2); padding:7px 12px; border-radius:7px; }
+  .tab:hover { background:var(--bg-2); color:var(--ink); }
+  .tab[aria-selected="true"] { background:var(--bg-2); color:var(--ink); }
+  .ghost { font:var(--w-medium) var(--fs-caption)/1 var(--font-sans);
+           padding:7px 12px; border-radius:7px; border:1px solid var(--rule);
+           background:transparent; color:var(--ink-2); cursor:pointer; }
+
+  [role="tabpanel"][hidden] { display:none; }
+  .sec-label { color:var(--ink-3); text-transform:uppercase; letter-spacing:.09em;
+               font-size:11px; font-weight:var(--w-semibold); margin-bottom:28px; }
+  section { margin-bottom:72px; }
+
+  /* ---- Principles ---- */
+  .intro { border-left:2px solid var(--rule); padding-left:20px; margin-bottom:64px; }
+  .group { margin-bottom:56px; }
+  .group-head { display:flex; align-items:baseline; gap:12px;
+                padding-bottom:12px; border-bottom:1px solid var(--rule); margin-bottom:8px; }
+  .group-head h2 { margin:0; font:var(--w-semibold) var(--fs-title-sm)/1.2 var(--font-sans);
+                   letter-spacing:var(--tr-title-sm); }
+  .count { color:var(--ink-3); font-family:var(--font-mono); font-size:11px; }
+  .p { display:grid; grid-template-columns:32px 1fr; gap:16px;
+       padding:20px 0; border-bottom:1px solid var(--rule); }
+  .p:last-child { border-bottom:0; }
+  .num { font-family:var(--font-mono); font-size:11px; color:var(--ink-3); padding-top:5px; }
+  .rule { font:var(--w-medium) var(--fs-lead)/1.45 var(--font-sans);
+          letter-spacing:var(--tr-lead); margin-bottom:6px; }
+  .rule .kw { font-weight:var(--w-semibold); }
+  .kw-never  { color:var(--never); }
+  .kw-always { color:var(--always); }
+  .why { color:var(--ink-2); font:var(--w-regular) var(--fs-body)/1.55 var(--font-sans);
+         letter-spacing:var(--tr-body); max-width:68ch; }
+  .empty { border:1px dashed var(--rule); border-radius:10px; padding:22px;
+           color:var(--ink-3); font-size:var(--fs-small); line-height:1.6; }
+  .empty code { font-family:var(--font-mono); font-size:11px; color:var(--ink-2); }
+
+  /* ---- Type specimen ---- */
+  .row { display:grid; grid-template-columns:132px 1fr; gap:28px; align-items:baseline;
+         padding:16px 0; border-bottom:1px solid var(--rule); }
+  .meta { color:var(--ink-3); font-size:11px; line-height:1.5;
+          font-family:var(--font-mono); letter-spacing:0; }
+  .meta b { display:block; color:var(--ink-2); font-weight:var(--w-medium);
+            font-family:var(--font-sans); font-size:12px; margin-bottom:3px; }
+  .sample { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cmp { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+  .cmp > div { padding:24px; background:var(--bg-2); border-radius:12px; }
+  .cmp h4 { margin:0 0 14px; font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+            color:var(--ink-3); font-weight:var(--w-semibold); }
+  .flat { letter-spacing:0 !important; }
+  .weights div { padding:10px 0; border-bottom:1px solid var(--rule); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <span class="brand t-body">Design Framework</span>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-panel="principles" aria-selected="true">Principles</button>
+      <button class="tab" role="tab" data-panel="type" aria-selected="false">Type</button>
+    </div>
+    <button class="ghost" id="theme">Toggle theme</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ PRINCIPLES ============ -->
+<div role="tabpanel" id="panel-principles">
+  <div class="intro">
+    <p class="t-lead" style="margin:0 0 10px">Taste is as much refusal as preference.</p>
+    <p class="t-body" style="margin:0; color:var(--ink-2)" >
+      These are the rules behind the tokens — the decisions that stay constant across
+      projects. Written as <em>always</em> and <em>never</em> so they can actually settle
+      an argument. Every principle carries its reason; a rule you can't justify is a
+      habit, not a principle.
+    </p>
+  </div>
+  <div id="principles"></div>
+</div>
+
+<!-- ============ TYPE ============ -->
+<div role="tabpanel" id="panel-type" hidden>
+  <section>
+    <div class="sec-label">The ramp</div>
+    <div class="row"><div class="meta"><b>display-lg</b>72 / 76 / bold<br>-0.029em</div><div class="sample t-display-lg">Design that disappears</div></div>
+    <div class="row"><div class="meta"><b>display</b>56 / 60 / bold<br>-0.027em</div><div class="sample t-display">Design that disappears</div></div>
+    <div class="row"><div class="meta"><b>display-sm</b>40 / 46 / bold<br>-0.024em</div><div class="sample t-display-sm">Design that disappears</div></div>
+    <div class="row"><div class="meta"><b>title-lg</b>32 / 38 / semibold<br>-0.021em</div><div class="sample t-title-lg">Design that disappears</div></div>
+    <div class="row"><div class="meta"><b>title</b>24 / 30 / semibold<br>-0.016em</div><div class="sample t-title">Design that disappears into the work</div></div>
+    <div class="row"><div class="meta"><b>title-sm</b>20 / 26 / semibold<br>-0.013em</div><div class="sample t-title-sm">Design that disappears into the work</div></div>
+    <div class="row"><div class="meta"><b>lead</b>17 / 26 / regular<br>-0.011em</div><div class="sample t-lead">Design that disappears into the work it supports</div></div>
+    <div class="row"><div class="meta"><b>body</b>15 / 22 / regular<br>-0.006em</div><div class="sample t-body">Design that disappears into the work it supports, quietly</div></div>
+    <div class="row"><div class="meta"><b>small</b>13 / 18 / regular<br>0em</div><div class="sample t-small">Design that disappears into the work it supports, quietly and without ceremony</div></div>
+    <div class="row"><div class="meta"><b>caption</b>12 / 16 / regular<br>+0.002em</div><div class="sample t-caption">Design that disappears into the work it supports, quietly and without ceremony</div></div>
+    <div class="row"><div class="meta"><b>micro</b>11 / 14 / medium<br>+0.006em</div><div class="sample t-micro">DESIGN THAT DISAPPEARS INTO THE WORK IT SUPPORTS, QUIETLY AND WITHOUT CEREMONY</div></div>
+  </section>
+
+  <section>
+    <div class="sec-label">Why tracking matters</div>
+    <div class="cmp">
+      <div><h4>Tracked (this system)</h4>
+        <div class="t-display-sm">Hamburgefonstiv</div>
+        <div class="t-title" style="margin-top:12px">Hamburgefonstiv 24</div>
+        <div class="t-caption" style="margin-top:12px">HAMBURGEFONSTIV AT TWELVE PIXELS</div></div>
+      <div><h4>letter-spacing: 0</h4>
+        <div class="t-display-sm flat">Hamburgefonstiv</div>
+        <div class="t-title flat" style="margin-top:12px">Hamburgefonstiv 24</div>
+        <div class="t-caption flat" style="margin-top:12px">HAMBURGEFONSTIV AT TWELVE PIXELS</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">Weights — four, not nine</div>
+    <div class="weights t-title-sm">
+      <div style="font-weight:400">Regular 400 · body copy, long-form reading</div>
+      <div style="font-weight:500">Medium 500 · UI labels, buttons, table headers</div>
+      <div style="font-weight:600">Semibold 600 · headings, the workhorse</div>
+      <div style="font-weight:700">Bold 700 · display and hard emphasis only</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">Reading test</div>
+    <p class="t-lead measure" style="margin-top:0">A type scale is not a list of font sizes. It is a set of decisions about hierarchy that you make once, so you never have to make them again.</p>
+    <p class="t-body measure" style="color:var(--ink-2)">The steps here are hand-tuned rather than generated from a modular ratio. Pure ratios produce values like 12.8px and 20.5px, which land off the pixel grid and render soft. Every size in this ramp is a whole number, and the gaps widen as the scale climbs — small jumps where UI text needs fine gradation, large jumps where display type needs real contrast.</p>
+    <p class="t-small measure" style="color:var(--ink-2)">Secondary text sits at 13px with zero tracking — the point where SF needs neither tightening nor opening.</p>
+  </section>
+
+  <section>
+    <div class="sec-label">Tabular numerals</div>
+    <div class="cmp">
+      <div><h4>tabular-nums</h4>
+        <div class="t-body nums-tabular" style="line-height:1.8">1,284.00<br>9,911.25<br>&nbsp;&nbsp;417.80<br>11,003.05</div></div>
+      <div><h4>default (proportional)</h4>
+        <div class="t-body" style="line-height:1.8">1,284.00<br>9,911.25<br>&nbsp;&nbsp;417.80<br>11,003.05</div></div>
+    </div>
+  </section>
+</div>
+
+</div>
+
+<script src="principles.js"></script>
+<script>
+  /* ---- render principles ---- */
+  const host = document.getElementById('principles');
+  const emph = s => s
+    .replace(/\bNever\b/g,  '<span class="kw kw-never">Never</span>')
+    .replace(/\bAlways\b/g, '<span class="kw kw-always">Always</span>');
+
+  host.innerHTML = PRINCIPLES.map(g => `
+    <div class="group">
+      <div class="group-head">
+        <h2>${g.group}</h2>
+        <span class="count">${g.items.length || '—'}</span>
+      </div>
+      ${g.items.length
+        ? g.items.map((p, i) => `
+            <div class="p">
+              <div class="num">${String(i + 1).padStart(2, '0')}</div>
+              <div>
+                <div class="rule">${emph(p.rule)}</div>
+                ${p.why ? `<div class="why">${p.why}</div>` : ''}
+              </div>
+            </div>`).join('')
+        : `<div class="empty" style="margin-top:16px">
+             Not yet defined. Add entries to the <code>${g.group}</code> group in
+             <code>specimen/principles.js</code>.
+           </div>`}
+    </div>`).join('');
+
+  /* ---- tabs ---- */
+  const tabs = [...document.querySelectorAll('.tab')];
+  function show(name, push) {
+    tabs.forEach(t => {
+      const on = t.dataset.panel === name;
+      t.setAttribute('aria-selected', on);
+      document.getElementById('panel-' + t.dataset.panel).hidden = !on;
+    });
+    if (push) history.replaceState(null, '', '#' + name);
+  }
+  tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.panel, true)));
+  show(location.hash.slice(1) === 'type' ? 'type' : 'principles', false);
+
+  /* ---- theme ---- */
+  document.getElementById('theme').addEventListener('click', () => {
+    const el = document.documentElement;
+    el.dataset.theme = el.dataset.theme === 'light' ? 'dark' : 'light';
+  });
+</script>
+</body>
+</html>

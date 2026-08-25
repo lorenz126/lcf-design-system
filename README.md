@@ -8,10 +8,14 @@ Typography foundation for a personal design framework. SF Pro, systematised.
   couples size + line-height + weight + tracking as one bundle, plus weights,
   families, a tracking formula for off-ramp sizes, and tabular-numeral and
   measure utilities.
-- **`specimen/type.html`** — a specimen page for judging the ramp on screen.
-  Disposable scaffolding, not part of the system.
+- **`specimen/principles.js`** — the design principles, as data. The rules
+  behind the tokens. Adding one is a one-line object.
+- **`specimen/index.html`** — a tabbed viewer: **Principles** and **Type**.
+  Scaffolding for judging the system, not part of it.
 
 ## Principles
+
+The full list lives in `specimen/principles.js`. The typography rules, in short:
 
 1. **A type step is not a font-size.** Size, line-height, weight and tracking
    are not independently choosable in SF, so they travel together. Never set
@@ -40,4 +44,4 @@ redistribution — self-hosting SF for a public site falls outside it.
 python3 -m http.server 8931
 ```
 
-Then open `http://localhost:8931/specimen/type.html`.
+Then open `http://localhost:8931/specimen/`.
