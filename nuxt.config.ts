@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   // tokens/ is the artifact and stays framework-agnostic — the Nuxt app
   // consumes it exactly the way a real project would.
-  css: ['~~/tokens/type.css', '~/assets/css/site.css'],
+  css: ['~~/tokens/type.css', '~~/tokens/color.css', '~/assets/css/site.css'],
   app: {
     head: {
       title: 'Design Framework',

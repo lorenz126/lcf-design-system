@@ -14,6 +14,7 @@ function toggle() {
 const tabs = [
   { to: '/',     label: 'Principles' },
   { to: '/type', label: 'Type' },
+  { to: '/color', label: 'Colour' },
 ]
 </script>
 
