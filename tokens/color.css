@@ -133,33 +133,35 @@
   --red-badge-fg:    var(--red-text);
 
   /* ---------- Solid ----------
-     For loud, filled controls. White text fails AA on EVERY Apple tone —
-     blue 4.02, purple 4.13, red 3.55, green 2.22, yellow 1.51 — so a
-     white-on-tone primary button is not an option if AA matters.
+     White text, always. That is a fixed rule, so the BACKGROUND is what
+     has to move: each tone is the brightest version of its own hue that
+     still carries white at 4.5:1, found by holding Apple's hue and chroma
+     in OKLCH and lowering lightness until it clears.
 
-     Same split as the badges, by hue lightness:
-       light hues  keep the bright tone and take deep same-hue text
-       dark hues   use the darkened tone and take white */
-  --yellow-solid-bg: var(--yellow);      --yellow-solid-fg: rgb(56 44 0);
-  --orange-solid-bg: var(--orange);      --orange-solid-fg: rgb(56 33 0);
-  --green-solid-bg:  var(--green);       --green-solid-fg:  rgb(11 44 20);
-  --blue-solid-bg:   var(--blue-text);   --blue-solid-fg:   #fff;
-  --purple-solid-bg: var(--purple-text); --purple-solid-fg: #fff;
-  --red-solid-bg:    var(--red-text);    --red-solid-fg:    #fff;
+     Apple's own tones do not clear it — blue 4.02, red 3.55, yellow 1.51 —
+     so these sit a step deeper. Blue, purple and red land close enough to
+     read as the same colour. Yellow and orange do not: at the lightness
+     white needs, they are unavoidably brown. That is the cost of the
+     white-text rule, not a tuning failure. */
+  --yellow-solid-bg: #8f7100;   /* 4.64:1 with white */
+  --orange-solid-bg: #ae6200;   /* 4.62 */
+  --green-solid-bg:  #00872b;   /* 4.67 */
+  --blue-solid-bg:   #0070ef;   /* 4.60 */
+  --purple-solid-bg: #a649d5;   /* 4.63 */
+  --red-solid-bg:    #e71916;   /* 4.62 */
+  --solid-fg: #fff;
 
   /* ---------- Tinted ----------
-     The quiet coloured recipe. Dark hues sit on their faint tint and keep
-     their own text. Light hues cannot: yellow text on a 14% yellow tint
-     measures 4.25:1. They take a much stronger tint and deep text instead,
-     which stays clearly quieter than solid while remaining legible. */
+     Coloured text on the hue's own faint tint, always. Yellow and orange
+     land at 4.25:1 and 4.23:1 — just under AA — because a light hue on a
+     light tint has nowhere to go. Kept deliberately: the rule is one
+     recipe for every tone. */
   --blue-tint-bg:   var(--blue-fill);    --blue-tint-fg:   var(--blue-text);
   --green-tint-bg:  var(--green-fill);   --green-tint-fg:  var(--green-text);
   --purple-tint-bg: var(--purple-fill);  --purple-tint-fg: var(--purple-text);
   --red-tint-bg:    var(--red-fill);     --red-tint-fg:    var(--red-text);
-  --yellow-tint-bg: rgb(var(--yellow-rgb) / 0.45);
-  --yellow-tint-fg: var(--yellow-solid-fg);
-  --orange-tint-bg: rgb(var(--orange-rgb) / 0.42);
-  --orange-tint-fg: var(--orange-solid-fg);
+  --yellow-tint-bg: var(--yellow-fill);  --yellow-tint-fg: var(--yellow-text);
+  --orange-tint-bg: var(--orange-fill);  --orange-tint-fg: var(--orange-text);
 
   /* ---------- Roles mapped onto the palette ---------- */
   --accent:        var(--blue);
@@ -224,18 +226,7 @@
 
   /* On dark, every tone stays bright and takes deep text — white would
      fail on all six here too. */
-  /* On dark every tone carries its own faint tint fine. */
-  --blue-tint-bg:   var(--blue-fill);    --blue-tint-fg:   var(--blue-text);
-  --green-tint-bg:  var(--green-fill);   --green-tint-fg:  var(--green-text);
-  --purple-tint-bg: var(--purple-fill);  --purple-tint-fg: var(--purple-text);
-  --red-tint-bg:    var(--red-fill);     --red-tint-fg:    var(--red-text);
-  --yellow-tint-bg: var(--yellow-fill);  --yellow-tint-fg: var(--yellow-text);
-  --orange-tint-bg: var(--orange-fill);  --orange-tint-fg: var(--orange-text);
-
-  --yellow-solid-bg: var(--yellow);  --yellow-solid-fg: rgb(56 47 2);
-  --orange-solid-bg: var(--orange);  --orange-solid-fg: rgb(56 35 2);
-  --green-solid-bg:  var(--green);   --green-solid-fg:  rgb(11 46 19);
-  --blue-solid-bg:   var(--blue);    --blue-solid-fg:   rgb(2 29 56);
-  --purple-solid-bg: var(--purple);  --purple-solid-fg: rgb(42 20 53);
-  --red-solid-bg:    var(--red);     --red-solid-fg:    rgb(56 15 13);
+  /* Solid tones are page-independent — white on a tone contrasts the same
+     whatever is behind the button — so the light values carry over. Tint
+     recipes come from --*-fill, which already flips per theme. */
 }

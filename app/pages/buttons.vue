@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useHead({ title: 'Buttons — Design Framework' })
 
-const variants = ['solid', 'tinted', 'outline', 'plain'] as const
+const variants = ['solid', 'tinted', 'outline', 'plain', 'floating'] as const
 const tones = ['accent', 'green', 'red', 'orange', 'yellow', 'purple'] as const
 const sizes = ['sm', 'md', 'lg'] as const
 const loading = ref(false)
@@ -10,18 +10,21 @@ const loading = ref(false)
 <template>
   <div>
     <div class="intro">
-      <p class="t-lead lede">Four variants, one hierarchy.</p>
+      <p class="t-lead lede">Six variants, one hierarchy.</p>
       <p class="t-body body">
         <strong>Solid</strong> is the thing you want pressed — one per screen.
         <strong>Tinted</strong> carries colour without competing.
         <strong>Outline</strong> is neutral secondary.
         <strong>Plain</strong> reads as a link with a hit area.
+        <strong>Floating</strong> is solid, lifted — for actions sitting on content
+        rather than in the layout. <strong>Glass</strong> needs something behind it.
       </p>
       <p class="t-caption warn">
-        White text fails AA on every Apple tone — blue 4.02, red 3.55, yellow 1.51 —
-        so solid buttons use the same lightness split as the badges: light hues keep
-        the bright tone and take deep text, dark hues use the darkened tone and take
-        white.
+        Solid is white text always, so the background moves instead: each tone is the
+        brightest version of its hue that still carries white at 4.5:1. Apple’s own
+        tones do not clear it (blue 4.02, red 3.55, yellow 1.51), so these sit a step
+        deeper. Blue, purple and red stay recognisable; yellow and orange cannot —
+        at the lightness white needs, they are brown.
       </p>
     </div>
 
@@ -67,11 +70,47 @@ const loading = ref(false)
       <div class="sec-label">Destructive pairing</div>
       <div class="row">
         <UiButton tone="red">Delete project</UiButton>
+        <UiButton variant="tinted" tone="red">Archive instead</UiButton>
         <UiButton variant="plain" tone="neutral">Cancel</UiButton>
       </div>
       <p class="t-caption hint">
-        The destructive action is solid, the escape is plain. Never two solids —
-        it makes the dangerous choice look equally routine.
+        Three weights, three levels of consequence: solid destroys, tinted is the
+        reversible alternative, plain escapes. Never two solids — it makes the
+        dangerous choice look equally routine.
+      </p>
+    </section>
+
+    <section>
+      <div class="sec-label">Floating</div>
+      <div class="float-stage">
+        <UiButton variant="floating">Compose</UiButton>
+        <UiButton variant="floating" tone="green">Publish</UiButton>
+        <UiButton variant="floating" tone="neutral">Dismiss</UiButton>
+      </div>
+      <p class="t-caption hint">
+        Hover and press one. It rises on hover and drops <em>below</em> its resting
+        shadow on press — that drop is what makes it feel physical rather than
+        merely decorated.
+      </p>
+    </section>
+
+    <section>
+      <div class="sec-label">Glass</div>
+      <div class="glass-stage">
+        <UiButton variant="glass">Continue</UiButton>
+        <UiButton variant="glass" tone="red">Delete</UiButton>
+        <UiButton variant="glass" tone="neutral">Cancel</UiButton>
+      </div>
+      <div class="glass-stage alt">
+        <UiButton variant="glass">Continue</UiButton>
+        <UiButton variant="glass" tone="green">Save</UiButton>
+        <UiButton variant="glass" tone="neutral">Cancel</UiButton>
+      </div>
+      <p class="t-caption hint">
+        Glass only exists against a backdrop — on a flat surface it reads as a weak
+        outline. Its contrast cannot be guaranteed the way the other variants can,
+        because what sits behind it is unknown; the tint opacity is the only thing
+        holding the label legible.
       </p>
     </section>
 
@@ -107,4 +146,26 @@ section { margin-bottom: 64px; }
 .row { display: flex; flex-wrap: wrap; gap: var(--s-5); align-items: center; }
 .stack { display: flex; flex-direction: column; gap: var(--s-4); max-width: 340px; }
 .hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
+
+.float-stage {
+  display: flex; gap: var(--s-6); align-items: center;
+  padding: var(--s-9); border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+}
+.glass-stage {
+  display: flex; gap: var(--s-6); align-items: center;
+  padding: var(--s-9); border-radius: var(--r-lg);
+  background:
+    radial-gradient(circle at 15% 20%, #ff9500, transparent 45%),
+    radial-gradient(circle at 70% 15%, #af52de, transparent 50%),
+    radial-gradient(circle at 40% 90%, #007aff, transparent 55%),
+    linear-gradient(120deg, #34c759, #ffcc00);
+}
+.glass-stage.alt {
+  margin-top: var(--s-4);
+  background:
+    radial-gradient(circle at 80% 30%, #5856d6, transparent 55%),
+    linear-gradient(140deg, #1c1c1e, #48484a 60%, #8e8e93);
+}
 </style>

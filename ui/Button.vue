@@ -2,17 +2,21 @@
 /**
  * Button — the framework's first control.
  *
- * Four variants, matching how a hierarchy actually gets used:
- *   solid    one per screen. The thing you want pressed.
- *   tinted   secondary actions that still carry colour.
+ * Six variants, matching how a hierarchy actually gets used:
+ *   solid    one per screen. The thing you want pressed. White text, always.
+ *   tinted   secondary actions that still carry colour. Coloured text, always.
  *   outline  neutral secondary. Carries no colour opinion.
  *   plain    tertiary. Reads as a link with a hit area.
+ *   floating solid, lifted off the surface. For actions that sit ON content
+ *            rather than in the layout — FABs, sticky bars, overlays.
+ *   glass    translucent, blurs what is behind it. Only legible over a
+ *            backdrop; on a flat surface it just looks like a weak outline.
  *
  * `tone` selects a hue from the palette. The solid and tinted recipes
  * resolve per hue, so a yellow button stays bright rather than turning
  * muddy — see tokens/color.css.
  */
-type Variant = 'solid' | 'tinted' | 'outline' | 'plain'
+type Variant = 'solid' | 'tinted' | 'outline' | 'plain' | 'floating' | 'glass'
 type Tone = 'accent' | 'yellow' | 'green' | 'blue' | 'purple' | 'red' | 'orange' | 'neutral'
 type Size = 'sm' | 'md' | 'lg'
 
@@ -58,21 +62,21 @@ const isDisabled = computed(() => props.disabled || props.loading)
    them here shadowed the real ones — neutral/plain resolved to white on
    white. Local custom properties must never reuse a token name. */
 .btn[data-tone="accent"],
-.btn[data-tone="blue"]   { --btn-bg: var(--blue-solid-bg);   --btn-fg: var(--blue-solid-fg);
+.btn[data-tone="blue"]   { --btn-bg: var(--blue-solid-bg);   --btn-fg: var(--solid-fg);
                            --btn-tint: var(--blue-tint-bg); --btn-onpage: var(--blue-text);     --btn-ink: var(--blue-tint-fg); }
-.btn[data-tone="yellow"] { --btn-bg: var(--yellow-solid-bg); --btn-fg: var(--yellow-solid-fg);
+.btn[data-tone="yellow"] { --btn-bg: var(--yellow-solid-bg); --btn-fg: var(--solid-fg);
                            --btn-tint: var(--yellow-tint-bg); --btn-onpage: var(--yellow-text);   --btn-ink: var(--yellow-tint-fg); }
-.btn[data-tone="green"]  { --btn-bg: var(--green-solid-bg);  --btn-fg: var(--green-solid-fg);
+.btn[data-tone="green"]  { --btn-bg: var(--green-solid-bg);  --btn-fg: var(--solid-fg);
                            --btn-tint: var(--green-tint-bg); --btn-onpage: var(--green-text);    --btn-ink: var(--green-tint-fg); }
-.btn[data-tone="purple"] { --btn-bg: var(--purple-solid-bg); --btn-fg: var(--purple-solid-fg);
+.btn[data-tone="purple"] { --btn-bg: var(--purple-solid-bg); --btn-fg: var(--solid-fg);
                            --btn-tint: var(--purple-tint-bg); --btn-onpage: var(--purple-text);   --btn-ink: var(--purple-tint-fg); }
-.btn[data-tone="red"]    { --btn-bg: var(--red-solid-bg);    --btn-fg: var(--red-solid-fg);
+.btn[data-tone="red"]    { --btn-bg: var(--red-solid-bg);    --btn-fg: var(--solid-fg);
                            --btn-tint: var(--red-tint-bg); --btn-onpage: var(--red-text);      --btn-ink: var(--red-tint-fg); }
-.btn[data-tone="orange"] { --btn-bg: var(--orange-solid-bg); --btn-fg: var(--orange-solid-fg);
+.btn[data-tone="orange"] { --btn-bg: var(--orange-solid-bg); --btn-fg: var(--solid-fg);
                            --btn-tint: var(--orange-tint-bg); --btn-onpage: var(--orange-text);   --btn-ink: var(--orange-tint-fg); }
-.btn[data-tone="neutral"]{ --btn-bg: var(--fg-primary, var(--btn-fg)); --btn-fg: var(--bg-page, #fff);
-                           --btn-tint: var(--fill-quiet, rgb(128 128 128 / .12));
-                           --btn-ink: var(--btn-fg); }
+.btn[data-tone="neutral"]{ --btn-bg: var(--fg);   --btn-fg: var(--bg);
+                           --btn-tint: rgb(128 128 128 / .14);
+                           --btn-onpage: var(--fg); --btn-ink: var(--fg); }
 
 .btn {
   --h: var(--control-md);
@@ -113,9 +117,53 @@ const isDisabled = computed(() => props.disabled || props.loading)
 .v-outline { background: transparent; color: var(--btn-onpage); border-color: var(--border-strong); }
 .v-plain   { background: transparent; color: var(--btn-onpage); padding-inline: var(--s-3); }
 
+/* Floating — the same solid recipe, lifted. The press choreography is the
+   point: rising on hover and dropping BELOW its resting shadow on press
+   is what makes it feel physical rather than merely decorated. */
+.v-floating {
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  box-shadow: var(--shadow-3);
+}
+.v-floating:hover:not(:disabled):not([aria-disabled="true"]) {
+  box-shadow: var(--shadow-4);
+  transform: translateY(-1px);
+}
+.v-floating:active:not(:disabled):not([aria-disabled="true"]) {
+  box-shadow: var(--shadow-1);
+  transform: translateY(0) scale(.99);
+}
+
+/* Glass — tint, blur, rim, and a top highlight. The highlight is what
+   separates glass from "a translucent rectangle": real glass catches
+   light on its top edge. */
+.v-glass {
+  position: relative;
+  background: var(--glass-bg);
+  color: var(--btn-onpage);
+  border-color: var(--glass-border);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+.v-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 50%;
+  border-radius: inherit;
+  background: linear-gradient(var(--glass-highlight), transparent);
+  opacity: .35;
+  pointer-events: none;
+}
+.v-glass:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--glass-bg) 70%, var(--btn-onpage));
+}
+
 /* Hover shifts toward the foreground so it works on light and dark from
    one declaration, instead of a hand-picked value per theme. */
-.v-solid:hover:not(:disabled):not([aria-disabled="true"]) {
+.v-solid:hover:not(:disabled):not([aria-disabled="true"]),
+.v-floating:hover:not(:disabled):not([aria-disabled="true"]) {
   background: color-mix(in srgb, var(--btn-bg) 88%, var(--btn-fg));
 }
 .v-tinted:hover:not(:disabled):not([aria-disabled="true"]),

@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     '~~/tokens/type.css',
     '~~/tokens/color.css',
     '~~/tokens/geometry.css',
+    '~~/tokens/elevation.css',
     '~/assets/css/site.css'
   ],
   // ui/ is the framework's own components — product, not viewer. Kept out

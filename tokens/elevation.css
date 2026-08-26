@@ -1,0 +1,41 @@
+/* ============================================================
+   ELEVATION — shadow and glass
+   ============================================================ */
+
+:root {
+  /* Two shadows per level: a tight contact shadow that anchors the
+     element, and a wide ambient one that lifts it. A single shadow
+     always reads as either floating or stuck, never as resting. */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / .07), 0 1px 1px rgb(0 0 0 / .04);
+  --shadow-2: 0 2px 6px -1px rgb(0 0 0 / .10), 0 1px 2px rgb(0 0 0 / .06);
+  --shadow-3: 0 6px 16px -3px rgb(0 0 0 / .14), 0 2px 5px -2px rgb(0 0 0 / .07);
+  --shadow-4: 0 14px 32px -8px rgb(0 0 0 / .20), 0 4px 10px -4px rgb(0 0 0 / .10);
+
+  /* Glass. The tint alpha is not decoration — it is the only thing
+     keeping label text legible over an unknown backdrop. Lower it and
+     contrast becomes whatever happens to be behind the button. */
+  --glass-bg:        rgb(255 255 255 / .74);
+  --glass-border:    rgb(255 255 255 / .70);
+  --glass-highlight: rgb(255 255 255 / .65);
+  --glass-blur:      14px;
+  --glass-saturate:  180%;
+}
+
+[data-theme="dark"] {
+  /* Shadows must go darker AND wider on a dark ground: the same opacity
+     that reads as a shadow on white is invisible on near-black. */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / .40), 0 1px 1px rgb(0 0 0 / .30);
+  --shadow-2: 0 2px 8px -1px rgb(0 0 0 / .50), 0 1px 3px rgb(0 0 0 / .35);
+  --shadow-3: 0 8px 20px -4px rgb(0 0 0 / .60), 0 3px 6px -2px rgb(0 0 0 / .40);
+  --shadow-4: 0 18px 40px -10px rgb(0 0 0 / .70), 0 6px 14px -6px rgb(0 0 0 / .45);
+
+  --glass-bg:        rgb(255 255 255 / .16);
+  --glass-border:    rgb(255 255 255 / .18);
+  --glass-highlight: rgb(255 255 255 / .22);
+}
+
+/* Glass is a transparency effect by definition; there is nothing to
+   degrade to but an opaque surface. */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass-bg: var(--bg-raised); --glass-blur: 0px; }
+}
