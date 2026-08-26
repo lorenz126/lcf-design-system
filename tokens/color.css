@@ -132,6 +132,35 @@
   --red-badge-bg:    var(--red-fill);
   --red-badge-fg:    var(--red-text);
 
+  /* ---------- Solid ----------
+     For loud, filled controls. White text fails AA on EVERY Apple tone —
+     blue 4.02, purple 4.13, red 3.55, green 2.22, yellow 1.51 — so a
+     white-on-tone primary button is not an option if AA matters.
+
+     Same split as the badges, by hue lightness:
+       light hues  keep the bright tone and take deep same-hue text
+       dark hues   use the darkened tone and take white */
+  --yellow-solid-bg: var(--yellow);      --yellow-solid-fg: rgb(56 44 0);
+  --orange-solid-bg: var(--orange);      --orange-solid-fg: rgb(56 33 0);
+  --green-solid-bg:  var(--green);       --green-solid-fg:  rgb(11 44 20);
+  --blue-solid-bg:   var(--blue-text);   --blue-solid-fg:   #fff;
+  --purple-solid-bg: var(--purple-text); --purple-solid-fg: #fff;
+  --red-solid-bg:    var(--red-text);    --red-solid-fg:    #fff;
+
+  /* ---------- Tinted ----------
+     The quiet coloured recipe. Dark hues sit on their faint tint and keep
+     their own text. Light hues cannot: yellow text on a 14% yellow tint
+     measures 4.25:1. They take a much stronger tint and deep text instead,
+     which stays clearly quieter than solid while remaining legible. */
+  --blue-tint-bg:   var(--blue-fill);    --blue-tint-fg:   var(--blue-text);
+  --green-tint-bg:  var(--green-fill);   --green-tint-fg:  var(--green-text);
+  --purple-tint-bg: var(--purple-fill);  --purple-tint-fg: var(--purple-text);
+  --red-tint-bg:    var(--red-fill);     --red-tint-fg:    var(--red-text);
+  --yellow-tint-bg: rgb(var(--yellow-rgb) / 0.45);
+  --yellow-tint-fg: var(--yellow-solid-fg);
+  --orange-tint-bg: rgb(var(--orange-rgb) / 0.42);
+  --orange-tint-fg: var(--orange-solid-fg);
+
   /* ---------- Roles mapped onto the palette ---------- */
   --accent:        var(--blue);
   --accent-text:   var(--blue-text);
@@ -192,4 +221,21 @@
   --yellow-badge-fg: var(--yellow-text);
   --orange-badge-bg: var(--orange-fill);
   --orange-badge-fg: var(--orange-text);
+
+  /* On dark, every tone stays bright and takes deep text — white would
+     fail on all six here too. */
+  /* On dark every tone carries its own faint tint fine. */
+  --blue-tint-bg:   var(--blue-fill);    --blue-tint-fg:   var(--blue-text);
+  --green-tint-bg:  var(--green-fill);   --green-tint-fg:  var(--green-text);
+  --purple-tint-bg: var(--purple-fill);  --purple-tint-fg: var(--purple-text);
+  --red-tint-bg:    var(--red-fill);     --red-tint-fg:    var(--red-text);
+  --yellow-tint-bg: var(--yellow-fill);  --yellow-tint-fg: var(--yellow-text);
+  --orange-tint-bg: var(--orange-fill);  --orange-tint-fg: var(--orange-text);
+
+  --yellow-solid-bg: var(--yellow);  --yellow-solid-fg: rgb(56 47 2);
+  --orange-solid-bg: var(--orange);  --orange-solid-fg: rgb(56 35 2);
+  --green-solid-bg:  var(--green);   --green-solid-fg:  rgb(11 46 19);
+  --blue-solid-bg:   var(--blue);    --blue-solid-fg:   rgb(2 29 56);
+  --purple-solid-bg: var(--purple);  --purple-solid-fg: rgb(42 20 53);
+  --red-solid-bg:    var(--red);     --red-solid-fg:    rgb(56 15 13);
 }

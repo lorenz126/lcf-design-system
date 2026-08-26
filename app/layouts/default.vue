@@ -15,6 +15,7 @@ const tabs = [
   { to: '/',     label: 'Principles' },
   { to: '/type', label: 'Type' },
   { to: '/color', label: 'Colour' },
+  { to: '/buttons', label: 'Buttons' },
 ]
 </script>
 

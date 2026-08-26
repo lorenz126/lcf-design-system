@@ -1,0 +1,35 @@
+/* ============================================================
+   GEOMETRY — spacing, radii, control sizing
+   First pass. Enough to build controls with; not yet a full
+   layout system.
+   ============================================================ */
+
+:root {
+  /* 4px grid */
+  --s-1:  2px;  --s-2:  4px;  --s-3:  6px;  --s-4:  8px;
+  --s-5: 12px;  --s-6: 16px;  --s-7: 20px;  --s-8: 24px;
+  --s-9: 32px;  --s-10: 40px; --s-11: 48px; --s-12: 64px;
+
+  /* Control heights. Three sizes cover every real need; a fourth
+     starts producing controls nobody can tell apart. */
+  --control-sm: 28px;
+  --control-md: 34px;
+  --control-lg: 42px;
+
+  /* Radii. --r-control is deliberately its own token rather than an
+     alias: changing button roundness is the single fastest way to
+     re-pitch a product's personality, and it should be one edit. */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-full: 999px;
+  --r-control: var(--r-md);
+
+  --border-width: 1px;
+
+  /* Focus ring — one definition, every control. */
+  --focus-width: 3px;
+  --focus-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}

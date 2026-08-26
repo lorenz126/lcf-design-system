@@ -3,7 +3,18 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   // tokens/ is the artifact and stays framework-agnostic — the Nuxt app
   // consumes it exactly the way a real project would.
-  css: ['~~/tokens/type.css', '~~/tokens/color.css', '~/assets/css/site.css'],
+  css: [
+    '~~/tokens/type.css',
+    '~~/tokens/color.css',
+    '~~/tokens/geometry.css',
+    '~/assets/css/site.css'
+  ],
+  // ui/ is the framework's own components — product, not viewer. Kept out
+  // of app/ so the eventual Nuxt layer ships exactly this directory.
+  components: [
+    { path: '~~/ui', prefix: 'Ui', pathPrefix: false },
+    { path: '~/components', pathPrefix: false }
+  ],
   app: {
     head: {
       title: 'Design Framework',
