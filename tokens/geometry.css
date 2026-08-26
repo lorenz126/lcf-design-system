@@ -10,11 +10,14 @@
   --s-5: 12px;  --s-6: 16px;  --s-7: 20px;  --s-8: 24px;
   --s-9: 32px;  --s-10: 40px; --s-11: 48px; --s-12: 64px;
 
-  /* Control heights. Three sizes cover every real need; a fourth
-     starts producing controls nobody can tell apart. */
-  --control-sm: 28px;
-  --control-md: 34px;
-  --control-lg: 42px;
+  /* Control heights. Three sizes cover every real need; a fourth starts
+     producing controls nobody can tell apart.
+     These are tight on purpose — the label should sit close to the edge
+     rather than floating in a tall box. Note 24px and 30px are below the
+     44px touch-target guidance, so a touch-first surface wants lg. */
+  --control-sm: 24px;
+  --control-md: 30px;
+  --control-lg: 36px;
 
   /* Radii. --r-control is deliberately its own token rather than an
      alias: changing button roundness is the single fastest way to
@@ -25,7 +28,10 @@
   --r-lg: 12px;
   --r-xl: 16px;
   --r-full: 999px;
-  --r-control: var(--r-md);
+  /* Rounded well past the 8px default. At 12px against a 30px control the
+     radius is 40% of the height, which reads as deliberately soft without
+     tipping into a capsule. Set --r-full here for a pill. */
+  --r-control: var(--r-lg);
 
   --border-width: 1px;
 

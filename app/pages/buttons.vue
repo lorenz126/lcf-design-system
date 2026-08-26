@@ -88,9 +88,10 @@ const loading = ref(false)
         <UiButton variant="floating" tone="neutral">Dismiss</UiButton>
       </div>
       <p class="t-caption hint">
-        Hover and press one. It rises on hover and drops <em>below</em> its resting
-        shadow on press — that drop is what makes it feel physical rather than
-        merely decorated.
+        The light sits directly in front, so the shadow is centred rather than
+        cast downward, and depth reads as scale instead of vertical travel.
+        Hover and press one: it grows toward you, then drops back past its
+        resting shadow.
       </p>
     </section>
 

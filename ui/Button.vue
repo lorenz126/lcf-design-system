@@ -117,9 +117,11 @@ const isDisabled = computed(() => props.disabled || props.loading)
 .v-outline { background: transparent; color: var(--btn-onpage); border-color: var(--border-strong); }
 .v-plain   { background: transparent; color: var(--btn-onpage); padding-inline: var(--s-3); }
 
-/* Floating — the same solid recipe, lifted. The press choreography is the
-   point: rising on hover and dropping BELOW its resting shadow on press
-   is what makes it feel physical rather than merely decorated. */
+/* Floating — the same solid recipe, lifted. The light is in front, so
+   depth reads as SCALE rather than vertical travel: translating upward
+   would imply a light source above and fight the even shadow. It grows
+   toward the viewer on hover and drops back past its resting shadow on
+   press, which is what makes it feel physical rather than decorated. */
 .v-floating {
   background: var(--btn-bg);
   color: var(--btn-fg);
@@ -127,11 +129,11 @@ const isDisabled = computed(() => props.disabled || props.loading)
 }
 .v-floating:hover:not(:disabled):not([aria-disabled="true"]) {
   box-shadow: var(--shadow-4);
-  transform: translateY(-1px);
+  transform: scale(1.015);
 }
 .v-floating:active:not(:disabled):not([aria-disabled="true"]) {
   box-shadow: var(--shadow-1);
-  transform: translateY(0) scale(.99);
+  transform: scale(.985);
 }
 
 /* Glass — tint, blur, rim, and a top highlight. The highlight is what
