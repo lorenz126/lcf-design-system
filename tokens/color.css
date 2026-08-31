@@ -184,6 +184,26 @@
   --yellow-tint-bg: var(--yellow-fill);  --yellow-tint-fg: var(--yellow-text);
   --orange-tint-bg: var(--orange-fill);  --orange-tint-fg: var(--orange-text);
 
+  /* ---------- Categorical chart series ----------
+     A SEPARATE palette from the UI hues, and not a preference — measured.
+     The six Apple tones fail as a categorical set: yellow leaves the
+     lightness band, three sit under 3:1 against the surface, and
+     yellow↔orange land at ΔE 6.5 for NORMAL vision (floor 15), because at
+     the lightness a light surface needs, both collapse toward brown.
+
+     These three are staggered in LIGHTNESS as well as hue. Protanopia
+     collapses hue and leaves lightness, so three tones of equal lightness
+     — which is what carrying white text demands — are indistinguishable
+     to it however different their hues.
+
+     Validated all-pairs, light and dark: lightness band, chroma floor,
+     CVD separation, normal-vision floor and surface contrast all pass.
+     THREE is the ceiling. A fourth series does not get a new colour; it
+     gets small multiples. */
+  --chart-1: #0053c7;
+  --chart-2: #c47a00;
+  --chart-3: #00641f;
+
   /* ---------- Roles mapped onto the palette ---------- */
   --accent:        var(--blue);
   --accent-text:   var(--blue-text);
@@ -218,6 +238,10 @@
 
   --border:        var(--gray-800);
   --border-strong: var(--gray-700);
+
+  --chart-1: #4a90e8;
+  --chart-2: #a8730f;
+  --chart-3: #3faa64;
 
   --rule-faint:  rgb(255 255 255 / .07);
   --fill-quiet:  rgb(255 255 255 / .05);

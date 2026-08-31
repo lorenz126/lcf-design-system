@@ -224,6 +224,13 @@ function expectations() {
     { what: 'accent/text', fg: '--accent-text', bg: '--bg', min: AA },
     { what: 'accent/hover', fg: '--accent-hover', bg: '--bg', min: AA },
     { what: 'solid/neutral', fg: '--bg', bg: '--fg', min: AA },
+    // Chart marks are graphics, so 3:1 is the right threshold. Their
+    // separation FROM EACH OTHER is a different question this script
+    // cannot answer — that is the dataviz validator's six checks, and
+    // the reason there are three of these and not six.
+    { what: 'chart/1', fg: '--chart-1', bg: '--bg', min: UI, why: 'chart mark, not text' },
+    { what: 'chart/2', fg: '--chart-2', bg: '--bg', min: UI, why: 'chart mark, not text' },
+    { what: 'chart/3', fg: '--chart-3', bg: '--bg', min: UI, why: 'chart mark, not text' },
     {
       // outline-offset puts the ring on the PAGE, not on the control, so
       // that is what it has to contrast against. WCAG 2.4.11 wants 3:1
