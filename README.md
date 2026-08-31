@@ -8,13 +8,26 @@ Typography foundation for a personal design framework. SF Pro, systematised.
   couples size + line-height + weight + tracking as one bundle, plus weights,
   families, a tracking formula for off-ramp sizes, and tabular-numeral and
   measure utilities.
-- **`ui/`** — the components. Auto-imported as `<UiButton>`, `<UiInput>`,
-  `<UiBadge>`.
+- **`ui/`** — the components, in atomic tiers. Auto-imported as `<UiButton>`,
+  `<UiInput>`, `<UiBadge>` — the folder never appears in the name, so components
+  can move between tiers without breaking a single consumer.
+
+  | tier | may use | holds |
+  |---|---|---|
+  | `atoms/` | nothing from `ui/` | a single primitive |
+  | `molecules/` | atoms | a small composition with one job |
+  | `organisms/` | molecules, atoms | anything owning a **data shape** |
+  | `templates/` | anything | page skeletons of slots, no data |
+
+  Which tier a component belongs in is partly judgement. The **dependency
+  direction** is not, and it is the part that rots — so `scripts/check-layers.mjs`
+  enforces it and nothing else.
 - **`.playground/`** — the workshop. A Nuxt app that consumes this layer
   exactly the way a real project does, so anything broken about the layer's
   public surface breaks here first. Not shipped.
 - **`scripts/check-contrast.mjs`** — resolves the colour tokens and asserts
   every foreground/background pair against WCAG. Runs in CI without a browser.
+- **`scripts/check-layers.mjs`** — fails if a tier reaches upward.
 
 `tokens/` stays framework-agnostic on purpose: plain CSS custom properties with
 no Nuxt dependency, usable from any stack.
@@ -54,5 +67,5 @@ redistribution — self-hosting SF for a public site falls outside it.
 ```
 pnpm install
 pnpm dev     # the playground
-pnpm test    # contrast check
+pnpm test    # contrast + layer boundaries
 ```

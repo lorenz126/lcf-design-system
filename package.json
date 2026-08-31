@@ -1,5 +1,6 @@
 {
   "name": "@lf/design",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,8 +8,9 @@
     "build": "nuxi build .playground",
     "generate": "nuxi generate .playground",
     "preview": "nuxi preview .playground",
-    "test": "node scripts/check-contrast.mjs",
-    "test:contrast": "node scripts/check-contrast.mjs"
+    "test": "node scripts/check-contrast.mjs && node scripts/check-layers.mjs",
+    "test:contrast": "node scripts/check-contrast.mjs",
+    "test:layers": "node scripts/check-layers.mjs"
   },
   "devDependencies": {
     "nuxt": "^4.0.0",

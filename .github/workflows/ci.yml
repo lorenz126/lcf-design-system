@@ -25,7 +25,10 @@ jobs:
       # Colour first: it needs no build and fails in milliseconds, so a
       # contrast regression is reported before the slow step runs.
       - name: Contrast
-        run: pnpm test
+        run: pnpm test:contrast
+
+      - name: Layer boundaries
+        run: pnpm test:layers
 
       - name: Build
         run: pnpm build
