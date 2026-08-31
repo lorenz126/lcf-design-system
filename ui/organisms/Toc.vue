@@ -27,10 +27,39 @@ let headings: HTMLElement[] = []
  *  it becomes active as it reaches reading position. */
 const LINE = 96
 
+/* A click is an explicit statement of where the reader wants to be, so it
+   wins over whatever the geometry would say — near the end of a document
+   the travelling line below would otherwise hand the highlight straight
+   to the last section. Released on the next genuine scroll INTENT rather
+   than the next scroll event, since the click's own smooth scroll fires
+   plenty of those. */
+let pinned: string | null = null
+const INTENT = ['wheel', 'touchmove', 'keydown'] as const
+
+function unpin() { pinned = null; onScroll() }
+
+function onPick(id: string) {
+  pinned = id
+  active.value = id
+}
+
 function onScroll() {
-  let current = headings[0]?.id ?? null
+  if (!headings.length || pinned) return
+
+  // The last viewport-height of a document can never scroll past a fixed
+  // reading line, so any section starting in it would be permanently
+  // unreachable. Rather than snapping to the last entry at the very
+  // bottom — which skips whatever sits between — the line itself travels
+  // down as the end approaches, until at the bottom it is the full
+  // viewport and simply the last visible heading wins.
+  const doc = document.documentElement
+  const remaining = doc.scrollHeight - (window.scrollY + window.innerHeight)
+  const tail = Math.min(1, Math.max(0, 1 - remaining / window.innerHeight))
+  const line = LINE + tail * (window.innerHeight - LINE)
+
+  let current = headings[0]!.id
   for (const h of headings) {
-    if (h.getBoundingClientRect().top <= LINE) current = h.id
+    if (h.getBoundingClientRect().top <= line) current = h.id
     else break
   }
   active.value = current
@@ -44,7 +73,10 @@ const slug = (s: string) =>
 function listen(on: boolean) {
   if (!import.meta.client) return
   removeEventListener('scroll', onScroll)
-  if (on) addEventListener('scroll', onScroll, { passive: true })
+  for (const e of INTENT) removeEventListener(e, unpin)
+  if (!on) return
+  addEventListener('scroll', onScroll, { passive: true })
+  for (const e of INTENT) addEventListener(e, unpin, { passive: true })
 }
 
 function build() {
@@ -97,6 +129,7 @@ const minLevel = computed(() => Math.min(...props.levels))
           class="u-toc-link"
           :class="{ 'u-toc-on': active === e.id }"
           :aria-current="active === e.id ? 'location' : undefined"
+          @click="onPick(e.id)"
         >{{ e.text }}</a>
       </li>
     </ul>
