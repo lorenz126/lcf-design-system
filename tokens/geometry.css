@@ -22,6 +22,13 @@
   --control-md: 26px;
   --control-lg: 32px;
 
+  /* Fields start as aliases of the control scale. Whether one scale can
+     serve both a button and a text field is an open question — a button
+     holds a centred label, a field holds a caret and an I-beam target. */
+  --field-sm: var(--control-sm);
+  --field-md: var(--control-md);
+  --field-lg: var(--control-lg);
+
   /* Radii. --r-control is deliberately its own token rather than an
      alias: changing button roundness is the single fastest way to
      re-pitch a product's personality, and it should be one edit. */

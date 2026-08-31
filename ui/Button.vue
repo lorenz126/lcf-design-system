@@ -75,7 +75,7 @@ const isDisabled = computed(() => props.disabled || props.loading)
 .btn[data-tone="orange"] { --btn-bg: var(--orange-solid-bg); --btn-fg: var(--solid-fg);
                            --btn-tint: var(--orange-tint-bg); --btn-onpage: var(--orange-text);   --btn-ink: var(--orange-tint-fg); }
 .btn[data-tone="neutral"]{ --btn-bg: var(--fg);   --btn-fg: var(--bg);
-                           --btn-tint: rgb(128 128 128 / .14);
+                           --btn-tint: var(--fill);
                            --btn-onpage: var(--fg); --btn-ink: var(--fg); }
 
 .btn {
@@ -99,8 +99,11 @@ const isDisabled = computed(() => props.disabled || props.loading)
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
-  transition: background-color .12s linear, border-color .12s linear,
-              color .12s linear, transform .08s ease-out;
+  transition: background-color var(--dur-fast) var(--ease-out),
+              border-color     var(--dur-fast) var(--ease-out),
+              color            var(--dur-fast) var(--ease-out),
+              box-shadow       var(--dur-fast) var(--ease-out),
+              transform        var(--dur-instant) var(--ease-out);
 }
 .btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(.975); }
 

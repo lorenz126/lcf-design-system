@@ -78,6 +78,13 @@
   --border:        var(--gray-200);   /* default hairline */
   --border-strong: var(--gray-300);   /* emphasised division */
 
+  /* Neutral fills — for controls that need a ground without carrying a
+     hue. Alpha, not opaque, so they composite correctly over any
+     surface rather than only over --bg. */
+  --fill-quiet:  rgb(0 0 0 / .04);
+  --fill:        rgb(0 0 0 / .07);
+  --fill-strong: rgb(0 0 0 / .12);
+
   /* ---------- Palette ----------
      Three roles per hue:
        --x        the solid tone   (fills, dots, bars, icons)
@@ -197,6 +204,10 @@
 
   --border:        var(--gray-800);
   --border-strong: var(--gray-700);
+
+  --fill-quiet:  rgb(255 255 255 / .05);
+  --fill:        rgb(255 255 255 / .09);
+  --fill-strong: rgb(255 255 255 / .15);
 
   /* Apple publishes separate dark tones — brighter and slightly desaturated.
      On a dark ground the tone itself is legible as text, so -text collapses
