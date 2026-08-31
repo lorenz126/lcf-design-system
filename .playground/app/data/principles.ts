@@ -54,7 +54,16 @@ export const principles: PrincipleGroup[] = [
     ]
   },
   { group: 'Space & Layout', scope: 'Rhythm, density, alignment.', items: [] },
-  { group: 'Surface & Depth', scope: 'Elevation, borders, shadow, material.', items: [] },
+  {
+    group: 'Surface & Depth',
+    scope: 'Elevation, borders, shadow, material.',
+    items: [
+      {
+        rule: 'Always separate with a border; use shadow only for what is above the page.',
+        why: 'The light in this system is in front, so a shadow is an even offset-free halo that reads as lifted toward the viewer. That makes a shadow a claim: this thing is ON the layout, not IN it. A grid where every card is raised makes the claim about all of them, so none of them read as raised. Border for cards, panels and wells; shadow for popovers, dialogs, floating buttons and anything being dragged.'
+      }
+    ]
+  },
   {
     group: 'Motion',
     scope: 'Timing, easing, what earns animation.',
