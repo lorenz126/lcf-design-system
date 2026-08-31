@@ -19,6 +19,7 @@ const tabs = [
   { to: '/inputs', label: 'Inputs' },
   { to: '/badges', label: 'Badges' },
   { to: '/controls', label: 'Controls' },
+  { to: '/overlays', label: 'Overlays' },
 ]
 </script>
 

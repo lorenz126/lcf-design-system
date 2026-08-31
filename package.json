@@ -23,6 +23,7 @@
     "tokens",
     "styles",
     "ui",
+    "composables",
     "nuxt.config.ts",
     "README.md"
   ],
@@ -30,7 +31,8 @@
     ".": "./nuxt.config.ts",
     "./tokens/*": "./tokens/*",
     "./ui/*": "./ui/*",
-    "./styles/*": "./styles/*"
+    "./styles/*": "./styles/*",
+    "./composables/*": "./composables/*"
   },
   "dependencies": {
     "lucide-vue-next": "^1.0.0"

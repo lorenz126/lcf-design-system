@@ -21,6 +21,10 @@ export default defineNuxtConfig({
     { path: join(layer, 'ui'), prefix: 'Ui', pathPrefix: false }
   ],
 
+  imports: {
+    dirs: [join(layer, 'composables')]
+  },
+
   app: {
     head: {
       script: [

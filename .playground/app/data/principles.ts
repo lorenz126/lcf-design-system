@@ -55,7 +55,16 @@ export const principles: PrincipleGroup[] = [
   },
   { group: 'Space & Layout', scope: 'Rhythm, density, alignment.', items: [] },
   { group: 'Surface & Depth', scope: 'Elevation, borders, shadow, material.', items: [] },
-  { group: 'Motion',         scope: 'Timing, easing, what earns animation.', items: [] },
+  {
+    group: 'Motion',
+    scope: 'Timing, easing, what earns animation.',
+    items: [
+      {
+        rule: 'Never hand a state the browser already owns to JavaScript.',
+        why: 'Overlays proved it twice. Opening a popover from a click handler races the same click as it keeps bubbling — it opens, the click reaches the document, and light-dismiss shuts it in the same tick; handing the toggle to popovertarget removes the race instead of papering over it with stopPropagation. And <dialog>.showModal() supplies the focus trap, Escape, the inert background, the top layer and focus returning to the trigger: five things a hand-built modal reimplements and usually gets one of wrong.'
+      }
+    ]
+  },
   {
     group: 'Interaction',
     scope: 'States, affordances, feedback.',
