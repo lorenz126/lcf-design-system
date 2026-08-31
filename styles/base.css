@@ -1,0 +1,51 @@
+/* ============================================================
+   BASE — the one file that APPLIES the tokens.
+
+   tokens/ only declares values. Without this, a consumer gets a
+   correctly defined --font-sans and --bg and a page still rendering in
+   Times New Roman on a transparent background: every token present, none
+   of them reaching anything.
+
+   Deliberately small. It sets what a page cannot sensibly do without,
+   and stops before opinions that belong to the app — no heading resets,
+   no link colours, no spacing rhythm.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  /* Tells the browser which form controls and scrollbars to draw. Without
+     it a dark page keeps light native scrollbars. */
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: var(--w-regular) var(--fs-body)/var(--lh-body) var(--font-sans);
+  letter-spacing: var(--tr-body);
+}
+
+/* Media should never overflow its column. */
+img, svg, video, canvas { max-width: 100%; height: auto; }
+
+/* Form controls do not inherit type by default. */
+input, button, textarea, select { font: inherit; }
+
+/* A shared focus ring for anything the components do not own. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

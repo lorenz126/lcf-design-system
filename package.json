@@ -21,6 +21,7 @@
   "main": "./nuxt.config.ts",
   "files": [
     "tokens",
+    "styles",
     "ui",
     "nuxt.config.ts",
     "README.md"
@@ -28,9 +29,14 @@
   "exports": {
     ".": "./nuxt.config.ts",
     "./tokens/*": "./tokens/*",
-    "./ui/*": "./ui/*"
+    "./ui/*": "./ui/*",
+    "./styles/*": "./styles/*"
   },
   "dependencies": {
     "lucide-vue-next": "^1.0.0"
+  },
+  "peerDependencies": {
+    "nuxt": "^4.0.0",
+    "vue": "^3.5.0"
   }
 }

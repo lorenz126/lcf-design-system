@@ -12,7 +12,9 @@ export default defineNuxtConfig({
     token('color.css'),
     token('geometry.css'),
     token('elevation.css'),
-    token('motion.css')
+    token('motion.css'),
+    // Last: base APPLIES the tokens above, so it must resolve after them.
+    join(layer, 'styles', 'base.css')
   ],
 
   components: [

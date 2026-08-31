@@ -35,8 +35,21 @@ no Nuxt dependency, usable from any stack.
 ## Using it
 
 ```
-pnpm add -D @lf/design
+pnpm add -D @lf/design lucide-vue-next
 ```
+
+`lucide-vue-next` is listed twice on purpose. The layer depends on it for its
+own glyphs, but **you** need it declared too if your pages import icons
+directly:
+
+```vue
+import { Plus } from 'lucide-vue-next'
+<UiIcon :is="Plus" />
+```
+
+Skipping it appears to work under pnpm's default hoisting and then fails under
+npm, yarn, or `hoist=false` — the worst kind of missing dependency, because it
+passes locally.
 
 ```ts
 // nuxt.config.ts
