@@ -57,6 +57,23 @@
      reads heavy next to 15px text, so the stroke thins with the icon. */
   --icon-stroke: 1.75;
 
+  /* Breakpoints.
+     These are documentation, not machinery: a custom property cannot be
+     used inside a media query condition — `@media (min-width: var(--bp-md))`
+     simply does not work — so every media query repeats the literal.
+     Keeping the values here means there is still one place that says what
+     they are, and a grep target when they change.
+
+       sm  640px   phone landscape
+       md  860px   tablet / narrow window   <- where sidebars collapse
+       lg 1100px   laptop
+       xl 1440px   desktop
+  */
+  --bp-sm: 640px;
+  --bp-md: 860px;
+  --bp-lg: 1100px;
+  --bp-xl: 1440px;
+
   /* Stacking order, named by role. A scale that exists before the first
      overlay is what prevents the z-index: 9999 arms race later. */
   --z-base:     0;

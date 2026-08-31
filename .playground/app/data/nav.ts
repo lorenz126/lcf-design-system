@@ -53,5 +53,12 @@ export const tiers: NavGroup[] = [
       { name: 'Chart', to: '/charts' }
     ]
   },
-  { label: 'Templates', items: [] }
+  {
+    label: 'Templates',
+    items: [
+      { name: 'AppShell', to: '/templates' },
+      { name: 'SplitView', to: '/templates' },
+      { name: 'DocLayout', to: '/docs', note: 'used on Docs' }
+    ]
+  }
 ]

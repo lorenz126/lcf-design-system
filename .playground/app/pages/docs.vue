@@ -14,8 +14,8 @@ const article = useTemplateRef<HTMLElement>('article')
       </p>
     </div>
 
-    <div class="layout">
-      <article ref="article">
+    <UiDocLayout>
+      <div ref="article">
         <UiProse>
           <h1 id="designing-with-constraints">Designing with constraints</h1>
           <p>
@@ -131,10 +131,10 @@ const article = useTemplateRef<HTMLElement>('article')
             beside this text was built by reading them back out of the page.
           </p>
         </UiProse>
-      </article>
+      </div>
 
-      <UiToc :target="article" />
-    </div>
+      <template #aside><UiToc :target="article" /></template>
+    </UiDocLayout>
   </div>
 </template>
 
@@ -142,6 +142,4 @@ const article = useTemplateRef<HTMLElement>('article')
 .intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
 .lede { margin: 0 0 10px; }
 .body { margin: 0; color: var(--ink-2); max-width: 68ch; }
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: var(--s-10); }
-@media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 </style>
