@@ -87,6 +87,9 @@
   /* Neutral fills — for controls that need a ground without carrying a
      hue. Alpha, not opaque, so they composite correctly over any
      surface rather than only over --bg. */
+  /* Fainter than --border, for rules that repeat every few pixels. At
+     dense-grid spacing a normal border reads as a cage. */
+  --rule-faint:  rgb(0 0 0 / .05);
   --fill-quiet:  rgb(0 0 0 / .04);
   --fill:        rgb(0 0 0 / .07);
   --fill-strong: rgb(0 0 0 / .12);
@@ -216,6 +219,7 @@
   --border:        var(--gray-800);
   --border-strong: var(--gray-700);
 
+  --rule-faint:  rgb(255 255 255 / .07);
   --fill-quiet:  rgb(255 255 255 / .05);
   --fill:        rgb(255 255 255 / .09);
   --fill-strong: rgb(255 255 255 / .15);

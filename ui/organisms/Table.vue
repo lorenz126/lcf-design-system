@@ -13,6 +13,18 @@ import { ChevronUp, ChevronDown } from 'lucide-vue-next'
  * shift width per glyph, so a column of them will not line up and a
  * changing value jitters — which is exactly what .nums-tabular exists to
  * prevent.
+ *
+ * Two variants, and the choice is about what the reader is doing:
+ *
+ *   rows — horizontal rules only, roomy. For reading DOWN one column:
+ *          a status list, a few records, anything scanned vertically.
+ *   grid — cell borders both ways, dense. For reading ACROSS a row and
+ *          comparing many columns, spreadsheet-style. The vertical rules
+ *          are what let the eye track sideways without losing the line.
+ *
+ * Grid keeps its rules far fainter than the row variant's. At that
+ * density a border every few pixels at normal strength turns the table
+ * into a cage; the lines only need to be enough to follow, not to see.
  */
 export interface Column<Row = any> {
   key: string
@@ -30,11 +42,12 @@ const props = withDefaults(defineProps<{
   /** Property to key rows by. Index is a last resort — it breaks
    *  selection as soon as the data is sorted or filtered. */
   rowKey?: string
+  variant?: 'rows' | 'grid'
   selectable?: boolean
   stickyHeader?: boolean
   loading?: boolean
   emptyText?: string
-}>(), { rowKey: 'id', emptyText: 'No rows.' })
+}>(), { rowKey: 'id', emptyText: 'No rows.', variant: 'rows' })
 
 const selected = defineModel<(string | number)[]>('selected', { default: () => [] })
 
@@ -83,7 +96,7 @@ function alignOf(col: Column) {
 
 <template>
   <div class="u-tbl-scroll">
-    <table class="u-tbl">
+    <table class="u-tbl" :class="`u-tbl-${variant}`">
       <thead :class="{ 'u-tbl-sticky': stickyHeader }">
         <tr>
           <th v-if="selectable" class="u-tbl-pick" scope="col">
@@ -174,6 +187,38 @@ th {
 }
 tbody tr:last-child td { border-bottom: 0; }
 
+/* ---- grid: dense, ruled both ways ---- */
+.u-tbl-grid { font-size: var(--fs-small); }
+.u-tbl-grid th,
+.u-tbl-grid td {
+  padding: 0 var(--s-5);
+  height: 36px;
+  border-bottom-color: var(--rule-faint);
+  /* The vertical rules are the point of this variant — they are what let
+     the eye track sideways across many columns. */
+  border-inline-end: var(--border-width) solid var(--rule-faint);
+}
+.u-tbl-grid th:last-child,
+.u-tbl-grid td:last-child { border-inline-end: 0; }
+.u-tbl-grid th { height: 40px; }
+
+/* Truncate rather than wrap: a dense grid loses its rhythm the moment one
+   row is two lines tall. Text columns share the leftover width and clip;
+   numeric ones never do — a truncated number is not a shorter number,
+   it is a wrong one. */
+.u-tbl-grid td {
+  white-space: nowrap;
+}
+.u-tbl-grid td:not(.nums-tabular) {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.u-tbl-grid td.nums-tabular,
+.u-tbl-grid th:has(+ td) { width: 1%; }
+.u-tbl-grid tbody tr:hover { background: var(--fill-quiet); }
+.u-tbl-grid tbody tr:last-child td { border-bottom: 0; }
+
 .u-tbl-sticky th {
   position: sticky;
   top: 0;
@@ -183,6 +228,8 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 
 .u-tbl-on { background: var(--accent-subtle); }
+/* Selection has to stay readable over the hover tint. */
+.u-tbl-grid tbody tr.u-tbl-on:hover { background: var(--accent-subtle); }
 
 .u-tbl-sort {
   display: inline-flex; align-items: center; gap: var(--s-2);

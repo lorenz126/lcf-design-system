@@ -42,6 +42,12 @@ withDefaults(defineProps<{
 .u-card {
   display: block;
   border-radius: var(--r-lg);
+  /* clip, not hidden. A rounded card has to clip its content or a square
+     child paints over the border in the corners — a table's sticky header
+     did exactly that. `hidden` would fix it and make the card a scroll
+     container, which reparents any sticky header inside to the card and
+     stops it sticking to the viewport. `clip` cuts without that. */
+  overflow: clip;
   background: var(--bg-raised);
   color: var(--fg);
   text-align: start;

@@ -42,6 +42,14 @@ input, button, textarea, select { font: inherit; }
   outline-offset: 1px;
 }
 
+/* Anchor navigation glides rather than jumping. Global on purpose: a
+   component reaching out to style <html> would apply this to every page
+   in the app, including ones it is not on. Decisions about the document
+   belong here. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
