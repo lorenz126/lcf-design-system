@@ -1,19 +1,31 @@
 {
-  "name": "flechtenmacher-font",
+  "name": "@lf/design",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "nuxt dev",
-    "build": "nuxt build",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "test:contrast": "node scripts/check-contrast.mjs",
-    "test": "node scripts/check-contrast.mjs"
+    "dev": "nuxi dev .playground",
+    "build": "nuxi build .playground",
+    "generate": "nuxi generate .playground",
+    "preview": "nuxi preview .playground",
+    "test": "node scripts/check-contrast.mjs",
+    "test:contrast": "node scripts/check-contrast.mjs"
   },
   "devDependencies": {
     "nuxt": "^4.0.0",
     "typescript": "^5.6.0",
     "vue": "^3.5.0",
     "vue-router": "^4.4.0"
+  },
+  "main": "./nuxt.config.ts",
+  "files": [
+    "tokens",
+    "ui",
+    "nuxt.config.ts",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./nuxt.config.ts",
+    "./tokens/*": "./tokens/*",
+    "./ui/*": "./ui/*"
   }
 }
