@@ -8,11 +8,15 @@
  * meaning.
  *
  * All six hues use one recipe: tint ground, the hue's own text. Yellow
- * and orange measure 4.34:1 and 4.40:1 in light mode — just under AA —
- * which is the known cost of a light hue on a light tint. Their fill
- * alpha is pulled to 0.09 against the others' 0.14 to recover what it
- * can. Do not "fix" this by inverting those two to a solid ground: a row
- * where two of six invert reads as a bug, not a rule.
+ * and orange measure 3.24:1 and 3.30:1 in light mode — a deliberate
+ * trade of contrast for chroma, since at AA-legible lightness those two
+ * turn brown. Above the 3:1 floor for large text and UI components,
+ * below AA for body text.
+ *
+ * Two things NOT to "fix" later:
+ *   - inverting yellow and orange to a solid ground. A row where two of
+ *     six invert reads as a bug, not a rule.
+ *   - darkening them back to clear AA. That was tried; it is the brown.
  */
 type Tone = 'neutral' | 'yellow' | 'green' | 'blue' | 'purple' | 'red' | 'orange'
 

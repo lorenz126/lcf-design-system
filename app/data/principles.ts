@@ -39,7 +39,16 @@ export const principles: PrincipleGroup[] = [
       }
     ]
   },
-  { group: 'Color',          scope: 'Palette, semantics, contrast.', items: [] },
+  {
+    group: 'Color',
+    scope: 'Palette, semantics, contrast.',
+    items: [
+      {
+        rule: 'Never set small body text in yellow or orange.',
+        why: 'Both are tuned for chroma rather than contrast — at the lightness that would clear AA on a light ground they lose their saturation and read as brown. They measure about 3.3:1, which carries a badge or a large label but not a paragraph. If yellow has to say something in running text, the words do the work and the colour is decoration.'
+      }
+    ]
+  },
   { group: 'Space & Layout', scope: 'Rhythm, density, alignment.', items: [] },
   { group: 'Surface & Depth', scope: 'Elevation, borders, shadow, material.', items: [] },
   { group: 'Motion',         scope: 'Timing, easing, what earns animation.', items: [] },

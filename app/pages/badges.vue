@@ -21,10 +21,12 @@ const tones = ['neutral', 'green', 'blue', 'yellow', 'orange', 'red', 'purple'] 
       </div>
       <p class="t-caption hint">
         One recipe for all six: tint ground, the hue’s own text. Yellow and orange
-        land at 4.34:1 and 4.40:1 — just under AA — because a light hue on a light
-        tint has the least contrast to give. Their tint is pulled paler than the
-        others to claw back what it can. Consistency of the row wins here; a badge
-        set where two of six invert reads as a mistake rather than a rule.
+        are deliberately tuned for colour over contrast — they sit at OKLCH
+        lightness 0.64 rather than the 0.57 that would clear AA, because at that
+        lightness they lose their chroma and read as brown. Measured on their own
+        tint: yellow 3.24:1, orange 3.30:1. Above the 3:1 floor for large text and
+        UI components, below AA for body text. The other four clear AA (green 4.52
+        to purple 5.98).
       </p>
     </section>
 

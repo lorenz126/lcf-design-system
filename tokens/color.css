@@ -53,13 +53,19 @@
   --red-rgb:    255  59  48;    /* systemRed    */
   --orange-rgb: 255 149   0;    /* systemOrange */
 
-  /* Text-safe darkenings, light ground */
-  --yellow-text-rgb: 151 112   0;
+  /* Text-safe darkenings, light ground.
+     Yellow and orange are deliberately NOT text-safe: they sit at
+     OKLCH L 0.64 rather than the ~0.57 that would clear 4.5:1, because
+     at that lightness they lose their chroma and read as brown. Raised
+     for colour at a measured cost — roughly 3.3:1 on their own tint,
+     above the 3:1 floor for large text and UI components but below AA
+     for body text. Do not use these two as small text on the page. */
+  --yellow-text-rgb: 178 132   0;
   --green-text-rgb:   26 127  55;
   --blue-text-rgb:     0  85 204;
   --purple-text-rgb: 130  49 168;
   --red-text-rgb:    193  18  31;
-  --orange-text-rgb: 185  87   0;
+  --orange-text-rgb: 221 100   0;
 }
 
 /* ---------- TIER 2 · semantic · LIGHT ---------- */
