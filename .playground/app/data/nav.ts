@@ -50,7 +50,8 @@ export const tiers: NavGroup[] = [
       { name: 'Form', to: '/forms' },
       { name: 'Toc', to: '/docs' },
       { name: 'Attachments', to: '/files' },
-      { name: 'Chart', to: '/charts' }
+      { name: 'Chart', to: '/charts' },
+      { name: 'Calendar', to: '/calendar' }
     ]
   },
   {
