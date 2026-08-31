@@ -91,10 +91,14 @@
        --x-text   legible on --bg  (labels, status text)
        --x-fill   the tone at low alpha (badge grounds) */
   --fill-alpha: 0.14;
+  /* Yellow and orange tint paler than the rest. Their own text colour has
+     to sit ON this ground, and a light hue over a light tint has the
+     least contrast to give — every point of alpha costs legibility. */
+  --fill-alpha-light-hue: 0.09;
 
   --yellow:      rgb(var(--yellow-rgb));
   --yellow-text: rgb(var(--yellow-text-rgb));
-  --yellow-fill: rgb(var(--yellow-rgb) / var(--fill-alpha));
+  --yellow-fill: rgb(var(--yellow-rgb) / var(--fill-alpha-light-hue));
   --green:       rgb(var(--green-rgb));
   --green-text:  rgb(var(--green-text-rgb));
   --green-fill:  rgb(var(--green-rgb) / var(--fill-alpha));
@@ -109,7 +113,7 @@
   --red-fill:    rgb(var(--red-rgb) / var(--fill-alpha));
   --orange:      rgb(var(--orange-rgb));
   --orange-text: rgb(var(--orange-text-rgb));
-  --orange-fill: rgb(var(--orange-rgb) / var(--fill-alpha));
+  --orange-fill: rgb(var(--orange-rgb) / var(--fill-alpha-light-hue));
 
   /* ---------- Badges ----------
      Two recipes, chosen by the hue's own lightness — not by preference.
@@ -120,15 +124,16 @@
      0.1175 against 0.177 for the pure tone. Dark yellow is brown, and no
      colour space escapes that.
 
-     So the light hues invert: the SOLID tone becomes the ground and the
-     text goes dark. The yellow stays fully saturated, and contrast is
-     better than the tint version ever was.
-
-     The darker hues keep the tint recipe, where they read cleanly. */
-  --yellow-badge-bg: var(--yellow);
-  --yellow-badge-fg: rgb(56 40 0);
-  --orange-badge-bg: var(--orange);
-  --orange-badge-fg: rgb(64 27 0);
+     One recipe for all six regardless: tint ground, the hue's own text.
+     A badge row where two of six invert reads as a mistake, not a rule,
+     and consistency of the pattern wins over the last few points of
+     contrast. Yellow and orange land just under AA as a result — see the
+     measured note in Badge.vue. Their tint is pulled paler to claw back
+     what it can. */
+  --yellow-badge-bg: var(--yellow-fill);
+  --yellow-badge-fg: var(--yellow-text);
+  --orange-badge-bg: var(--orange-fill);
+  --orange-badge-fg: var(--orange-text);
 
   --green-badge-bg:  var(--green-fill);
   --green-badge-fg:  var(--green-text);
@@ -227,6 +232,9 @@
   --orange-text-rgb: var(--orange-rgb);
 
   --fill-alpha: 0.17;
+  /* No split needed here — on a dark ground the bright tones have ample
+     contrast against their own tint (yellow measures 9.9:1). */
+  --fill-alpha-light-hue: 0.17;
 
   /* On a dark ground every tone is legible as text, so all six hues use
      the tint recipe — the light-hue inversion is a light-mode problem. */

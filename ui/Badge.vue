@@ -6,6 +6,13 @@
  * precisely so that a capsule means "this is a label, not a thing you
  * press". The shapes have to stay distinct for either rule to carry
  * meaning.
+ *
+ * All six hues use one recipe: tint ground, the hue's own text. Yellow
+ * and orange measure 4.34:1 and 4.40:1 in light mode — just under AA —
+ * which is the known cost of a light hue on a light tint. Their fill
+ * alpha is pulled to 0.09 against the others' 0.14 to recover what it
+ * can. Do not "fix" this by inverting those two to a solid ground: a row
+ * where two of six invert reads as a bug, not a rule.
  */
 type Tone = 'neutral' | 'yellow' | 'green' | 'blue' | 'purple' | 'red' | 'orange'
 

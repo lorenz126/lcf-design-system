@@ -20,9 +20,11 @@ const tones = ['neutral', 'green', 'blue', 'yellow', 'orange', 'red', 'purple'] 
         <UiBadge v-for="t in tones" :key="t" :tone="t">{{ t }}</UiBadge>
       </div>
       <p class="t-caption hint">
-        Yellow and orange are solid where the others are tinted. That is the light-hue
-        rule from the colour system, not an inconsistency: darkened enough to read as
-        text on a pale tint, those two turn muddy.
+        One recipe for all six: tint ground, the hue’s own text. Yellow and orange
+        land at 4.34:1 and 4.40:1 — just under AA — because a light hue on a light
+        tint has the least contrast to give. Their tint is pulled paler than the
+        others to claw back what it can. Consistency of the row wins here; a badge
+        set where two of six invert reads as a mistake rather than a rule.
       </p>
     </section>
 
