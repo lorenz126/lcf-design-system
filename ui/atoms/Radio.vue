@@ -7,19 +7,22 @@
  * arrow-key navigation between options. Making it required stops that
  * being discovered later.
  */
-defineProps<{
+const props = defineProps<{
   modelValue?: string
   value: string
   name: string
   label?: string
   help?: string
   disabled?: boolean
+  /** Supply one when something outside has to reference the control —
+   *  an error summary linking to it, for instance. Generated otherwise. */
+  id?: string
 }>()
 
 defineEmits<{ 'update:modelValue': [string] }>()
 
 const uid = useId()
-const id = computed(() => `r-${uid}`)
+const id = computed(() => props.id ?? `r-${uid}`)
 </script>
 
 <template>

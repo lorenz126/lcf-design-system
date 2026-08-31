@@ -23,12 +23,16 @@ const props = withDefaults(defineProps<{
   readonly?: boolean
   required?: boolean
   block?: boolean
+  /** Supply one when something outside has to reference the field —
+   *  an error summary linking to it, or a label rendered elsewhere.
+   *  Generated when omitted. */
+  id?: string
 }>(), { size: 'md', type: 'text' })
 
 defineEmits<{ 'update:modelValue': [string] }>()
 
 const uid = useId()
-const fieldId = computed(() => `f-${uid}`)
+const fieldId = computed(() => props.id ?? `f-${uid}`)
 const msgId = computed(() => `m-${uid}`)
 const hasMsg = computed(() => Boolean(props.error || props.help))
 </script>

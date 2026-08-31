@@ -12,7 +12,7 @@ import { ChevronDown } from 'lucide-vue-next'
 
 export interface Option { value: string; label: string; disabled?: boolean }
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   modelValue?: string
   options: Option[]
   label?: string
@@ -23,12 +23,16 @@ withDefaults(defineProps<{
   disabled?: boolean
   required?: boolean
   block?: boolean
+  /** Supply one when something outside has to reference the field —
+   *  an error summary linking to it, or a label rendered elsewhere.
+   *  Generated when omitted. */
+  id?: string
 }>(), { size: 'md' })
 
 defineEmits<{ 'update:modelValue': [string] }>()
 
 const uid = useId()
-const fieldId = computed(() => `s-${uid}`)
+const fieldId = computed(() => props.id ?? `s-${uid}`)
 const msgId = computed(() => `sm-${uid}`)
 </script>
 

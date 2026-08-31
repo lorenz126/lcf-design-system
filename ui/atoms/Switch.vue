@@ -6,17 +6,20 @@
  * it behaves. A switch takes effect immediately; if the change only lands
  * on Save, that is a checkbox and should look like one.
  */
-defineProps<{
+const props = defineProps<{
   modelValue?: boolean
   label?: string
   help?: string
   disabled?: boolean
+  /** Supply one when something outside has to reference the control —
+   *  an error summary linking to it, for instance. Generated otherwise. */
+  id?: string
 }>()
 
 defineEmits<{ 'update:modelValue': [boolean] }>()
 
 const uid = useId()
-const id = computed(() => `sw-${uid}`)
+const id = computed(() => props.id ?? `sw-${uid}`)
 </script>
 
 <template>

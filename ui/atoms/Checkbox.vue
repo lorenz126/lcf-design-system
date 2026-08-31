@@ -21,12 +21,17 @@ const props = defineProps<{
   indeterminate?: boolean
   disabled?: boolean
   value?: string
+  /** Any non-empty string puts the control in its error state. */
+  error?: string
+  /** Supply one when something outside has to reference the control —
+   *  an error summary linking to it, for instance. Generated otherwise. */
+  id?: string
 }>()
 
 defineEmits<{ 'update:modelValue': [boolean] }>()
 
 const uid = useId()
-const id = computed(() => `c-${uid}`)
+const id = computed(() => props.id ?? `c-${uid}`)
 const el = useTemplateRef<HTMLInputElement>('el')
 
 // indeterminate is a DOM property, not an attribute — it cannot be bound.
@@ -36,7 +41,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="u-row" :class="{ 'u-disabled': disabled }">
+  <div class="u-row" :class="{ 'u-disabled': disabled, 'u-invalid': !!error }">
     <input
       :id="id"
       ref="el"
@@ -45,16 +50,19 @@ watchEffect(() => {
       :checked="modelValue"
       :disabled="disabled"
       :value="value"
-      :aria-describedby="help ? `${id}-h` : undefined"
+      :aria-invalid="error ? 'true' : undefined"
+      :aria-describedby="error || help ? `${id}-h` : undefined"
       @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
     >
     <span class="u-mark" aria-hidden="true">
       <svg v-if="indeterminate" viewBox="0 0 10 10"><path d="M2 5h6" /></svg>
       <svg v-else viewBox="0 0 10 10"><path d="M1.5 5.2l2.2 2.3L8.5 2.8" /></svg>
     </span>
-    <div v-if="label || help" class="u-text">
+    <div v-if="label || help || error" class="u-text">
       <label :for="id" class="u-label">{{ label }}</label>
-      <p v-if="help" :id="`${id}-h`" class="u-help">{{ help }}</p>
+      <p v-if="error || help" :id="`${id}-h`" class="u-help" :class="{ 'u-help-err': !!error }">
+        {{ error || help }}
+      </p>
     </div>
   </div>
 </template>
@@ -118,4 +126,6 @@ watchEffect(() => {
   color: var(--fg-muted);
 }
 .u-disabled .u-label, .u-disabled .u-help { opacity: .5; cursor: not-allowed; }
+.u-help-err { color: var(--danger-text); }
+.u-invalid .u-box { border-color: var(--danger-text); }
 </style>

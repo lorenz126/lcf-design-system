@@ -84,5 +84,14 @@ export const principles: PrincipleGroup[] = [
       }
     ]
   },
-  { group: 'Content & Voice', scope: 'Labels, tone, empty states, errors.', items: [] }
+  {
+    group: 'Content & Voice',
+    scope: 'Labels, tone, empty states, errors.',
+    items: [
+      {
+        rule: 'Always move focus to the error summary on a failed submit.',
+        why: 'Errors usually render above where the user is standing. Without moving focus they are never announced and nothing visibly changes below the fold, so the form simply appears not to submit — the user presses the button again. The summary takes focus, carries role="alert", and every entry links to its field, which is why every control accepts an id: it generates one otherwise, and nothing outside could reference it.'
+      }
+    ]
+  }
 ]

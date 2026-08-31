@@ -21,6 +21,7 @@ const tabs = [
   { to: '/controls', label: 'Controls' },
   { to: '/overlays', label: 'Overlays' },
   { to: '/data', label: 'Data' },
+  { to: '/forms', label: 'Forms' },
 ]
 </script>
 
