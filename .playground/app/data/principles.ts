@@ -34,6 +34,10 @@ export const principles: PrincipleGroup[] = [
     scope: 'Shape and sizing of interactive elements.',
     items: [
       {
+        rule: 'Never name a component class after a generic word.',
+        why: 'Scoped styles stop a component\u2019s rules leaking out; they do nothing to stop the outside leaking in. A class called .wrap inherited 140px of padding from a global .wrap, and .row was overwritten by the page\u2019s own .row \u2014 because Vue also stamps the parent\u2019s scope id onto a child component\u2019s root element. Every class in ui/ carries a u- prefix.'
+      },
+      {
         rule: 'Never fully round a button.',
         why: 'A capsule reads as a tag or a pill — a thing you filter by, not a thing you press. Buttons stay recognisably rectangular with soft corners. Enforced structurally: the radius is capped at 40% of the control height, so it holds even if the radius token is raised or the control is made shorter.'
       }

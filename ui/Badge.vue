@@ -29,22 +29,22 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <span class="badge" :class="`s-${size}`" :data-tone="tone">
-    <span v-if="dot" class="dot" aria-hidden="true" />
+  <span class="u-badge" :class="`u-s-${size}`" :data-tone="tone">
+    <span v-if="dot" class="u-dot" aria-hidden="true" />
     <slot />
   </span>
 </template>
 
 <style scoped>
-.badge[data-tone="yellow"] { --bd-bg: var(--yellow-badge-bg); --bd-fg: var(--yellow-badge-fg); }
-.badge[data-tone="green"]  { --bd-bg: var(--green-badge-bg);  --bd-fg: var(--green-badge-fg);  }
-.badge[data-tone="blue"]   { --bd-bg: var(--blue-badge-bg);   --bd-fg: var(--blue-badge-fg);   }
-.badge[data-tone="purple"] { --bd-bg: var(--purple-badge-bg); --bd-fg: var(--purple-badge-fg); }
-.badge[data-tone="red"]    { --bd-bg: var(--red-badge-bg);    --bd-fg: var(--red-badge-fg);    }
-.badge[data-tone="orange"] { --bd-bg: var(--orange-badge-bg); --bd-fg: var(--orange-badge-fg); }
-.badge[data-tone="neutral"]{ --bd-bg: var(--fill);            --bd-fg: var(--fg-muted); }
+.u-badge[data-tone="yellow"] { --bd-bg: var(--yellow-badge-bg); --bd-fg: var(--yellow-badge-fg); }
+.u-badge[data-tone="green"]  { --bd-bg: var(--green-badge-bg);  --bd-fg: var(--green-badge-fg);  }
+.u-badge[data-tone="blue"]   { --bd-bg: var(--blue-badge-bg);   --bd-fg: var(--blue-badge-fg);   }
+.u-badge[data-tone="purple"] { --bd-bg: var(--purple-badge-bg); --bd-fg: var(--purple-badge-fg); }
+.u-badge[data-tone="red"]    { --bd-bg: var(--red-badge-bg);    --bd-fg: var(--red-badge-fg);    }
+.u-badge[data-tone="orange"] { --bd-bg: var(--orange-badge-bg); --bd-fg: var(--orange-badge-fg); }
+.u-badge[data-tone="neutral"]{ --bd-bg: var(--fill);            --bd-fg: var(--fg-muted); }
 
-.badge {
+.u-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--s-3);
@@ -53,17 +53,17 @@ withDefaults(defineProps<{
   border-radius: var(--r-full);
   white-space: nowrap;
 }
-.s-md {
+.u-s-md {
   height: 20px; padding-inline: var(--s-4);
   font: var(--w-medium) var(--fs-caption)/1 var(--font-sans);
   letter-spacing: var(--tr-caption);
 }
-.s-sm {
+.u-s-sm {
   height: 16px; padding-inline: var(--s-3);
   font: var(--w-medium) var(--fs-micro)/1 var(--font-sans);
   letter-spacing: var(--tr-micro);
 }
-.dot {
+.u-dot {
   width: 6px; height: 6px; flex: none;
   border-radius: var(--r-full);
   /* The badge's own text colour, never the raw hue: on a solid yellow or
@@ -71,5 +71,5 @@ withDefaults(defineProps<{
      currentColor is already contrast-checked against the ground. */
   background: currentColor;
 }
-.s-sm .dot { width: 5px; height: 5px; }
+.u-s-sm .u-dot { width: 5px; height: 5px; }
 </style>

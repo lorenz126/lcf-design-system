@@ -42,15 +42,15 @@ const isDisabled = computed(() => props.disabled || props.loading)
 <template>
   <component
     :is="tag"
-    class="btn"
-    :class="[`v-${variant}`, `s-${size}`, { block, loading }]"
+    class="u-btn"
+    :class="[`u-v-${variant}`, `u-s-${size}`, { 'u-block': block, 'u-loading': loading }]"
     :data-tone="tone"
     :href="href"
     :disabled="tag === 'button' ? isDisabled : undefined"
     :aria-disabled="tag === 'a' && isDisabled ? 'true' : undefined"
     :aria-busy="loading ? 'true' : undefined"
   >
-    <span v-if="loading" class="spinner" aria-hidden="true" />
+    <span v-if="loading" class="u-spinner" aria-hidden="true" />
     <slot />
   </component>
 </template>
@@ -61,24 +61,24 @@ const isDisabled = computed(() => props.disabled || props.loading)
    NAMESPACED on purpose: --bg and --fg are global tokens, and redefining
    them here shadowed the real ones — neutral/plain resolved to white on
    white. Local custom properties must never reuse a token name. */
-.btn[data-tone="accent"],
-.btn[data-tone="blue"]   { --btn-bg: var(--blue-solid-bg);   --btn-fg: var(--solid-fg);
+.u-btn[data-tone="accent"],
+.u-btn[data-tone="blue"]   { --btn-bg: var(--blue-solid-bg);   --btn-fg: var(--solid-fg);
                            --btn-tint: var(--blue-tint-bg); --btn-onpage: var(--blue-text);     --btn-ink: var(--blue-tint-fg); }
-.btn[data-tone="yellow"] { --btn-bg: var(--yellow-solid-bg); --btn-fg: var(--solid-fg);
+.u-btn[data-tone="yellow"] { --btn-bg: var(--yellow-solid-bg); --btn-fg: var(--solid-fg);
                            --btn-tint: var(--yellow-tint-bg); --btn-onpage: var(--yellow-text);   --btn-ink: var(--yellow-tint-fg); }
-.btn[data-tone="green"]  { --btn-bg: var(--green-solid-bg);  --btn-fg: var(--solid-fg);
+.u-btn[data-tone="green"]  { --btn-bg: var(--green-solid-bg);  --btn-fg: var(--solid-fg);
                            --btn-tint: var(--green-tint-bg); --btn-onpage: var(--green-text);    --btn-ink: var(--green-tint-fg); }
-.btn[data-tone="purple"] { --btn-bg: var(--purple-solid-bg); --btn-fg: var(--solid-fg);
+.u-btn[data-tone="purple"] { --btn-bg: var(--purple-solid-bg); --btn-fg: var(--solid-fg);
                            --btn-tint: var(--purple-tint-bg); --btn-onpage: var(--purple-text);   --btn-ink: var(--purple-tint-fg); }
-.btn[data-tone="red"]    { --btn-bg: var(--red-solid-bg);    --btn-fg: var(--solid-fg);
+.u-btn[data-tone="red"]    { --btn-bg: var(--red-solid-bg);    --btn-fg: var(--solid-fg);
                            --btn-tint: var(--red-tint-bg); --btn-onpage: var(--red-text);      --btn-ink: var(--red-tint-fg); }
-.btn[data-tone="orange"] { --btn-bg: var(--orange-solid-bg); --btn-fg: var(--solid-fg);
+.u-btn[data-tone="orange"] { --btn-bg: var(--orange-solid-bg); --btn-fg: var(--solid-fg);
                            --btn-tint: var(--orange-tint-bg); --btn-onpage: var(--orange-text);   --btn-ink: var(--orange-tint-fg); }
-.btn[data-tone="neutral"]{ --btn-bg: var(--fg);   --btn-fg: var(--bg);
+.u-btn[data-tone="neutral"]{ --btn-bg: var(--fg);   --btn-fg: var(--bg);
                            --btn-tint: var(--fill);
                            --btn-onpage: var(--fg); --btn-ink: var(--fg); }
 
-.btn {
+.u-btn {
   --h: var(--control-md);
   --pad: var(--s-5);
   display: inline-flex;
@@ -105,40 +105,40 @@ const isDisabled = computed(() => props.disabled || props.loading)
               box-shadow       var(--dur-fast) var(--ease-out),
               transform        var(--dur-instant) var(--ease-out);
 }
-.btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(.975); }
+.u-btn:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(.975); }
 
 /* One focus definition for every control in the system. */
-.btn:focus-visible {
+.u-btn:focus-visible {
   outline: var(--focus-width) solid var(--focus-color);
   outline-offset: 1px;
 }
 
-.s-sm { --h: var(--control-sm); --pad: var(--s-4); font-size: var(--fs-small); }
-.s-md { --h: var(--control-md); --pad: var(--s-5); }
-.s-lg { --h: var(--control-lg); --pad: var(--s-6); font-size: var(--fs-lead); }
-.block { display: flex; width: 100%; }
+.u-s-sm { --h: var(--control-sm); --pad: var(--s-4); font-size: var(--fs-small); }
+.u-s-md { --h: var(--control-md); --pad: var(--s-5); }
+.u-s-lg { --h: var(--control-lg); --pad: var(--s-6); font-size: var(--fs-lead); }
+.u-block { display: flex; width: 100%; }
 
 /* ---- variants ---- */
-.v-solid   { background: var(--btn-bg); color: var(--btn-fg); }
-.v-tinted  { background: var(--btn-tint); color: var(--btn-ink); }
-.v-outline { background: transparent; color: var(--btn-onpage); border-color: var(--border-strong); }
-.v-plain   { background: transparent; color: var(--btn-onpage); padding-inline: var(--s-3); }
+.u-v-solid   { background: var(--btn-bg); color: var(--btn-fg); }
+.u-v-tinted  { background: var(--btn-tint); color: var(--btn-ink); }
+.u-v-outline { background: transparent; color: var(--btn-onpage); border-color: var(--border-strong); }
+.u-v-plain   { background: transparent; color: var(--btn-onpage); padding-inline: var(--s-3); }
 
 /* Floating — the same solid recipe, lifted. The light is in front, so
    depth reads as SCALE rather than vertical travel: translating upward
    would imply a light source above and fight the even shadow. It grows
    toward the viewer on hover and drops back past its resting shadow on
    press, which is what makes it feel physical rather than decorated. */
-.v-floating {
+.u-v-floating {
   background: var(--btn-bg);
   color: var(--btn-fg);
   box-shadow: var(--shadow-3);
 }
-.v-floating:hover:not(:disabled):not([aria-disabled="true"]) {
+.u-v-floating:hover:not(:disabled):not([aria-disabled="true"]) {
   box-shadow: var(--shadow-4);
   transform: scale(1.015);
 }
-.v-floating:active:not(:disabled):not([aria-disabled="true"]) {
+.u-v-floating:active:not(:disabled):not([aria-disabled="true"]) {
   box-shadow: var(--shadow-1);
   transform: scale(.985);
 }
@@ -146,7 +146,7 @@ const isDisabled = computed(() => props.disabled || props.loading)
 /* Glass — tint, blur, rim, and a top highlight. The highlight is what
    separates glass from "a translucent rectangle": real glass catches
    light on its top edge. */
-.v-glass {
+.u-v-glass {
   position: relative;
   background: var(--glass-bg);
   color: var(--btn-onpage);
@@ -155,7 +155,7 @@ const isDisabled = computed(() => props.disabled || props.loading)
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
 }
-.v-glass::before {
+.u-v-glass::before {
   content: "";
   position: absolute;
   inset: 0 0 auto;
@@ -165,31 +165,31 @@ const isDisabled = computed(() => props.disabled || props.loading)
   opacity: .35;
   pointer-events: none;
 }
-.v-glass:hover:not(:disabled):not([aria-disabled="true"]) {
+.u-v-glass:hover:not(:disabled):not([aria-disabled="true"]) {
   background: color-mix(in srgb, var(--glass-bg) 70%, var(--btn-onpage));
 }
 
 /* Hover shifts toward the foreground so it works on light and dark from
    one declaration, instead of a hand-picked value per theme. */
-.v-solid:hover:not(:disabled):not([aria-disabled="true"]),
-.v-floating:hover:not(:disabled):not([aria-disabled="true"]) {
+.u-v-solid:hover:not(:disabled):not([aria-disabled="true"]),
+.u-v-floating:hover:not(:disabled):not([aria-disabled="true"]) {
   background: color-mix(in srgb, var(--btn-bg) 88%, var(--btn-fg));
 }
-.v-tinted:hover:not(:disabled):not([aria-disabled="true"]),
-.v-plain:hover:not(:disabled):not([aria-disabled="true"]) {
+.u-v-tinted:hover:not(:disabled):not([aria-disabled="true"]),
+.u-v-plain:hover:not(:disabled):not([aria-disabled="true"]) {
   background: color-mix(in srgb, var(--btn-tint) 60%, var(--btn-ink));
 }
-.v-outline:hover:not(:disabled):not([aria-disabled="true"]) {
+.u-v-outline:hover:not(:disabled):not([aria-disabled="true"]) {
   background: var(--btn-tint); border-color: var(--btn-ink);
 }
 
-.btn:disabled, .btn[aria-disabled="true"] {
+.u-btn:disabled, .u-btn[aria-disabled="true"] {
   opacity: .4;
   cursor: not-allowed;
   transform: none;
 }
 
-.spinner {
+.u-spinner {
   width: 1em; height: 1em; flex: none;
   border: 2px solid currentColor;
   border-top-color: transparent;
@@ -198,7 +198,7 @@ const isDisabled = computed(() => props.disabled || props.loading)
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .spinner { animation-duration: 2s; }
-  .btn { transition: none; }
+  .u-spinner { animation-duration: 2s; }
+  .u-btn { transition: none; }
 }
 </style>

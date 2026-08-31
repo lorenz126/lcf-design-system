@@ -34,15 +34,15 @@ const hasMsg = computed(() => Boolean(props.error || props.help))
 </script>
 
 <template>
-  <div class="field" :class="[`s-${size}`, { block, invalid: !!error }]">
-    <label v-if="label" :for="fieldId" class="label">
+  <div class="u-field" :class="[`u-s-${size}`, { 'u-block': block, 'u-invalid': !!error }]">
+    <label v-if="label" :for="fieldId" class="u-label">
       {{ label }}
-      <span v-if="required" class="req" aria-hidden="true">*</span>
+      <span v-if="required" class="u-req" aria-hidden="true">*</span>
     </label>
 
     <input
       :id="fieldId"
-      class="input"
+      class="u-input"
       :type="type"
       :value="modelValue"
       :placeholder="placeholder"
@@ -54,24 +54,24 @@ const hasMsg = computed(() => Boolean(props.error || props.help))
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     >
 
-    <p v-if="hasMsg" :id="msgId" class="msg" :class="{ err: !!error }">
+    <p v-if="hasMsg" :id="msgId" class="u-msg" :class="{ 'u-err': !!error }">
       {{ error || help }}
     </p>
   </div>
 </template>
 
 <style scoped>
-.field { display: inline-flex; flex-direction: column; gap: var(--s-2); }
-.block { display: flex; width: 100%; }
+.u-field { display: inline-flex; flex-direction: column; gap: var(--s-2); }
+.u-block { display: flex; width: 100%; }
 
-.label {
+.u-label {
   font: var(--w-medium) var(--fs-small)/1.3 var(--font-sans);
   letter-spacing: var(--tr-small);
   color: var(--fg);
 }
-.req { color: var(--danger-text); }
+.u-req { color: var(--danger-text); }
 
-.input {
+.u-input {
   --h: var(--field-md);
   width: 100%;
   height: var(--h);
@@ -87,43 +87,43 @@ const hasMsg = computed(() => Boolean(props.error || props.help))
               background-color var(--dur-fast) var(--ease-out),
               outline-color var(--dur-fast) var(--ease-out);
 }
-.s-sm .input { --h: var(--field-sm); font-size: var(--fs-small); padding-inline: var(--s-4); }
-.s-md .input { --h: var(--field-md); }
-.s-lg .input { --h: var(--field-lg); font-size: var(--fs-lead); padding-inline: var(--s-6); }
+.u-s-sm .u-input { --h: var(--field-sm); font-size: var(--fs-small); padding-inline: var(--s-4); }
+.u-s-md .u-input { --h: var(--field-md); }
+.u-s-lg .u-input { --h: var(--field-lg); font-size: var(--fs-lead); padding-inline: var(--s-6); }
 
-.input::placeholder { color: var(--fg-subtle); }
+.u-input::placeholder { color: var(--fg-subtle); }
 
-.input:hover:not(:disabled):not(:read-only) { border-color: var(--fg-subtle); }
+.u-input:hover:not(:disabled):not(:read-only) { border-color: var(--fg-subtle); }
 
 /* Focus uses the same ring as every other control, plus an accent border
    so the field still reads as focused for anyone who cannot see the ring
    colour against their background. */
-.input:focus-visible {
+.u-input:focus-visible {
   outline: var(--focus-width) solid var(--focus-color);
   outline-offset: 0;
   border-color: var(--accent);
 }
 
-.invalid .input { border-color: var(--danger-text); }
-.invalid .input:focus-visible {
+.u-invalid .u-input { border-color: var(--danger-text); }
+.u-invalid .u-input:focus-visible {
   outline-color: color-mix(in srgb, var(--danger-text) 40%, transparent);
 }
 
-.input:disabled {
+.u-input:disabled {
   opacity: .5;
   cursor: not-allowed;
   background: var(--fill-quiet);
 }
-.input:read-only:not(:disabled) {
+.u-input:read-only:not(:disabled) {
   background: var(--fill-quiet);
   border-color: var(--border);
 }
 
-.msg {
+.u-msg {
   margin: 0;
   font: var(--w-regular) var(--fs-caption)/1.4 var(--font-sans);
   letter-spacing: var(--tr-caption);
   color: var(--fg-muted);
 }
-.msg.err { color: var(--danger-text); }
+.u-msg.u-err { color: var(--danger-text); }
 </style>
