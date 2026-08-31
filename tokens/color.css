@@ -74,7 +74,7 @@
 
   --fg:            var(--gray-900);   /* primary text */
   --fg-muted:      var(--gray-600);   /* secondary text */
-  --fg-subtle:     var(--gray-400);   /* metadata, placeholders */
+  --fg-subtle:     var(--gray-500);   /* metadata, placeholders */
   --fg-on-accent:  var(--gray-0);     /* text on accent fills */
 
   --bg:            var(--gray-0);     /* page */

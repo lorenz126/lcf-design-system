@@ -6,7 +6,9 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "generate": "nuxt generate",
-    "preview": "nuxt preview"
+    "preview": "nuxt preview",
+    "test:contrast": "node scripts/check-contrast.mjs",
+    "test": "node scripts/check-contrast.mjs"
   },
   "devDependencies": {
     "nuxt": "^4.0.0",
