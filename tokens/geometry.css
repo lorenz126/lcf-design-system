@@ -31,10 +31,10 @@
   --r-lg: 12px;
   --r-xl: 16px;
   --r-full: 999px;
-  /* Rounded well past the 8px default. At 12px against a 26px control the
-     radius is 46% of the height — very nearly a capsule already, since a
-     true pill would be 13px. Drop to --r-md if that reads as too soft now
-     the controls are shorter. */
+  /* Rounded well past the 8px default. Controls clamp this to 40% of
+     their own height, so it acts as a ceiling rather than a fixed value:
+     lg takes the full 12px, md and sm scale down. A button never reaches
+     a capsule — see the border-radius rule in ui/Button.vue. */
   --r-control: var(--r-lg);
 
   --border-width: 1px;

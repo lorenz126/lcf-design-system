@@ -29,6 +29,16 @@ export interface PrincipleGroup {
 
 export const principles: PrincipleGroup[] = [
   { group: 'Typography',     scope: 'Type as a system of coupled decisions, not a list of sizes.', items: [] },
+  {
+    group: 'Controls',
+    scope: 'Shape and sizing of interactive elements.',
+    items: [
+      {
+        rule: 'Never fully round a button.',
+        why: 'A capsule reads as a tag or a pill — a thing you filter by, not a thing you press. Buttons stay recognisably rectangular with soft corners. Enforced structurally: the radius is capped at 40% of the control height, so it holds even if the radius token is raised or the control is made shorter.'
+      }
+    ]
+  },
   { group: 'Color',          scope: 'Palette, semantics, contrast.', items: [] },
   { group: 'Space & Layout', scope: 'Rhythm, density, alignment.', items: [] },
   { group: 'Surface & Depth', scope: 'Elevation, borders, shadow, material.', items: [] },

@@ -88,7 +88,11 @@ const isDisabled = computed(() => props.disabled || props.loading)
   height: var(--h);
   padding-inline: var(--pad);
   border: var(--border-width) solid transparent;
-  border-radius: var(--r-control);
+  /* Capped at 40% of the height so a button can never reach a capsule,
+     whatever --r-control is set to or however short the control gets.
+     Enforced here rather than by tuning the token, because the rule has
+     to survive someone changing the radius later. */
+  border-radius: min(var(--r-control), calc(var(--h) * 0.4));
   font: var(--w-medium) var(--fs-body)/1 var(--font-sans);
   letter-spacing: var(--tr-body);
   text-decoration: none;
