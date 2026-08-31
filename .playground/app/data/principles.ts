@@ -56,6 +56,15 @@ export const principles: PrincipleGroup[] = [
   { group: 'Space & Layout', scope: 'Rhythm, density, alignment.', items: [] },
   { group: 'Surface & Depth', scope: 'Elevation, borders, shadow, material.', items: [] },
   { group: 'Motion',         scope: 'Timing, easing, what earns animation.', items: [] },
-  { group: 'Interaction',    scope: 'States, affordances, feedback.', items: [] },
+  {
+    group: 'Interaction',
+    scope: 'States, affordances, feedback.',
+    items: [
+      {
+        rule: 'Always use one focus colour, on every control.',
+        why: 'A focus ring answers "where am I", not "what kind of thing is this". Tinting it per tone — red on destructive, green on confirm — costs instant recognisability and buys nothing, since the control itself already carries the tone. It is also solid rather than translucent: the accent at 45% alpha measured 2.54:1 on white and 1.21:1 on the dark page, below the 3:1 WCAG asks of a focus indicator.'
+      }
+    ]
+  },
   { group: 'Content & Voice', scope: 'Labels, tone, empty states, errors.', items: [] }
 ]

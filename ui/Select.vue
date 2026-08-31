@@ -8,6 +8,8 @@
  * When the options need icons or descriptions, that is a different
  * component (a Combobox), not a flag on this one.
  */
+import { ChevronDown } from 'lucide-vue-next'
+
 export interface Option { value: string; label: string; disabled?: boolean }
 
 withDefaults(defineProps<{
@@ -55,10 +57,7 @@ const msgId = computed(() => `sm-${uid}`)
         </option>
       </select>
 
-      <svg class="u-chevron" viewBox="0 0 10 6" aria-hidden="true" focusable="false">
-        <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor"
-              stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
+      <UiIcon :is="ChevronDown" size="sm" class="u-chevron" />
     </div>
 
     <p v-if="error || help" :id="msgId" class="u-msg" :class="{ 'u-err': !!error }">
@@ -111,7 +110,7 @@ const msgId = computed(() => `sm-${uid}`)
 
 .u-chevron {
   position: absolute; inset-inline-end: var(--s-5); top: 50%;
-  width: 10px; height: 6px; translate: 0 -50%;
+  translate: 0 -50%;
   color: var(--fg-muted); pointer-events: none;
 }
 .u-s-sm .u-chevron { inset-inline-end: var(--s-4); }

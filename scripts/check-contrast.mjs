@@ -17,7 +17,12 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const css = readFileSync(join(root, 'tokens/color.css'), 'utf8')
+// geometry.css defines --focus-color in terms of --accent, so both files
+// have to be in the map for the focus ring to resolve.
+const css =
+  readFileSync(join(root, 'tokens/color.css'), 'utf8') +
+  '\n' +
+  readFileSync(join(root, 'tokens/geometry.css'), 'utf8')
 
 /* ---------- parse ---------- */
 
@@ -218,7 +223,17 @@ function expectations() {
     },
     { what: 'accent/text', fg: '--accent-text', bg: '--bg', min: AA },
     { what: 'accent/hover', fg: '--accent-hover', bg: '--bg', min: AA },
-    { what: 'solid/neutral', fg: '--bg', bg: '--fg', min: AA }
+    { what: 'solid/neutral', fg: '--bg', bg: '--fg', min: AA },
+    {
+      // outline-offset puts the ring on the PAGE, not on the control, so
+      // that is what it has to contrast against. WCAG 2.4.11 wants 3:1
+      // for a focus indicator.
+      what: 'focus-ring',
+      fg: '--focus-color',
+      bg: '--bg',
+      min: UI,
+      why: 'focus indicator, graded against the page it sits on'
+    }
   ]
   for (const h of HUES) {
     const relaxed = LIGHT_HUES.includes(h)

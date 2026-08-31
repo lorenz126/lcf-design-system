@@ -6,6 +6,12 @@
  * keeps the space bar, form submission, label association and screen
  * reader semantics for free; a rebuilt checkbox has to earn all four back
  * and usually gets one of them wrong.
+ *
+ * The tick is hand-drawn on a 10px grid rather than Lucide's Check, which
+ * every other icon in the layer comes from. Measured: Lucide draws on a
+ * 24px viewBox, so at 10px its stroke resolves to 0.73px — sub-pixel, and
+ * it renders as a soft grey smudge instead of a crisp mark. This path is
+ * native to 10px at 1.8px stroke. Do not "unify" it away.
  */
 const props = defineProps<{
   modelValue?: boolean

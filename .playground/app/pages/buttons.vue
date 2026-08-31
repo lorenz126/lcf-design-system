@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ArrowRight, Plus, Trash2, Settings } from 'lucide-vue-next'
 useHead({ title: 'Buttons — Design Framework' })
 
 const variants = ['solid', 'tinted', 'outline', 'plain', 'floating'] as const
@@ -40,6 +41,36 @@ const loading = ref(false)
           </div>
         </template>
       </div>
+    </section>
+
+    <section>
+      <div class="sec-label">Icons</div>
+      <div class="row">
+        <UiButton>
+          <template #leading><UiIcon :is="Plus" /></template>
+          New project
+        </UiButton>
+        <UiButton variant="tinted">
+          Continue
+          <template #trailing><UiIcon :is="ArrowRight" /></template>
+        </UiButton>
+        <UiButton variant="outline" tone="neutral" icon-only aria-label="Settings">
+          <UiIcon :is="Settings" />
+        </UiButton>
+        <UiButton tone="red" icon-only aria-label="Delete project">
+          <UiIcon :is="Trash2" />
+        </UiButton>
+        <UiButton loading>
+          <template #leading><UiIcon :is="Plus" /></template>
+          Working
+        </UiButton>
+      </div>
+      <p class="t-caption hint">
+        The spinner takes the leading slot’s place rather than adding to it, so the
+        button keeps its width while it works. Icon-only buttons require
+        <code>aria-label</code> — the component warns in dev if it is missing, rather
+        than leaving it to documentation.
+      </p>
     </section>
 
     <section>
@@ -147,6 +178,7 @@ section { margin-bottom: 64px; }
 .row { display: flex; flex-wrap: wrap; gap: var(--s-5); align-items: center; }
 .stack { display: flex; flex-direction: column; gap: var(--s-4); max-width: 340px; }
 .hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
+
 
 .float-stage {
   display: flex; gap: var(--s-6); align-items: center;

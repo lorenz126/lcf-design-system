@@ -46,7 +46,36 @@
 
   --border-width: 1px;
 
+  /* Icon sizes, tied to the type scale rather than a separate ramp. An
+     icon reads heavier than text at the same nominal size, so each step
+     sits slightly ABOVE its text size to look equal beside it:
+       13px text -> 14px icon, 15px -> 16px, 17px -> 20px. */
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 20px;
+  /* Lucide draws on a 24px grid at stroke 2. Scaled down to 16px that
+     reads heavy next to 15px text, so the stroke thins with the icon. */
+  --icon-stroke: 1.75;
+
+  /* Stacking order, named by role. A scale that exists before the first
+     overlay is what prevents the z-index: 9999 arms race later. */
+  --z-base:     0;
+  --z-raised:   10;
+  --z-sticky:   20;
+  --z-dropdown: 30;
+  --z-overlay:  40;
+  --z-toast:    50;
+
   /* Focus ring — one definition, every control. */
-  --focus-width: 3px;
-  --focus-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  /* Solid, not translucent. The accent at 45% alpha measured 2.54:1 on
+     white and 1.21:1 on the dark page — below the 3:1 WCAG asks of a
+     focus indicator, and invisible in dark mode. Solid clears it in both
+     (4.02 and 5.43), so the width comes down to compensate for the extra
+     weight.
+
+     One colour for every control, including destructive ones. A focus
+     ring answers "where am I", not "what kind of thing is this"; making
+     it change colour per tone costs recognisability and buys nothing. */
+  --focus-width: 2px;
+  --focus-color: var(--accent);
 }

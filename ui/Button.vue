@@ -27,6 +27,11 @@ const props = withDefaults(defineProps<{
   disabled?: boolean
   loading?: boolean
   block?: boolean
+  /** Square button with no label. Requires ariaLabel. */
+  iconOnly?: boolean
+  /** The accessible name. Mandatory when iconOnly, since the glyph
+   *  carries no text for a screen reader to announce. */
+  ariaLabel?: string
   /** Renders as <a> when set. */
   href?: string
 }>(), {
@@ -37,21 +42,40 @@ const props = withDefaults(defineProps<{
 
 const tag = computed(() => (props.href ? 'a' : 'button'))
 const isDisabled = computed(() => props.disabled || props.loading)
+
+// Enforced rather than documented: an icon-only button with no
+// accessible name is announced as "button" and nothing else.
+if (import.meta.dev) {
+  watchEffect(() => {
+    if (props.iconOnly && !props.ariaLabel) {
+      console.warn('[UiButton] iconOnly requires ariaLabel — the glyph gives a screen reader nothing to announce.')
+    }
+  })
+}
 </script>
 
 <template>
   <component
     :is="tag"
     class="u-btn"
-    :class="[`u-v-${variant}`, `u-s-${size}`, { 'u-block': block, 'u-loading': loading }]"
+    :class="[
+      `u-v-${variant}`,
+      `u-s-${size}`,
+      { 'u-block': block, 'u-loading': loading, 'u-icon-only': iconOnly }
+    ]"
     :data-tone="tone"
     :href="href"
     :disabled="tag === 'button' ? isDisabled : undefined"
     :aria-disabled="tag === 'a' && isDisabled ? 'true' : undefined"
     :aria-busy="loading ? 'true' : undefined"
+    :aria-label="ariaLabel"
   >
+    <!-- The spinner takes the leading slot's place rather than adding to
+         it, so the button does not change width while it works. -->
     <span v-if="loading" class="u-spinner" aria-hidden="true" />
+    <slot v-else name="leading" />
     <slot />
+    <slot name="trailing" />
   </component>
 </template>
 
@@ -117,6 +141,10 @@ const isDisabled = computed(() => props.disabled || props.loading)
 .u-s-md { --h: var(--control-md); --pad: var(--s-5); }
 .u-s-lg { --h: var(--control-lg); --pad: var(--s-6); font-size: var(--fs-lead); }
 .u-block { display: flex; width: 100%; }
+
+/* Square: the inline padding collapses to match the block padding, so the
+   glyph sits in the middle of a box rather than in a short wide one. */
+.u-icon-only { padding-inline: 0; aspect-ratio: 1; }
 
 /* ---- variants ---- */
 .u-v-solid   { background: var(--btn-bg); color: var(--btn-fg); }
