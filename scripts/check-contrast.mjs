@@ -224,6 +224,19 @@ function expectations() {
     { what: 'accent/text', fg: '--accent-text', bg: '--bg', min: AA },
     { what: 'accent/hover', fg: '--accent-hover', bg: '--bg', min: AA },
     { what: 'solid/neutral', fg: '--bg', bg: '--fg', min: AA },
+    // Text does not only appear on the page. A card, a well and a board
+    // column are all backdrops something has to be read against.
+    { what: 'text/primary on raised', fg: '--fg', bg: '--bg-raised', min: AA },
+    { what: 'text/muted on raised', fg: '--fg-muted', bg: '--bg-raised', min: AA },
+    { what: 'text/muted on sunken', fg: '--fg-muted', bg: '--bg-sunken', min: AA },
+    {
+      what: 'text/subtle on sunken',
+      fg: '--fg-subtle',
+      bg: '--bg-sunken',
+      min: UI,
+      why: 'counts and limits in a column header; never body copy'
+    },
+    { what: 'danger on sunken', fg: '--danger-text', bg: '--bg-sunken', min: AA },
     // Chart marks are graphics, so 3:1 is the right threshold. Their
     // separation FROM EACH OTHER is a different question this script
     // cannot answer — that is the dataviz validator's six checks, and
@@ -251,7 +264,17 @@ function expectations() {
       { what: `badge/${h}`, fg: `--${h}-badge-fg`, bg: `--${h}-badge-bg`, min, why },
       { what: `tinted/${h}`, fg: `--${h}-tint-fg`, bg: `--${h}-tint-bg`, min, why },
       // Solid takes white text always, so it must clear AA for every hue.
-      { what: `solid/${h}`, fg: '--solid-fg', bg: `--${h}-solid-bg`, min: AA }
+      { what: `solid/${h}`, fg: '--solid-fg', bg: `--${h}-solid-bg`, min: AA },
+      // A diagram node: tinted ground on a card, outlined in the hue.
+      // The outline carries the shape, so it is graded as a UI boundary.
+      {
+        what: `node-edge/${h}`,
+        fg: `--${h}-text`,
+        bg: '--bg-raised',
+        min: UI,
+        why: 'node outline, not text'
+      },
+      { what: `node-text/${h}`, fg: '--fg', bg: `--${h}-fill`, on: '--bg-raised', min: AA }
     )
   }
   return out
@@ -273,10 +296,12 @@ let failed = 0
 
 for (const theme of ['light', 'dark']) {
   const map = themeMap(parsed, theme)
-  const page = resolve(map['--bg'], map)
 
   for (const e of expectations()) {
     try {
+      // A translucent colour has to be flattened onto whatever is really
+      // behind it, and that is not always the page.
+      const page = resolve(map[e.on ?? '--bg'], map)
       const bg = over(resolve(map[e.bg], map), page)
       const fg = over(resolve(map[e.fg], map), bg)
       const r = ratio(fg, bg)
