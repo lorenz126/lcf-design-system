@@ -98,6 +98,7 @@ function onSubmit() {
             block
             placeholder="Search components"
             label="Search components"
+            shortcut="k"
             :suggestions="matches"
             :recent="recent"
             recent-label="Recently opened"

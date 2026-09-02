@@ -103,6 +103,12 @@ const sizes = ['sm', 'md', 'lg'] as const
         if there is none.
       </p>
       <p class="t-caption hint">
+        The field in the top bar of this page takes <strong>⌘K</strong>, and says so
+        until you use it. The shortcut is opt-in on purpose: the key is claimed on the
+        window, so two fields that both claimed it would fight over the same press —
+        and there are five fields on this page.
+      </p>
+      <p class="t-caption hint">
         It renders what it is given and does not search. Ranking, fuzziness and where
         results come from are the application's business — and the recents are a prop
         for the same reason, since a control that quietly wrote to

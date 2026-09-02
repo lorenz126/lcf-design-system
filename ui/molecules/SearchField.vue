@@ -41,6 +41,12 @@ import { Clock, Search, X } from 'lucide-vue-next'
  * keeps the top layer, so no ancestor's overflow can clip it, and leaves
  * opening and closing to focus, where it belongs here.
  *
+ * `shortcut` is OPT-IN, and that is not caution — it is the only sane
+ * default. The key is claimed on the window, so two fields that both
+ * claimed it would fight over the same press, and a page can easily have
+ * several: this framework's own workshop shows five on one page. One
+ * field per page owns the shortcut, and the page says which.
+ *
  * WHAT IT DOES NOT DO IS SEARCH. It renders what it is given: matches
  * while there is a query, recents while there is not. Ranking, fuzziness
  * and where the results come from are the application's business, and a
@@ -72,6 +78,12 @@ const props = withDefaults(defineProps<{
   recentLabel?: string
   /** Shown when there is a query and nothing matched it. */
   emptyText?: string
+  /**
+   * A single key that focuses this field when pressed with the platform's
+   * command modifier — 'k' gives ⌘K on a Mac and Ctrl K elsewhere. Only
+   * one field on a page should claim one.
+   */
+  shortcut?: string
 }>(), {
   size: 'md',
   placeholder: 'Search',
@@ -87,6 +99,32 @@ const emit = defineEmits<{
   /** Enter with no suggestion highlighted. */
   submit: [string]
 }>()
+
+/* Rendered as Ctrl until proven otherwise. Deciding on the server would
+   mean guessing, and guessing wrong is a hydration mismatch. */
+const mac = ref(false)
+const hint = computed(() =>
+  props.shortcut ? `${mac.value ? '⌘' : 'Ctrl '}${props.shortcut.toUpperCase()}` : ''
+)
+
+function onWindowKey(e: KeyboardEvent) {
+  if (!props.shortcut || props.disabled) return
+  if (!(mac.value ? e.metaKey : e.ctrlKey) || e.altKey || e.shiftKey) return
+  if (e.key.toLowerCase() !== props.shortcut.toLowerCase()) return
+  // Firefox gives Ctrl K to its own search bar; an app that claims the
+  // key has to take it.
+  e.preventDefault()
+  field.value?.focus()
+  // Selected rather than appended: reaching for the shortcut means
+  // starting a search, not continuing the last one.
+  field.value?.select()
+}
+
+onMounted(() => {
+  mac.value = /Mac|iP(hone|ad|od)/.test(navigator.platform || navigator.userAgent)
+  addEventListener('keydown', onWindowKey)
+})
+onBeforeUnmount(() => removeEventListener('keydown', onWindowKey))
 
 const uid = useId()
 const listId = `sfl-${uid}`
@@ -110,6 +148,7 @@ const configured = computed(() =>
 )
 
 const open = ref(false)
+const focused = ref(false)
 /** Index into `shown`, or -1 for "the query itself". */
 const active = ref(-1)
 
@@ -215,14 +254,21 @@ function onInput() {
   nextTick(show)
 }
 
+function onFocus() {
+  focused.value = true
+  show()
+}
+
 /** Closing on focusout rather than blur: the clear button is inside. */
 function onFocusOut(e: FocusEvent) {
   const to = e.relatedTarget as Node | null
   if (to && root.value?.contains(to)) return
+  focused.value = false
   hide()
 }
 
-/** Focus the field from outside — a ⌘K shortcut, a toolbar button. */
+/** Focus it from outside — a toolbar button, a link into search. The
+ *  `shortcut` prop covers the keyboard case. */
 defineExpose({ focus: () => field.value?.focus() })
 </script>
 
@@ -248,10 +294,14 @@ defineExpose({ focus: () => field.value?.focus() })
       :aria-autocomplete="configured ? 'list' : undefined"
       :aria-activedescendant="open && active >= 0 ? optId(active) : undefined"
       autocomplete="off"
-      @focus="show"
+      @focus="onFocus"
       @input="onInput"
       @keydown="onKey"
     >
+    <!-- A shortcut nobody can see is a shortcut nobody uses. It goes as
+         soon as the field is in use, so it never crowds the clear button. -->
+    <kbd v-if="hint && !model && !focused" class="u-sf-key" aria-hidden="true">{{ hint }}</kbd>
+
     <button
       v-if="model"
       type="button"
@@ -333,6 +383,16 @@ defineExpose({ focus: () => field.value?.focus() })
 .u-s-lg { --h: var(--control-lg); --fs: var(--fs-small); }
 
 .u-sf-glyph { flex: none; color: var(--fg-subtle); }
+
+/* No keycap ground behind it. The field already sits on a fill, and a
+   second one on top is a box inside a box for a piece of text that is
+   only a reminder. */
+.u-sf-key {
+  flex: none;
+  color: var(--fg-subtle);
+  font: var(--w-medium) var(--fs-micro)/1 var(--font-mono);
+  white-space: nowrap;
+}
 
 .u-sf-input {
   flex: 1;
