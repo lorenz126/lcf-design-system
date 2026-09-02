@@ -67,6 +67,7 @@ export const tiers: NavGroup[] = [
     ['Select', 'uses Icon'],
     ['ToggleGroup'],
     ['SearchField'],
+    ['Combobox', 'a form one; SearchField is chrome'],
     ['CommandPalette', 'useCommands() fills it'],
     ['Tooltip'],
     ['Popover'],
@@ -86,7 +87,8 @@ export const tiers: NavGroup[] = [
     ['DatePicker', 'uses Calendar, Field'],
     ['Kanban'],
     ['Diagram'],
-    ['Sidebar', 'owns a tree of items']
+    ['Sidebar', 'owns a tree of items'],
+    ['TreeView', 'the depth Sidebar refuses']
   ]),
   group('Templates', 'templates', LayoutTemplate, [
     ['AppShell', 'shown with TopBar and Sidebar'],

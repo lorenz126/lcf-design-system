@@ -293,6 +293,9 @@ function expectations() {
     // dot, so it is held to AA and not to the UI floor — and it sits on
     // the same neutral fill the tab itself uses when it is the open one.
     { what: 'tab count', fg: '--fg-muted', bg: '--fill', min: AA },
+    // A combobox chip: the label of something already chosen, on the
+    // same neutral fill, and read rather than glanced at.
+    { what: 'combobox chip', fg: '--fg', bg: '--fill', on: '--bg-raised', min: AA },
     { what: 'tab count, open', fg: '--fg', bg: '--fill', min: AA },
     // The current row in a sidebar: accent text on the accent tint, on a
     // raised panel. The most important line in the navigation.

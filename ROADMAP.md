@@ -289,12 +289,40 @@ Each gets its own, as before. No blanket approval.
   popup is unstyleable, so it cannot show the events and the range
   Calendar already draws, and its segmented display cannot be pasted
   into. The price is owning the parsing, and it is paid in one file.
-- **Combobox for forms.** SearchField is a combobox for chrome. A form
-  one has different needs: a value that is an id rather than a string,
-  multiple selection, creation of new options.
-- **TreeView.** Sidebar explicitly refused to become one. When something
-  actually needs arbitrary depth, this is the component — roving tabindex,
-  arrows that expand and collapse, level announcements.
+- **Combobox for forms.** *Built* — `ui/molecules/Combobox.vue`.
+  **No dependency taken.**
+
+  The value is an id, not the text: SearchField's model is the query
+  someone typed, because a search box's value *is* what was typed, and a
+  form submits a country rather than the letters "Germ".
+
+  It filters where SearchField refuses to, by the palette's rule — a
+  component should filter exactly when it knows what it is filtering.
+  **But it looks up rather than searching:** a palette is a search, where
+  fuzzy matching earns its keep on a half-remembered command; a form
+  combobox is a lookup, and a fuzzy match there offers Denmark to
+  somebody who mistyped Germany.
+
+  Creating was the real question, and the answer is that the control
+  stops at the edge of it: `creatable` offers the row, choosing it emits
+  `create`, and nothing is written. A component that pushed the option
+  into its own list would make one that exists until the page reloads.
+- **TreeView.** *Built* — `ui/organisms/TreeView.vue`.
+  **No dependency taken.**
+
+  The part a flat roving tabindex gets wrong is that the list the arrows
+  walk is not the list of nodes — it is the list of nodes you can
+  currently *see*, and it changes on every open. So it is derived, never
+  stored: an index into a list that has since changed is how a cursor
+  ends up somewhere nobody pointed it.
+
+  Right and Left each do two things — open or step in, close or step out
+  — which is what lets a tree be walked with two keys instead of four,
+  and it is the gesture everyone already has from a file browser.
+
+  The level is *spoken*: `aria-level`, `aria-posinset` and `aria-setsize`
+  are the only thing telling a screen reader that a row is the second of
+  four, three deep. Indentation says it to an eye and to nothing else.
 
 ---
 
@@ -334,16 +362,14 @@ a scale, like half volume), and only the first should catch a drag.
 
 ## Next
 
-Two left, both in Phase 11, and they are unrelated enough that neither
-should wait for the other.
+Nothing. Every entry in this catalogue is built, and the three dependency
+decisions it reserved were all answered the same way: no dependency was
+taken.
 
-**Combobox for forms.** SearchField is a combobox for chrome; a form one
-has different needs — a value that is an id rather than a string,
-multiple selection, and creating an option that does not exist yet. The
-last of those is the real question, because it is the point where the
-control stops choosing and starts writing.
-
-**TreeView.** Sidebar explicitly refused to become one. When something
-actually needs arbitrary depth this is the component, and the work is
-roving tabindex, arrows that expand and collapse, and level
-announcements.
+What is left is not a list of components. It is the two habits that found
+the last dozen defects — measuring instead of judging, and loading every
+page and reading what the browser says — and one open question:
+**`vue-tsc`**. Five regressions in one afternoon were identifiers a
+template referenced and a script no longer declared. A typecheck of the
+templates would have caught every one at build time, without a browser.
+It is a real dependency, so it gets its own decision like the rest.
