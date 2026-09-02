@@ -67,6 +67,55 @@ describe('Slider', () => {
     expect(tick).toMatch(geometry)
   })
 
+  it('leaves the value where it is put, unless asked to snap', async () => {
+    const w = open({ modelValue: 20, ticks: [25, 50, 75] })
+    const i = w.find('input')
+    i.element.value = '24'
+    await i.trigger('pointerdown')
+    await i.trigger('input')
+    expect(w.emitted('update:modelValue')!.at(-1)).toEqual([24])
+  })
+
+  it('catches a dragged handle near a mark', async () => {
+    const w = open({ modelValue: 20, ticks: [25, 50, 75], snap: true })
+    const i = w.find('input')
+    await i.trigger('pointerdown')
+    i.element.value = '24'
+    await i.trigger('input')
+    expect(w.emitted('update:modelValue')!.at(-1)).toEqual([25])
+  })
+
+  it('lets go once the drag is far enough away', async () => {
+    // 4% of 0–100 is four units, so 30 is outside the pull of 25.
+    const w = open({ modelValue: 20, ticks: [25, 50, 75], snap: true })
+    const i = w.find('input')
+    await i.trigger('pointerdown')
+    i.element.value = '30'
+    await i.trigger('input')
+    expect(w.emitted('update:modelValue')!.at(-1)).toEqual([30])
+  })
+
+  it('never magnetises the keyboard', async () => {
+    // An arrow key is exact. Landing on 25 because a mark was nearby is
+    // the control reporting something the user did not do.
+    const w = open({ modelValue: 20, ticks: [25, 50, 75], snap: true })
+    const i = w.find('input')
+    await i.trigger('keydown', { key: 'ArrowRight' })
+    i.element.value = '24'
+    await i.trigger('input')
+    expect(w.emitted('update:modelValue')!.at(-1)).toEqual([24])
+  })
+
+  it('takes a pull distance in its own units', async () => {
+    const w = open({ modelValue: 0, min: -12, max: 12, ticks: [0], snap: 1 })
+    const i = w.find('input')
+    await i.trigger('pointerdown')
+    i.element.value = '2'
+    await i.trigger('input')
+    // Two away from the mark, with a pull of one: it stays put.
+    expect(w.emitted('update:modelValue')!.at(-1)).toEqual([2])
+  })
+
   it('turns the marks with the slider', () => {
     const w = open({ modelValue: 40, orientation: 'vertical', ticks: [50] })
     const style = w.find('.u-sl-tick').attributes('style')!

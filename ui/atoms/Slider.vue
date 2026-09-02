@@ -23,12 +23,20 @@
  * reading "40" for a volume tells you nothing. `format` supplies the
  * unit, and the default supplies a percent when min and max make one.
  *
- * TICKS ARE MARKS, NOT STOPS. A dot under the rail says "half" without
- * making the thumb land there — snapping is what `step` is for, and a
- * slider that pulls toward marks it was never told to honour is a slider
- * that cannot be set to 51. They are hidden from assistive technology
- * because the value is already announced and reading four dots adds
- * nothing to it.
+ * TICKS ARE MARKS UNTIL YOU SAY OTHERWISE. A dot under the rail says
+ * "half" without making the thumb land there, because a slider that
+ * pulls toward marks it was never told to honour is one that cannot be
+ * set to 51. `snap` turns them into stops, and it is a prop rather than
+ * a consequence of having marks at all.
+ *
+ * AND IT SNAPS FOR THE POINTER ONLY. A drag is imprecise and a magnet
+ * helps it; an arrow key is exact and a magnet lies about it — pressing
+ * right at 24 and landing on 25 because a mark was nearby is a control
+ * reporting something the user did not do. So the keyboard always moves
+ * by `step`, and the magnet only ever catches a pointer.
+ *
+ * The marks are hidden from assistive technology because the value is
+ * already announced and reading four dots adds nothing to it.
  *
  * The thumb travels inside the track rather than across it, so a tick at
  * one half belongs at half of (width − thumb) plus half a thumb, not at
@@ -55,6 +63,12 @@ const props = withDefaults(defineProps<{
    * not stops — see above.
    */
   ticks?: number[]
+  /**
+   * Makes the marks catch a dragged handle. A number sets how close the
+   * pointer has to come, in the slider's own units; `true` uses 4% of
+   * the range. The keyboard is never magnetised — see above.
+   */
+  snap?: boolean | number
   /** What a screen reader hears, and what `showValue` prints. */
   format?: (n: number) => string
 }>(), {
@@ -88,6 +102,30 @@ const at = (v: number) => {
 const marks = computed(() =>
   (props.ticks ?? []).filter(v => v >= props.min && v <= props.max)
 )
+
+/* ---------- the magnet ---------- */
+
+/** How close a drag has to come. Proportional, so it does not need
+ *  retuning when the range changes from 0–100 to −12–12. */
+const pull = computed(() =>
+  typeof props.snap === 'number' ? props.snap : Math.abs(span.value) * 0.04
+)
+
+/** True while the last thing that touched this was a key. */
+const keying = ref(false)
+
+function magnet(v: number) {
+  if (!props.snap || !marks.value.length) return v
+  const near = marks.value.reduce((a, b) =>
+    Math.abs(b - v) < Math.abs(a - v) ? b : a
+  )
+  return Math.abs(near - v) <= pull.value ? near : v
+}
+
+function onInput(e: Event) {
+  const raw = Number((e.target as HTMLInputElement).value)
+  model.value = keying.value ? raw : magnet(raw)
+}
 </script>
 
 <template>
@@ -106,7 +144,7 @@ const marks = computed(() =>
         <div class="u-sl-wrap" :class="{ 'u-sl-ticked': marks.length }">
           <input
             :id="fieldId"
-            v-model.number="model"
+            :value="model"
             type="range"
             class="u-sl-track"
             :min="min"
@@ -118,6 +156,9 @@ const marks = computed(() =>
             :aria-valuetext="text"
             :aria-orientation="orientation"
             :style="{ '--sl-stop': at(model) }"
+            @input="onInput"
+            @keydown="keying = true"
+            @pointerdown="keying = false"
           >
 
           <!-- Decoration: the value is already announced, and four dots

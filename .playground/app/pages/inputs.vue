@@ -113,7 +113,14 @@ const sizes = ['sm', 'md', 'lg'] as const
     <section>
       <div class="sec-label">Slider</div>
       <div class="row sliders">
-        <UiSlider v-model="volume" label="Volume" :ticks="[12.5, 25, 50]" show-value block>
+        <UiSlider
+          v-model="volume"
+          label="Volume"
+          :ticks="[25, 50, 75]"
+          snap
+          show-value
+          block
+        >
           <template #leading><UiIcon :is="Volume1" size="sm" /></template>
           <template #trailing><UiIcon :is="Volume2" size="lg" /></template>
         </UiSlider>
@@ -161,10 +168,17 @@ const sizes = ['sm', 'md', 'lg'] as const
         <strong>“+3 dB”</strong>, because that is what the number means.
       </p>
       <p class="t-caption hint">
-        The dots are <strong>marks, not stops</strong>. An eighth, a quarter and a half
-        are worth pointing at; making the thumb land on them is what <code>step</code>
-        is for, and a slider that pulls toward marks it was never told to honour is one
-        that cannot be set to 51.
+        The dots are <strong>marks until you say otherwise</strong>. A slider that
+        pulled toward marks it was never told to honour would be one that cannot be set
+        to 51, so <code>snap</code> is a prop rather than a consequence of having marks
+        at all. Volume has it; drag its handle past a quarter and feel it catch.
+      </p>
+      <p class="t-caption hint">
+        <strong>And it catches the pointer only.</strong> A drag is imprecise and a
+        magnet helps it; an arrow key is exact and a magnet lies about it — pressing
+        right at 24 and landing on 25 because a mark was nearby is a control reporting
+        something you did not do. Tab to the handle and walk it through 25 with the
+        arrows: it steps by one the whole way.
       </p>
       <p class="t-caption hint">
         They also decided a geometry question. The thumb travels <em>inside</em> the
