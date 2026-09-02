@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm test)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm build)",
+      "Bash(pnpm install)",
+      "Bash(node scripts/check-contrast.mjs)",
+      "Bash(node scripts/check-layers.mjs)",
+      "Bash(node scripts/check-dialogs.mjs)",
+      "Bash(node scripts/check-pages.mjs)",
+      "Bash(node scripts/check-package.mjs)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)"
+    ]
+  }
+}

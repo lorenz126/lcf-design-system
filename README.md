@@ -25,9 +25,13 @@ Typography foundation for a personal design framework. SF Pro, systematised.
 - **`.playground/`** — the workshop. A Nuxt app that consumes this layer
   exactly the way a real project does, so anything broken about the layer's
   public surface breaks here first. Not shipped.
-- **`scripts/check-contrast.mjs`** — resolves the colour tokens and asserts
-  every foreground/background pair against WCAG. Runs in CI without a browser.
-- **`scripts/check-layers.mjs`** — fails if a tier reaches upward.
+- **`demo/`** — an issue tracker that consumes the layer from outside, the
+  way an installed copy would. Not shipped either.
+- **`scripts/check-*.mjs`** — five guards, each for something no build and
+  no test would notice: colour contrast, the tier dependency direction, a
+  closed dialog that an author's `display` un-hid, a component with no page
+  (or a page with no component), and what `files` would actually install.
+  All run in CI without a browser.
 
 `tokens/` stays framework-agnostic on purpose: plain CSS custom properties with
 no Nuxt dependency, usable from any stack.
@@ -60,9 +64,8 @@ That brings the tokens, the `Ui*` components and the pre-paint theme script.
 
 ## Principles
 
-The design principles live in `app/data/principles.ts` and render on the
-Principles tab. Currently empty — groups are scaffolded, rules are not yet
-written.
+The design principles live in `.playground/app/data/principles.ts` and
+render on the Principles page.
 
 House style for writing them: start with *Always* or *Never*, one rule per
 entry, and always give the reason. A rule you can't justify is a habit, not a
@@ -80,15 +83,17 @@ redistribution — self-hosting SF for a public site falls outside it.
 ```
 pnpm install
 pnpm dev     # the playground
-pnpm test        # contrast, layer boundaries, package surface, behaviour
+pnpm test        # all six: contrast, layers, dialogs, pages, package,
+                 # behaviour, and both typechecks
 pnpm test:watch  # the behaviour tests, while you work
 ```
 
 ### What the tests are for
 
-Three of the four checks look at what a component *is* — its contrast,
-where it sits in the tiers, whether it would install. Only the fourth
-looks at what it **does**, and that is the part nothing else can see: an
+Most of the checks look at what a component *is* — its contrast, where it
+sits in the tiers, whether a closed dialog stays closed, whether it would
+install. Only the behaviour suite looks at what it **does**, and that is
+the part nothing else can see: an
 arrow key that stops moving, a mode that stops clearing, a highlight that
 takes the focus with it. None of those changes a colour or a file list.
 
@@ -134,4 +139,12 @@ open it, and check three things the build will not tell you: the tokens
 resolved, `styles/base.css` applied them, and the theme script arrived in
 the `<head>` ahead of the first stylesheet.
 
-Last run: 36 components, both themes, no console errors.
+Last run: 36 components, both themes, no console errors — which was
+before the layer grew to 49 and before Combobox, TreeView, DatePicker and
+the palette existed. It is due again.
+
+## For an agent working here
+
+`AGENTS.md` has the part that is not obvious from the code: what each
+check protects, where a new component's files go, and the traps that have
+already cost somebody an afternoon.

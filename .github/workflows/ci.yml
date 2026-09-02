@@ -30,6 +30,18 @@ jobs:
       - name: Layer boundaries
         run: pnpm test:layers
 
+      # A closed dialog that an author's `display` un-hid is a
+      # full-viewport blank block in the flow of every page that mounts
+      # one. Invisible to the build, and to anyone who does not scroll to
+      # the bottom of a page to check that nothing is there.
+      - name: Closed dialogs
+        run: pnpm test:dialogs
+
+      # Both directions: a component with no page is one nobody can look
+      # at, and nothing else in the build says so.
+      - name: A page per component
+        run: pnpm test:pages
+
       # What `files` would install. Nothing in the build touches that
       # list, so a missing entry is invisible here and fatal in the
       # project that installs it.
@@ -43,3 +55,12 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      # Last, because it needs the build's generated tsconfig. It catches
+      # what neither the build nor the browser can: a template naming
+      # something its script no longer declares, a prop that does not
+      # exist, a hand-copied type that has drifted from the real one.
+      # The demo run is the half of "the layer is consumable" that a
+      # successful build does not cover.
+      - name: Types
+        run: pnpm test:types
