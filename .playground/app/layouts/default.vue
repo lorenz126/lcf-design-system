@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NuxtLink } from '#components'
 import type { MenuItem } from '../../../ui/molecules/Menu.vue'
 import type { SearchSuggestion } from '../../../ui/molecules/SearchField.vue'
 import { Moon, Shapes, Sun } from 'lucide-vue-next'
@@ -142,7 +141,6 @@ function onSubmit() {
         :items="sidebar"
         :current="route.path"
         :collapsed="collapsed"
-        :link="NuxtLink"
         label="Framework"
         @expand="railed = false"
       />

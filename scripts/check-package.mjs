@@ -48,6 +48,7 @@ for (const tier of ['atoms', 'molecules', 'organisms', 'templates']) {
 for (const f of readdirSync(join(root, 'tokens'))) wanted.push(`tokens/${f}`)
 for (const f of readdirSync(join(root, 'styles'))) wanted.push(`styles/${f}`)
 for (const f of readdirSync(join(root, 'composables'))) wanted.push(`composables/${f}`)
+for (const f of readdirSync(join(root, 'plugins'))) wanted.push(`plugins/${f}`)
 wanted.push('nuxt.config.ts', 'package.json')
 
 /* Placeholders for directories that are no longer empty, editor leftovers,

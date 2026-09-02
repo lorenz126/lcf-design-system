@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "design-framework", "runtimeExecutable": "pnpm", "runtimeArgs": ["dev"], "port": 3000, "autoPort": true }
+    { "name": "design-framework", "runtimeExecutable": "pnpm", "runtimeArgs": ["dev"], "port": 3000, "autoPort": true },
+    { "name": "tracker-demo", "runtimeExecutable": "pnpm", "runtimeArgs": ["demo"], "port": 3200, "autoPort": true }
   ]
 }

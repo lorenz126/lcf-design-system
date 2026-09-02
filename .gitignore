@@ -9,3 +9,5 @@ dist/
 .data/
 .playground/.output/
 .playground/.nuxt/
+demo/.nuxt/
+demo/.output/

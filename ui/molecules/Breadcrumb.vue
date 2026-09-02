@@ -30,15 +30,25 @@ export interface Crumb {
 const props = withDefaults(defineProps<{
   items: Crumb[]
   /**
-   * What links render as. THE COMPONENT, NOT ITS NAME — a string is only
-   * resolved against the runtime registry, and an auto-imported
-   * component is not in it. Import from `#components`.
+   * What links render as. Injected from the layer's plugin, so a Nuxt
+   * app gets client-side navigation without asking; pass one here to
+   * override, or in a plain Vue app to supply RouterLink.
+   *
+   * THE COMPONENT, NOT ITS NAME. A string is only resolved against the
+   * runtime component registry, and an auto-imported component is not in
+   * it: `link="NuxtLink"` renders a literal <nuxtlink> element that
+   * looks right, highlights right, and cannot be clicked.
    */
   link?: Component | 'a'
   /** Fold the middle beyond this many crumbs. 0 never folds. */
   maxItems?: number
   label?: string
-}>(), { link: 'a', maxItems: 4, label: 'Breadcrumb' })
+}>(), { maxItems: 4, label: 'Breadcrumb' })
+
+/* 'a' only when nothing provided one — a plain Vue app with no router
+   still renders working links, it just reloads the page. */
+const provided = inject<Component | 'a'>('uiLink', 'a')
+const link = computed(() => props.link ?? provided)
 
 const open = ref(false)
 
@@ -54,7 +64,7 @@ const shown = computed<(Crumb | 'fold')[]>(() =>
 )
 
 const linkProps = (c: Crumb) =>
-  props.link === 'a' ? { href: c.to } : { to: c.to }
+  link.value === 'a' ? { href: c.to } : { to: c.to }
 
 /** Identity by position, since two crumbs can share a label. */
 const isLast = (i: number) => i === shown.value.length - 1

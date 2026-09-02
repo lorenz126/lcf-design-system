@@ -25,6 +25,10 @@ export default defineNuxtConfig({
     dirs: [join(layer, 'composables')]
   },
 
+  // Registered by path rather than by convention: this layer keeps its
+  // source at the root, so Nuxt's plugins/ auto-scan does not reach it.
+  plugins: [join(layer, 'plugins', 'link.ts')],
+
   app: {
     head: {
       script: [

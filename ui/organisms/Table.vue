@@ -47,6 +47,15 @@ const props = withDefaults(defineProps<{
   stickyHeader?: boolean
   loading?: boolean
   emptyText?: string
+  /**
+   * The width below which the table scrolls sideways instead of
+   * squeezing. Without it a table always "fits": the columns that
+   * declared a width keep it and the one that did not is crushed into a
+   * column of single words. There is no honest way to guess this — only
+   * the page knows how much room its columns deserve — so it is a
+   * number you give, and the scroll container has been waiting for it.
+   */
+  minWidth?: string
 }>(), { rowKey: 'id', emptyText: 'No rows.', variant: 'rows' })
 
 const selected = defineModel<(string | number)[]>('selected', { default: () => [] })
@@ -96,7 +105,7 @@ function alignOf(col: Column) {
 
 <template>
   <div class="u-tbl-scroll">
-    <table class="u-tbl" :class="`u-tbl-${variant}`">
+    <table class="u-tbl" :class="`u-tbl-${variant}`" :style="{ minWidth }">
       <thead :class="{ 'u-tbl-sticky': stickyHeader }">
         <tr>
           <th v-if="selectable" class="u-tbl-pick" scope="col">

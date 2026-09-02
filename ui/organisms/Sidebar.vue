@@ -63,17 +63,14 @@ const props = withDefaults(defineProps<{
    *  so a shell with no router can drive the highlight from `select`. */
   current?: string | number
   /**
-   * What internal links render as. A plain <a> reloads the document,
-   * which throws away the application it is navigating, so pass NuxtLink
-   * or RouterLink to keep it client-side — the component stays framework
-   * agnostic and the app says which router it has.
+   * What links render as. Injected from the layer's plugin, so a Nuxt
+   * app gets client-side navigation without asking; pass one here to
+   * override, or in a plain Vue app to supply RouterLink.
    *
    * THE COMPONENT, NOT ITS NAME. A string is only resolved against the
-   * runtime component registry, and Nuxt's auto-import is a build-time
-   * transform: `link="NuxtLink"` renders a literal <nuxtlink> element
-   * with a `to` attribute, which looks right, highlights right, and
-   * cannot be clicked. There is no runtime warning for it either, so the
-   * type is what has to catch it. Import from `#components`.
+   * runtime component registry, and an auto-imported component is not in
+   * it: `link="NuxtLink"` renders a literal <nuxtlink> element that
+   * looks right, highlights right, and cannot be clicked.
    */
   link?: Component | 'a'
   /** Accessible name, for when a page has more than one nav landmark. */
@@ -87,7 +84,12 @@ const props = withDefaults(defineProps<{
   expandAll?: boolean
   /** Shown when `items` is empty — which a filtered nav can be. */
   emptyText?: string
-}>(), { link: 'a', label: 'Main', emptyText: 'No match.' })
+}>(), { label: 'Main', emptyText: 'No match.' })
+
+/* 'a' only when nothing provided one — a plain Vue app with no router
+   still renders working links, it just reloads the page. */
+const provided = inject<Component | 'a'>('uiLink', 'a')
+const link = computed(() => props.link ?? provided)
 
 const emit = defineEmits<{
   select: [SidebarItem]
@@ -106,7 +108,7 @@ const isCurrent = (i: SidebarItem) =>
 
 /** A group, and a row with no destination, are buttons; the rest links. */
 const rowTag = (i: SidebarItem) =>
-  i.children || !i.to ? 'button' : i.external ? 'a' : props.link
+  i.children || !i.to ? 'button' : i.external ? 'a' : link.value
 
 function rowAttrs(i: SidebarItem) {
   if (i.children || !i.to) {
@@ -114,7 +116,7 @@ function rowAttrs(i: SidebarItem) {
   }
   return {
     // `to` or `href`, depending on what the link component wants.
-    ...(props.link === 'a' || i.external ? { href: i.to } : { to: i.to }),
+    ...(link.value === 'a' || i.external ? { href: i.to } : { to: i.to }),
     target: i.external ? '_blank' : undefined,
     rel: i.external ? 'noreferrer noopener' : undefined,
     'aria-disabled': i.disabled || undefined
