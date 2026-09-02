@@ -127,14 +127,13 @@ function onInput(e: Event) {
             <template v-else-if="f.progress != null">{{ f.progress }}% · {{ formatSize(f.size) }}</template>
             <template v-else>{{ formatSize(f.size) }}</template>
           </span>
-          <!-- A real progress element: the value is announced and the
-               platform draws it if our styling ever fails to load. -->
-          <progress
+          <UiProgress
             v-if="f.progress != null && !f.error"
             class="u-att-bar"
+            size="sm"
             :value="f.progress"
-            max="100"
-          >{{ f.progress }}%</progress>
+            :label="`Uploading ${f.name}`"
+          />
         </div>
 
         <UiButton
@@ -223,16 +222,5 @@ function onInput(e: Event) {
 }
 .u-att-bad .u-att-sub { color: var(--danger-text); }
 
-.u-att-bar {
-  appearance: none;
-  width: 100%; height: 3px; margin-block-start: var(--s-2);
-  border: 0; border-radius: var(--r-full);
-  background: var(--fill);
-}
-.u-att-bar::-webkit-progress-bar { background: var(--fill); border-radius: var(--r-full); }
-.u-att-bar::-webkit-progress-value {
-  background: var(--accent); border-radius: var(--r-full);
-  transition: inline-size var(--dur-base) var(--ease-out);
-}
-.u-att-bar::-moz-progress-bar { background: var(--accent); border-radius: var(--r-full); }
+.u-att-bar { margin-block-start: var(--s-2); }
 </style>

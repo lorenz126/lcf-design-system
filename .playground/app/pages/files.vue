@@ -27,6 +27,9 @@ function add(incoming: File[]) {
 function remove(f: Att) {
   files.value = files.value.filter(x => x.id !== f.id)
 }
+
+const pct = ref(38)
+const busy = ref(true)
 </script>
 
 <template>
@@ -64,6 +67,39 @@ function remove(f: Att) {
         try dropping something over 100 MB.
       </p>
     </section>
+
+    <section>
+      <div class="sec-label">Progress</div>
+      <div class="col">
+        <UiProgress :value="pct" label="Restoring" show-value />
+        <UiProgress :value="pct" size="lg" tone="green" label="Restoring" show-value />
+        <UiProgress v-if="busy" label="Working" />
+        <div class="row">
+          <UiButton size="sm" variant="outline" tone="neutral" @click="pct = Math.max(0, pct - 15)">−15</UiButton>
+          <UiButton size="sm" variant="outline" tone="neutral" @click="pct = Math.min(100, pct + 15)">+15</UiButton>
+          <UiButton size="sm" variant="plain" tone="neutral" @click="busy = !busy">
+            {{ busy ? 'Stop the indeterminate one' : 'Start it' }}
+          </UiButton>
+        </div>
+      </div>
+      <p class="t-caption hint">
+        Attachments had this inside it and now uses it. A real
+        <code>&lt;progress&gt;</code>: the value is announced without any aria of ours,
+        and the platform draws something sensible if the styling never arrives.
+      </p>
+      <p class="t-caption hint">
+        <strong>Indeterminate is the absence of a value</strong>, not a flag — omit
+        <code>value</code> and the element is natively indeterminate, so there is no
+        second state to keep in step. What it costs is the paint: an indeterminate
+        <code>&lt;progress&gt;</code> cannot be styled in WebKit, so the rail
+        underneath carries the sweep and the element on top shows nothing.
+      </p>
+      <p class="t-caption hint">
+        And reduced motion <em>slows</em> the sweep rather than stopping it, for the
+        same reason as the spinner: a stopped indeterminate bar is not a finished one,
+        it is a frozen one.
+      </p>
+    </section>
   </div>
 </template>
 
@@ -73,6 +109,7 @@ function remove(f: Att) {
 .body { margin: 0; color: var(--ink-2); max-width: 68ch; }
 code { font-family: var(--font-mono); font-size: 11px; }
 section { margin-bottom: 64px; }
-.col { max-width: 520px; }
+.col { max-width: 520px; display: flex; flex-direction: column; gap: var(--s-7); }
+.row { display: flex; flex-wrap: wrap; gap: var(--s-4); }
 .hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
 </style>

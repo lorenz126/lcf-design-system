@@ -330,7 +330,18 @@ function expectations() {
         min: UI,
         why: 'node outline, not text'
       },
-      { what: `node-text/${h}`, fg: '--fg', bg: `--${h}-fill`, on: '--bg-raised', min: AA }
+      { what: `node-text/${h}`, fg: '--fg', bg: `--${h}-fill`, on: '--bg-raised', min: AA },
+      // A banner's mark: the hue's own text on the hue's own tint. It is
+      // a graphic rather than a label — the words beside it carry the
+      // meaning and are set in --fg — so the UI floor applies.
+      {
+        what: `mark-on-tint/${h}`,
+        fg: `--${h}-text`,
+        bg: `--${h}-fill`,
+        on: '--bg-raised',
+        min: UI,
+        why: 'an icon beside text that says the same thing'
+      }
     )
   }
   return out
