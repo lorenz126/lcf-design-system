@@ -263,12 +263,25 @@ watch(flat, l => {
   background: transparent;
   /* Near the top, not centred: it grows downwards as you type, and a
      centred one would walk up the screen while you read it. */
-  display: grid;
-  align-content: start;
-  justify-items: center;
   padding-block-start: 12vh;
   overflow: clip;
 }
+/* DISPLAY ONLY WHEN OPEN, and this is not a tidiness rule.
+ *
+ * A closed <dialog> is hidden by the UA stylesheet, and an author's
+ * `display` beats the UA stylesheet whatever the specificity says. So
+ * setting it unconditionally un-hides the closed one: measured at
+ * 982x1358 in the normal flow, a full-viewport blank block at the bottom
+ * of every page that mounted one, adding its own height to the scroll.
+ *
+ * It survived because a dialog is looked at while it is open. Nobody
+ * scrolls to the bottom of a page to check that nothing is there. */
+.u-cp[open] {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+}
+
 .u-cp::backdrop {
   background: rgb(0 0 0 / .35);
   backdrop-filter: blur(2px);
