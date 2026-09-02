@@ -23,8 +23,5 @@ const defined = computed(() => principles.reduce((n, g) => n + g.items.length, 0
 </template>
 
 <style scoped>
-.intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
-.lede { margin: 0 0 10px; }
-.body { margin: 0; color: var(--ink-2); max-width: 68ch; }
 .meta { margin: 14px 0 0; color: var(--ink-3); font-family: var(--font-mono); }
 </style>

@@ -27,3 +27,32 @@ body {
   color: var(--ink-3); letter-spacing: var(--tr-caption);
   font-size: 13px; font-weight: var(--w-semibold); margin-bottom: 28px;
 }
+
+/*
+ * The page furniture, hoisted.
+ *
+ * Every workshop page had its own copy of these six rules — sixteen
+ * identical `.intro` blocks and sixteen `.lede`s — which was survivable
+ * while there were sixteen pages and is not now there is one per
+ * component. They had already drifted: `.body` in two versions,
+ * `section` in two, `.hint` in two.
+ *
+ * A page's own `<style scoped>` still wins over any of this, because a
+ * scoped rule carries an extra attribute selector and therefore more
+ * specificity. So `.row` and `.col` are defaults here rather than
+ * decisions — the pages that need a different gap say so locally, and
+ * most no longer have to say anything at all.
+ */
+.intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
+.lede { margin: 0 0 10px; }
+.body { margin: 0; color: var(--ink-2); max-width: 68ch; }
+.wrap section { margin-bottom: 64px; }
+.hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
+.warn { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
+.dim { color: var(--ink-3); }
+.wrap code { font-family: var(--font-mono); font-size: 11px; }
+
+.row { display: flex; flex-wrap: wrap; gap: var(--s-6); align-items: center; }
+.col { display: flex; flex-direction: column; gap: var(--s-6); align-items: flex-start; }
+.stack { display: flex; flex-direction: column; gap: var(--s-6); max-width: 420px; }
+.notes { flex: 1; min-width: 260px; max-width: 42ch; }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useHead({ title: 'Docs — Design Framework' })
+useHead({ title: 'Prose — Design Framework' })
 const article = useTemplateRef<HTMLElement>('article')
 </script>
 
@@ -9,8 +9,9 @@ const article = useTemplateRef<HTMLElement>('article')
       <p class="t-lead lede">Where the display sizes finally do some work.</p>
       <p class="t-body body">
         Prose styles slotted markup rather than taking props — the content comes from
-        markdown or a CMS, so it knows no data shape and stays a molecule. Toc reads the
-        headings back out of the rendered article, which is why it is an organism.
+        markdown or a CMS, so it knows no data shape and stays a molecule. The column
+        beside it is <NuxtLink to="/organisms/toc">Toc</NuxtLink>, which reads the
+        headings back out of what Prose rendered.
       </p>
     </div>
 
@@ -137,9 +138,3 @@ const article = useTemplateRef<HTMLElement>('article')
     </UiDocLayout>
   </div>
 </template>
-
-<style scoped>
-.intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
-.lede { margin: 0 0 10px; }
-.body { margin: 0; color: var(--ink-2); max-width: 68ch; }
-</style>

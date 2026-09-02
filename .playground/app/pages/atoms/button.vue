@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowRight, Plus, Trash2, Settings } from 'lucide-vue-next'
-useHead({ title: 'Buttons — Design Framework' })
+useHead({ title: 'Button — Design Framework' })
 
 const variants = ['solid', 'tinted', 'outline', 'plain', 'floating'] as const
 const tones = ['accent', 'green', 'red', 'orange', 'yellow', 'purple'] as const
@@ -147,52 +147,17 @@ const loading = ref(false)
     </section>
 
     <section>
-      <div class="sec-label">Spinner</div>
-      <div class="row">
-        <UiSpinner size="sm" />
-        <UiSpinner size="md" />
-        <UiSpinner size="lg" />
-        <UiButton loading>Saving</UiButton>
-        <UiButton variant="outline" tone="neutral" loading>Checking</UiButton>
-        <span class="t-title inh"><UiSpinner size="inherit" /></span>
-      </div>
-      <p class="t-caption hint">
-        There used to be two of these — Button had one and List had a second,
-        identical down to the 0.6s and the border trick, under two different keyframe
-        names. A table that was also loading had neither and said “Loading…” in text.
-        That is what duplication looks like just before it becomes divergence.
-      </p>
-      <p class="t-caption hint">
-        <strong>Reduced motion slows it; it does not stop it.</strong> Everything else
-        in the system collapses to 1ms under <code>prefers-reduced-motion</code>, which
-        is right for a transition — the end state is the point. A stopped spinner is
-        not a finished one, it is a frozen one, and it says the opposite of what it is
-        there to say. Two seconds a turn is calm and still clearly alive.
-      </p>
-      <p class="t-caption hint">
-        The last one is <code>size="inherit"</code>: 1em, so it takes the size of
-        whatever text it stands in. That is how it sits inside a button without being
-        told the button’s size.
-      </p>
-    </section>
-
-    <section>
       <div class="sec-label">Full width</div>
       <div class="stack">
         <UiButton block>Continue</UiButton>
         <UiButton block variant="outline" tone="neutral">Not now</UiButton>
       </div>
     </section>
+
   </div>
 </template>
 
 <style scoped>
-.intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
-.lede { margin: 0 0 10px; }
-.body { margin: 0; color: var(--ink-2); max-width: 68ch; }
-.warn { margin: 14px 0 0; color: var(--ink-3); max-width: 68ch; line-height: 1.6; }
-section { margin-bottom: 64px; }
-
 .matrix {
   display: grid;
   grid-template-columns: 78px repeat(6, 1fr);
@@ -205,11 +170,8 @@ section { margin-bottom: 64px; }
 .row-head { text-align: right; padding-right: var(--s-2); }
 .cell { display: flex; }
 
-.row { display: flex; flex-wrap: wrap; gap: var(--s-5); align-items: center; }
-.stack { display: flex; flex-direction: column; gap: var(--s-4); max-width: 340px; }
-.inh { color: var(--ink-2); }
-.hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
-
+.row { gap: var(--s-5); }
+.stack { gap: var(--s-4); max-width: 340px; }
 
 .float-stage {
   display: flex; gap: var(--s-6); align-items: center;

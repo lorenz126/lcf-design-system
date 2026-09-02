@@ -111,7 +111,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-section { margin-bottom: 72px; }
 .row {
   display: grid; grid-template-columns: 132px 1fr; gap: 28px;
   align-items: baseline; padding: 16px 0; border-bottom: 1px solid var(--rule);

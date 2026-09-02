@@ -70,12 +70,7 @@ const tones = ['neutral', 'green', 'blue', 'yellow', 'orange', 'red', 'purple'] 
 </template>
 
 <style scoped>
-.intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
-.lede { margin: 0 0 10px; }
-.body { margin: 0; color: var(--ink-2); max-width: 68ch; }
-section { margin-bottom: 64px; }
 .row { display: flex; flex-wrap: wrap; gap: var(--s-5); align-items: center; }
-.hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
 .list { border: 1px solid var(--rule); border-radius: var(--r-lg); overflow: hidden; max-width: 420px; }
 .li {
   display: flex; align-items: center; justify-content: space-between;

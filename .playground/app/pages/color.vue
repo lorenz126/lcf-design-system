@@ -146,13 +146,8 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <style scoped>
 .probe { position: absolute; width: 0; height: 0; visibility: hidden; }
-.intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
-.lede { margin: 0 0 10px; }
-.body { margin: 0; color: var(--ink-2); max-width: 68ch; }
 .warn { margin: 14px 0 0; color: var(--ink-3); max-width: 68ch; line-height: 1.6; }
-code { font-family: var(--font-mono); font-size: 11px; }
 
-section { margin-bottom: 72px; }
 .group { margin-bottom: 40px; }
 .head {
   display: flex; align-items: baseline; gap: 12px;

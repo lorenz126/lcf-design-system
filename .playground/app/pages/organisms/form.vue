@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useHead({ title: 'Forms — Design Framework' })
+useHead({ title: 'Form — Design Framework' })
 
 const form = reactive({ name: '', email: '', plan: '', notify: true, terms: false })
 const errors = ref<Record<string, string>>({})
@@ -93,12 +93,6 @@ async function submit() {
 </template>
 
 <style scoped>
-.intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
-.lede { margin: 0 0 10px; }
-.body { margin: 0; color: var(--ink-2); max-width: 68ch; }
-code { font-family: var(--font-mono); font-size: 11px; }
-section { margin-bottom: 64px; }
 .form-card { max-width: 460px; }
-.hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
 .ok { color: var(--success-text); margin: var(--s-6) 0 0; }
 </style>

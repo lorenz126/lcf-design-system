@@ -94,12 +94,7 @@ function onMove(e: { card: { title: string }; from: string | number; to: string 
 </template>
 
 <style scoped>
-.intro { border-left: 2px solid var(--rule); padding-left: 20px; margin-bottom: 64px; }
-.lede { margin: 0 0 10px; }
-.body { margin: 0 0 14px; color: var(--ink-2); max-width: 68ch; }
 .warn { margin: 0; color: var(--ink-3); max-width: 68ch; line-height: 1.6; }
-section { margin-bottom: 64px; }
-.hint { color: var(--ink-3); margin: 20px 0 0; max-width: 68ch; line-height: 1.6; }
 .row { display: flex; gap: var(--s-9); align-items: flex-start; flex-wrap: wrap; }
 .notes { flex: 1; min-width: 260px; max-width: 42ch; }
 .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 240px; }
