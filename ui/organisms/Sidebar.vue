@@ -344,11 +344,16 @@ function activate(i: SidebarItem) {
   font-weight: var(--w-semibold);
 }
 
+/* Wide enough for the LARGEST thing that can sit in it, which is an
+   avatar rather than a glyph. At --icon-md a 22px avatar overflowed its
+   own slot by 6px and ate the gap to the label down to 2 — and because
+   the slot is a fixed width, rows with a glyph and rows with an avatar
+   still line their labels up. */
 .u-sb-lead {
   flex: none;
   display: grid;
   place-items: center;
-  width: var(--icon-md);
+  width: var(--control-sm);
   color: var(--fg-subtle);
 }
 .u-sb-row.u-sb-on .u-sb-lead { color: var(--fg); }
@@ -370,8 +375,9 @@ function activate(i: SidebarItem) {
 
 /* Children line up under the parent's LABEL, not its icon — the indent
    has to read as "belongs to that", and matching the icon column makes
-   it read as another icon instead. */
-.u-sb-kids { margin-inline-start: calc(var(--icon-md) + var(--s-4)); }
+   it read as another icon instead. Which is why it is the lead slot plus
+   the gap, not a number: change either and the alignment follows. */
+.u-sb-kids { margin-inline-start: calc(var(--control-sm) + var(--s-4)); }
 .u-sb-kid { font-weight: var(--w-regular); }
 
 /* Sentence case. Uppercasing a heading is a typographic shout that
@@ -379,7 +385,11 @@ function activate(i: SidebarItem) {
    the worst of both. Size and colour separate a heading from a row
    perfectly well. */
 .u-sb-heading {
-  margin: var(--s-6) 0 var(--s-2);
+  /* Asymmetric on purpose: a heading belongs to the block below it, so
+     the space above is larger than the space below. Below was 4px, which
+     is less than the row's own padding — the heading was touching the
+     first item it introduced. */
+  margin: var(--s-7) 0 var(--s-4);
   padding-inline: var(--s-4);
   color: var(--fg-subtle);
   font: var(--w-semibold) var(--fs-caption)/1 var(--font-sans);
