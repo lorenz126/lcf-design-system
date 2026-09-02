@@ -27,8 +27,12 @@ Three facts from the current tree, each of which decides a priority:
   give a wrapper with a hole in the middle. What looked like one
   duplication is two: four fields that stack, and three controls in a
   row. Field covers the first. *Done.*
-- **Three components hand-roll their own `aria-live` region** — Kanban,
-  Calendar, Attachments. A fourth is coming with Toast.
+- ~~**Three components hand-roll their own `aria-live` region**~~ —
+  **one**, and this is the second time a grep over this tree read too
+  broadly. Calendar puts `aria-live` on its visible month label and
+  Attachments on its visible file list; both are correct, and neither is
+  a hidden announcer. Only Kanban had one, and it now uses
+  `useAnnounce()`. *Done.*
 
 ---
 
@@ -143,6 +147,8 @@ pointer-capture work from Kanban answers most of it.
 
 ### 9.2 Toast
 
+> **Built.**
+
 **The hard part is the announcement, not the animation.** A live region
 has to exist *before* the message arrives or nothing is read out, which
 means the region is mounted with the app and empty. Polite and assertive
@@ -238,6 +244,6 @@ also exposed a rule check-layers documented but did not enforce.
 
 ## Next
 
-**Toast**, and with it the `useAnnounce()` that collapses the three
-hand-rolled live regions in Kanban, Calendar and Attachments into one.
-Then **Progress** out of Attachments, **Banner**, and **Tabs**.
+**Progress**, out of Attachments and with the indeterminate state it does
+not need. Then **Banner** — the thing a page says about itself, as
+opposed to a toast, which is what happened — and **Tabs**.

@@ -149,6 +149,9 @@ function onSubmit() {
     <div class="wrap">
       <slot />
     </div>
+
+    <!-- Once, near the root. Everything else calls useToast(). -->
+    <UiToaster />
   </UiAppShell>
 </template>
 

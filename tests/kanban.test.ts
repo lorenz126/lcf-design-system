@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, ref } from 'vue'
+import { _resetAnnouncer } from '../composables/useAnnounce'
 import Kanban from '../ui/organisms/Kanban.vue'
 import type { KanbanColumn } from '../ui/organisms/Kanban.vue'
 
@@ -34,7 +35,7 @@ const Host = defineComponent({
 })
 
 const open = () => mount(Host, { attachTo: document.body })
-afterEach(() => { document.body.innerHTML = '' })
+afterEach(() => { _resetAnnouncer(); document.body.innerHTML = '' })
 
 const layout = (w: ReturnType<typeof open>) =>
   w.findAll('[data-col]').map(c => c.findAll('.u-kb-title').map(t => t.text()))
@@ -43,20 +44,26 @@ const handle = (w: ReturnType<typeof open>, id: string) => w.find(`[data-handle=
 
 async function key(w: ReturnType<typeof open>, id: string, k: string) {
   await handle(w, id).trigger('keydown', { key: k })
+  // Two ticks: one for the re-render, one for the frame the announcement
+  // waits out.
+  await new Promise(r => requestAnimationFrame(() => r(null)))
   await new Promise(r => setTimeout(r, 0))
 }
 
-const said = (w: ReturnType<typeof open>) => w.find('[aria-live]').text()
+/* The announcement no longer lives in the component's template:
+   useAnnounce keeps one region on the document, and fills it a frame
+   later so that repeating a sentence still counts as a change. */
+const said = () => document.querySelector('[aria-live="polite"]')?.textContent ?? ''
 
 describe('Kanban', () => {
   it('picks up and puts down, and says which', async () => {
     const w = open()
     await key(w, 'a', 'Enter')
     expect(handle(w, 'a').attributes('aria-pressed')).toBe('true')
-    expect(said(w)).toContain('Picked up Alpha, Todo, 1 of 2')
+    expect(said()).toContain('Picked up Alpha, Todo, 1 of 2')
     await key(w, 'a', 'Enter')
     expect(handle(w, 'a').attributes('aria-pressed')).toBe('false')
-    expect(said(w)).toContain('Dropped.')
+    expect(said()).toContain('Dropped.')
   })
 
   it('moves between columns and within one', async () => {
@@ -97,7 +104,7 @@ describe('Kanban', () => {
     await key(w, 'a', 'ArrowDown')
     await key(w, 'a', 'Escape')
     expect(layout(w)).toEqual([['Alpha', 'Bravo'], ['Charlie'], []])
-    expect(said(w)).toContain('Cancelled.')
+    expect(said()).toContain('Cancelled.')
     expect(handle(w, 'a').attributes('aria-pressed')).toBe('false')
   })
 

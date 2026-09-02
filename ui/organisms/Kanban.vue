@@ -80,8 +80,11 @@ const root = useTemplateRef<HTMLElement>('root')
 const uid = useId()
 const hintId = `u-kb-hint-${uid}`
 
-/** What a screen reader hears. Every move writes here, both input modes. */
-const live = ref('')
+/** What a screen reader hears. Every move says something, both input
+ *  modes. The region lives on the document rather than in this template:
+ *  see useAnnounce for why the same sentence twice has to be cleared
+ *  before it can be said again. */
+const say = useAnnounce()
 
 /* ---------- the one move ---------- */
 
@@ -140,7 +143,7 @@ function grab(id: string | number) {
   if (!at) return
   grabbed.value = id
   origin = at
-  live.value = `Picked up ${describe(id)}. Arrow keys move it, Enter drops it, Escape puts it back.`
+  say(`Picked up ${describe(id)}. Arrow keys move it, Enter drops it, Escape puts it back.`)
 }
 
 function release(msg: string, text?: string) {
@@ -148,7 +151,7 @@ function release(msg: string, text?: string) {
   grabbed.value = null
   origin = null
   if (id !== null) {
-    live.value = `${msg} ${text ?? describe(id)}.`
+    say(`${msg} ${text ?? describe(id)}.`)
     refocus(id)
   }
 }
@@ -194,7 +197,7 @@ function onHandleKey(e: KeyboardEvent, card: KanbanCard) {
   e.preventDefault()
   const moved = placeAt(card.id, to[0], to[1])
   if (moved) {
-    live.value = moved.text
+    say(moved.text)
     refocus(card.id)
   }
 }
@@ -286,7 +289,7 @@ function onPointerUp(e: PointerEvent) {
   if (!at) return
   const index = target.col === at.col && at.index < target.index ? target.index - 1 : target.index
   const moved = placeAt(id, target.col, index)
-  if (moved) live.value = `Moved ${moved.text}.`
+  if (moved) say(`Moved ${moved.text}.`)
 }
 
 function endDrag() {
@@ -391,8 +394,6 @@ function lineAfterLast(col: number, count: number) {
         </p>
       </div>
     </div>
-
-    <p class="u-kb-sr" aria-live="polite">{{ live }}</p>
 
     <!-- The preview carries the title, not a copy of the card. You know
          what you picked up; what you need to see is where it lands. -->

@@ -148,6 +148,8 @@ function goTo(s: SearchSuggestion) {
     <div class="page">
       <slot />
     </div>
+
+    <UiToaster />
   </UiAppShell>
 </template>
 

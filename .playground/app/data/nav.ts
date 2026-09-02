@@ -48,6 +48,7 @@ export const tiers: NavGroup[] = [
       { name: 'Select', to: '/controls', note: 'uses Icon' },
       { name: 'ToggleGroup', to: '/controls' },
       { name: 'Drawer', to: '/overlays' },
+      { name: 'Toaster', to: '/overlays', note: 'useToast() raises them' },
       { name: 'Card', to: '/data' },
       { name: 'EmptyState', to: '/data' },
       { name: 'Pagination', to: '/data' },

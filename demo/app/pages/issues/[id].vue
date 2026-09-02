@@ -37,25 +37,43 @@ const dirty = computed(() =>
     draft.label !== issue.value.label)
 )
 
-const saved = ref(false)
+const toast = useToast()
+
+/* Was a hand-rolled "Saved" note with its own timer, which is what a
+   toast is. */
 function save() {
   if (!issue.value) return
+  const before = { ...issue.value }
   update(issue.value.id, {
     status: draft.status,
     priority: draft.priority,
     assignee: draft.assignee || null,
     label: draft.label
   })
-  saved.value = true
-  setTimeout(() => { saved.value = false }, 2000)
+  toast.success({
+    title: 'Saved',
+    description: issue.value.key,
+    // A shortcut, not the only route: the fields are still right there.
+    action: {
+      label: 'Undo',
+      onClick: () => update(before.id, {
+        status: before.status,
+        priority: before.priority,
+        assignee: before.assignee,
+        label: before.label
+      })
+    }
+  })
 }
 
 const confirming = ref(false)
 function doDelete() {
   if (!issue.value) return
+  const gone = issue.value.title
   remove([issue.value.id])
   confirming.value = false
   navigateTo('/')
+  toast.show({ title: 'Issue deleted', description: gone, tone: 'orange' })
 }
 
 const neighbours = computed(() => {
@@ -128,7 +146,6 @@ const neighbours = computed(() => {
             <!-- Disabled until something has actually changed: a Save that
                  is always available says nothing about whether it is needed. -->
             <UiButton type="submit" :disabled="!dirty">Save</UiButton>
-            <span v-if="saved" class="t-caption ok">Saved</span>
           </template>
         </UiForm>
       </UiCard>
@@ -173,7 +190,6 @@ const neighbours = computed(() => {
 .head h1 { margin: 0 0 var(--s-4); max-width: 34ch; }
 .meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4); }
 .dim { color: var(--fg-muted); }
-.ok { color: var(--success-text); align-self: center; }
 
 .split { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--s-9); align-items: start; }
 @media (max-width: 860px) { .split { grid-template-columns: minmax(0, 1fr); } }

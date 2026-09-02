@@ -10,6 +10,7 @@ useHead({ title: 'Issues — Tracker' })
 
 const route = useRoute()
 const { issues, update, remove } = useIssues()
+const toast = useToast()
 
 /* ---------- filtering ---------- */
 
@@ -68,7 +69,9 @@ function askToDelete(ids: number[]) {
   confirming.value = true
 }
 function doDelete() {
+  const n = pendingIds.value.length
   remove(pendingIds.value)
+  toast.show({ title: n === 1 ? 'Issue deleted' : `${n} issues deleted`, tone: 'orange' })
   picked.value = picked.value.filter(id => !pendingIds.value.includes(id as number))
   confirming.value = false
 }
@@ -107,6 +110,7 @@ function create() {
     ...issues.value
   ]
   creating.value = false
+  toast.success({ title: 'Issue created', description: `TRK-${100 + id}` })
   draft.title = ''
   draft.body = ''
   page.value = 1
