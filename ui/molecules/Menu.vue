@@ -191,7 +191,7 @@ watch(open, v => {
         @keydown="onMenuKey"
       >
         <template v-for="(item, i) in items" :key="item.id">
-          <div v-if="item.divider" class="u-menu-sep" role="separator" />
+          <UiDivider v-if="item.divider" spacing="sm" inset />
           <button
             type="button"
             class="u-menu-item"
@@ -285,9 +285,5 @@ watch(open, v => {
   color: var(--accent-text);
 }
 
-.u-menu-sep {
-  height: var(--border-width);
-  margin: var(--s-2) var(--s-3);
-  background: var(--border);
-}
+
 </style>

@@ -29,6 +29,8 @@ export const tiers: NavGroup[] = [
       { name: 'Button', to: '/buttons' },
       { name: 'Icon', to: '/buttons', note: 'shown with Button' },
       { name: 'Badge', to: '/badges' },
+      { name: 'Spinner', to: '/buttons' },
+      { name: 'Divider', to: '/data' },
       { name: 'Avatar', to: '/templates', note: 'shown with the shell' },
       { name: 'Input', to: '/inputs' },
       { name: 'Checkbox', to: '/controls' },
@@ -42,6 +44,9 @@ export const tiers: NavGroup[] = [
     items: [
       { name: 'Select', to: '/controls', note: 'uses Icon' },
       { name: 'Card', to: '/data' },
+      { name: 'EmptyState', to: '/data' },
+      { name: 'Pagination', to: '/data' },
+      { name: 'Breadcrumb', to: '/templates' },
       { name: 'FormSection', to: '/forms' },
       { name: 'Prose', to: '/docs' },
       { name: 'Tooltip', to: '/overlays' },

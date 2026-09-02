@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SidebarItem } from '../../../ui/organisms/Sidebar.vue'
 import {
-  Archive, Bell, BookOpen, Inbox, Layers, Search, Settings, Star
+  Archive, Bell, BookOpen, Home, Inbox, Layers, Search, Settings, Star
 } from 'lucide-vue-next'
 useHead({ title: 'Templates — Design Framework' })
 
@@ -11,6 +11,15 @@ const navCollapsed = ref(false)
 /* No router in an embedded demo, so the rows are buttons and the
    highlight is driven by `id` rather than by a path. */
 const here = ref<string | number>('inbox')
+
+const trail = [
+  { label: 'Home', to: '/', icon: Home },
+  { label: 'Projects', to: '/' },
+  { label: 'Design Framework', to: '/' },
+  { label: 'Components', to: '/' },
+  { label: 'Organisms', to: '/' },
+  { label: 'Sidebar' }
+]
 const mail: SidebarItem[] = [
   { id: 'inbox', label: 'Inbox', icon: Inbox, badge: '12', badgeTone: 'blue' },
   { id: 'starred', label: 'Starred', icon: Star },
@@ -148,6 +157,28 @@ const current = computed(() => messages.find(m => m.id === selected.value))
     </section>
 
     <section>
+      <div class="sec-label">Breadcrumb</div>
+      <div class="col">
+        <UiBreadcrumb :items="trail" />
+        <UiBreadcrumb :items="trail.slice(0, 3)" />
+      </div>
+      <p class="t-caption hint">
+        Six steps, folded to four. <strong>The middle collapses, not the end</strong> —
+        the first crumb is the root and the last two are where you are and what you are
+        inside; everything between is the part you can afford to fold. Press the
+        ellipsis: it is a real button that unfolds, because a fold you cannot open is a
+        trail with a hole in it.
+      </p>
+      <p class="t-caption hint">
+        The last crumb is <em>not</em> a link. It is where you already are, and a link
+        to the current page is a control that does nothing. The chevrons are hidden
+        from assistive technology: a screen reader announces “list, 4 items” and the
+        nesting is carried by the order, so reading out three chevrons adds nothing but
+        three chevrons.
+      </p>
+    </section>
+
+    <section>
       <div class="sec-label">Avatar</div>
       <div class="row">
         <UiAvatar name="Anna Weber" size="lg" label="Anna Weber" />
@@ -241,6 +272,7 @@ section { margin-bottom: 64px; }
 }
 
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-5); }
+.col { display: flex; flex-direction: column; gap: var(--s-5); align-items: flex-start; }
 .gap { width: var(--s-6); }
 .content { padding: var(--s-8); }
 .detail { padding: var(--s-8); display: flex; flex-direction: column; gap: var(--s-3); }

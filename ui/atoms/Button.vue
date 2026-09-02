@@ -72,7 +72,7 @@ if (import.meta.dev) {
   >
     <!-- The spinner takes the leading slot's place rather than adding to
          it, so the button does not change width while it works. -->
-    <span v-if="loading" class="u-spinner" aria-hidden="true" />
+    <UiSpinner v-if="loading" size="inherit" />
     <slot v-else name="leading" />
     <slot />
     <slot name="trailing" />
@@ -217,16 +217,7 @@ if (import.meta.dev) {
   transform: none;
 }
 
-.u-spinner {
-  width: 1em; height: 1em; flex: none;
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: var(--r-full);
-  animation: spin .6s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .u-spinner { animation-duration: 2s; }
   .u-btn { transition: none; }
 }
 </style>

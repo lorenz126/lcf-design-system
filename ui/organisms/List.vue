@@ -22,7 +22,8 @@ const props = withDefaults(defineProps<{
   /** 'none' renders plain rows; 'single'/'multiple' add selection. */
   select?: 'none' | 'single' | 'multiple'
   loading?: boolean
-  /** Shown when items is empty and not loading. */
+  /** Title of the default empty state. Replace the whole block with the
+   *  `empty` slot when it deserves a description and a way out. */
   emptyText?: string
   /** Rows become buttons. Mutually exclusive with selection. */
   interactive?: boolean
@@ -52,11 +53,13 @@ function toggle(item: ListItem) {
 <template>
   <div class="u-list" :class="{ 'u-list-dividers': dividers }" role="list">
     <div v-if="loading" class="u-list-state">
-      <span class="u-list-spinner" aria-hidden="true" />
+      <UiSpinner size="sm" />
       <span>Loading…</span>
     </div>
 
-    <p v-else-if="!items.length" class="u-list-state">{{ emptyText }}</p>
+    <slot v-else-if="!items.length" name="empty">
+      <UiEmptyState size="sm" :title="emptyText" />
+    </slot>
 
     <template v-else>
       <div
@@ -150,12 +153,4 @@ button.u-list-main:focus-visible {
   color: var(--fg-muted);
   font: var(--w-regular) var(--fs-small)/1.4 var(--font-sans);
 }
-.u-list-spinner {
-  width: 14px; height: 14px;
-  border: 2px solid currentColor; border-top-color: transparent;
-  border-radius: var(--r-full);
-  animation: u-list-spin .6s linear infinite;
-}
-@keyframes u-list-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .u-list-spinner { animation-duration: 2s; } }
 </style>

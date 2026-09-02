@@ -187,7 +187,7 @@ function activate(i: SidebarItem) {
            fits, and nothing else would be legible if it did. -->
       <template v-if="collapsed">
         <template v-for="item in items" :key="key(item)">
-          <hr v-if="item.divider" class="u-sb-rule">
+          <UiDivider v-if="item.divider" class="u-sb-rule" inset />
           <UiTooltip :text="item.label" placement="right">
             <component
               :is="rowTag(item)"
@@ -214,7 +214,7 @@ function activate(i: SidebarItem) {
 
       <template v-else>
         <template v-for="item in items" :key="key(item)">
-          <hr v-if="item.divider" class="u-sb-rule">
+          <UiDivider v-if="item.divider" class="u-sb-rule" inset />
           <p v-if="item.heading" class="u-sb-heading">{{ item.heading }}</p>
 
           <component
@@ -395,12 +395,7 @@ function activate(i: SidebarItem) {
   font: var(--w-semibold) var(--fs-caption)/1 var(--font-sans);
   letter-spacing: var(--tr-caption);
 }
-.u-sb-rule {
-  height: var(--border-width);
-  margin: var(--s-5) var(--s-4);
-  border: 0;
-  background: var(--border);
-}
+
 .u-sb-empty {
   margin: var(--s-6) 0;
   padding-inline: var(--s-4);

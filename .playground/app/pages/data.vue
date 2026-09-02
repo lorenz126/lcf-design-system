@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoreHorizontal } from 'lucide-vue-next'
+import { Inbox, MoreHorizontal, Plus } from 'lucide-vue-next'
 useHead({ title: 'Data — Design Framework' })
 
 const picked = ref<(string | number)[]>([])
@@ -26,6 +26,7 @@ const rows = [
 ]
 const fmt = (n: number) => n.toLocaleString('en-US')
 
+const page = ref(4)
 const gridPicked = ref<(string | number)[]>([])
 const wideColumns = [
   { key: 'name', label: 'Service', sortable: true, width: '150px' },
@@ -168,6 +169,94 @@ const wideRows = [
         the others.
       </p>
     </section>
+
+    <section>
+      <div class="sec-label">EmptyState</div>
+      <div class="cards two">
+        <UiCard padding="none">
+          <UiEmptyState
+            size="sm"
+            :icon="Inbox"
+            title="No requests yet"
+            description="Anything that arrives today will show up here."
+          />
+        </UiCard>
+        <UiCard padding="none">
+          <UiEmptyState
+            :icon="Inbox"
+            title="Nothing in this project"
+            description="A project starts empty. Add the first item and the list takes over from here."
+          >
+            <UiButton size="sm">
+              <template #leading><UiIcon :is="Plus" /></template>
+              New item
+            </UiButton>
+          </UiEmptyState>
+        </UiCard>
+      </div>
+      <p class="t-caption hint">
+        “No rows.” is not an empty state, it is a status line. The difference matters
+        because empty is usually the <em>first</em> thing anyone sees — a new board, a
+        fresh filter, an inbox just cleared. It is the one moment an interface can say
+        what the thing is for, and a greyed-out sentence in the middle of a table
+        spends it saying nothing.
+      </p>
+      <p class="t-caption hint">
+        Which is why the action is a <strong>slot</strong>, not a prop: a useful empty
+        state ends in a way out — create the first one, clear the filter, go back — and
+        what that way out is belongs to the application. List and Table now render the
+        small size by default and take an <code>empty</code> slot for the rest.
+      </p>
+    </section>
+
+    <section>
+      <div class="sec-label">Pagination</div>
+      <div class="col">
+        <UiPagination v-model="page" :total="24" />
+        <UiPagination :model-value="1" :total="5" size="sm" />
+        <UiPagination :model-value="12" :total="12" size="sm" />
+      </div>
+      <p class="t-caption hint">
+        Page <strong>{{ page }}</strong> of 24. Walk it with the arrows: the row of
+        numbers never changes width. If the run grew and shrank as you moved through
+        it, the button under your pointer would change meaning between clicks — ends,
+        ellipses and the current neighbourhood always take the same number of slots, so
+        page 7 sits where page 6 was.
+      </p>
+      <p class="t-caption hint">
+        An ellipsis is <em>not</em> a control. It is a gap in a sequence, so it is
+        text: a button that jumps somewhere unstated is worse than no button. And these
+        are buttons rather than links, which is a real limit — a pagination whose pages
+        are URLs can be shared and reopened, but it needs the app to say what a page’s
+        address is, and half the places this belongs have none to give.
+      </p>
+    </section>
+
+    <section>
+      <div class="sec-label">Divider</div>
+      <div class="dv">
+        <p class="t-small">A block of content.</p>
+        <UiDivider />
+        <p class="t-small">Another, separated by a rule that belongs to neither.</p>
+        <UiDivider>or</UiDivider>
+        <p class="t-small">A labelled divider is a div, not an hr — a horizontal rule
+          cannot have content.</p>
+        <UiDivider spacing="lg" />
+        <div class="dvrow">
+          <span class="t-small">Toolbar</span>
+          <UiDivider orientation="vertical" spacing="sm" />
+          <span class="t-small">groups</span>
+          <UiDivider orientation="vertical" spacing="sm" />
+          <span class="t-small">divided</span>
+        </div>
+      </div>
+      <p class="t-caption hint">
+        A separator is not a border. A border belongs to a box and says where the box
+        ends; a divider is a thing in the flow saying the blocks either side of it are
+        not the same block. That is why it carries <code>role="separator"</code> and
+        its own spacing — and why Menu and Sidebar both stopped drawing their own.
+      </p>
+    </section>
   </div>
 </template>
 
@@ -179,5 +268,8 @@ code { font-family: var(--font-mono); font-size: 11px; }
 section { margin-bottom: 64px; }
 .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-6); }
 .cards.two { grid-template-columns: repeat(2, 1fr); }
+.col { display: flex; flex-direction: column; gap: var(--s-6); align-items: flex-start; }
+.dv { max-width: 460px; }
+.dvrow { display: flex; align-items: center; gap: var(--s-5); }
 .hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
 </style>

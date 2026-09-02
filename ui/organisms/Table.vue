@@ -129,10 +129,14 @@ function alignOf(col: Column) {
 
       <tbody>
         <tr v-if="loading">
-          <td :colspan="columns.length + (selectable ? 1 : 0)" class="u-tbl-state">Loading…</td>
+          <td :colspan="columns.length + (selectable ? 1 : 0)" class="u-tbl-state">
+            <span class="u-tbl-load"><UiSpinner size="sm" />Loading…</span>
+          </td>
         </tr>
         <tr v-else-if="!sorted.length">
-          <td :colspan="columns.length + (selectable ? 1 : 0)" class="u-tbl-state">{{ emptyText }}</td>
+          <td :colspan="columns.length + (selectable ? 1 : 0)" class="u-tbl-state">
+            <slot name="empty"><UiEmptyState size="sm" :title="emptyText" /></slot>
+          </td>
         </tr>
         <tr
           v-for="(row, i) in sorted"
@@ -243,7 +247,11 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 
 .u-tbl-pick { width: 1%; white-space: nowrap; }
-.u-tbl-state { padding: var(--s-10) var(--s-6); text-align: center; color: var(--fg-muted); }
+.u-tbl-state { padding: 0; text-align: center; color: var(--fg-muted); }
+.u-tbl-load {
+  display: inline-flex; align-items: center; gap: var(--s-4);
+  padding: var(--s-10) var(--s-6);
+}
 
 /* Visually hidden but still announced. */
 .u-tbl-sr {
