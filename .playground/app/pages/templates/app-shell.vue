@@ -149,5 +149,5 @@ useHead({ title: 'AppShell — Design Framework' })
   overflow: clip;
 }
 .content { padding: var(--s-8); }
-.dim { color: var(--ink-3); }
+.dim { color: var(--ink-2); }
 </style>

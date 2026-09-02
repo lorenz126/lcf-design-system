@@ -23,5 +23,5 @@ const defined = computed(() => principles.reduce((n, g) => n + g.items.length, 0
 </template>
 
 <style scoped>
-.meta { margin: 14px 0 0; color: var(--ink-3); font-family: var(--font-mono); }
+.meta { margin: 14px 0 0; color: var(--ink-2); font-family: var(--font-mono); }
 </style>

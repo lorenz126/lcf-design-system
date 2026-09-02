@@ -94,9 +94,9 @@ function onMove(e: { card: { title: string }; from: string | number; to: string 
 </template>
 
 <style scoped>
-.warn { margin: 0; color: var(--ink-3); max-width: 68ch; line-height: 1.6; }
+.warn { margin: 0; color: var(--ink-2); max-width: 68ch; line-height: 1.6; }
 .row { display: flex; gap: var(--s-9); align-items: flex-start; flex-wrap: wrap; }
 .notes { flex: 1; min-width: 260px; max-width: 42ch; }
 .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 240px; }
-.empty { color: var(--ink-3); }
+.empty { color: var(--ink-2); }
 </style>

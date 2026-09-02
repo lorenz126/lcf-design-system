@@ -89,5 +89,5 @@ const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(n % 1000 ? 1 : 0)}k
 </template>
 
 <style scoped>
-.warn { margin: 0; color: var(--ink-3); max-width: 68ch; line-height: 1.6; }
+.warn { margin: 0; color: var(--ink-2); max-width: 68ch; line-height: 1.6; }
 </style>

@@ -10,6 +10,22 @@ tag. Before a tag, `pnpm verify:consumer`.
 
 ## Unreleased
 
+### Changed
+
+- **The hue fills are opaque.** `--blue-fill` and the other five are the
+  same 14% (17% dark) wash they were, flattened onto the page with
+  `color-mix` instead of left translucent. On the page nothing changes;
+  on a card, a panel, or the current row of a sidebar a badge or a tinted
+  button is now the same colour it is on the page, where before it took
+  the ground's tone and lost contrast doing it — a blue badge at 2.87:1
+  on a sidebar's current row, fifteen such pairs across both themes.
+  Token names are unchanged, so this is not breaking by the rule; a
+  consumer who stacked a badge on a translucent surface of their own will
+  see it stop tinting.
+- `check-contrast` now stacks grounds (`on: ['--fill', '--bg-raised']`)
+  and reads `calc()` weights in `color-mix`; 174 pairs.
+- The page sweep measures rendered text contrast, in all three passes.
+
 ## 0.2.0 — 2026-09-02
 
 The catalogue is complete: every entry `ROADMAP.md` reserved is built,

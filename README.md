@@ -120,11 +120,17 @@ only remember whether they were opened.
 
 `pnpm test:e2e` walks every route of the workshop in Chromium — derived
 from the pages directory, so a new page is swept the moment it exists —
-and asks four things of each: what did the console say while it loaded,
-does it scroll sideways at 390px, are any ids duplicated, and is any
-interactive element without an accessible name. Closed dialogs and
-popovers must take up no room. It runs against the dev server because a
-hydration mismatch is a dev-only warning; the build would stay silent.
+three times: light, dark, and with reduced motion. It asks five things
+of each: what did the console say while it loaded, does it scroll
+sideways at 390px, are any ids duplicated, is any interactive element
+without an accessible name, and can every piece of rendered text be read
+against what it actually landed on. Closed dialogs and popovers must
+take up no room. It runs against the dev server because a hydration
+mismatch is a dev-only warning; the build would stay silent.
+
+The contrast question is not `test:contrast` again. That measures tokens
+against designed grounds; this composites pixels down to the page. Its
+first run found fifteen pairs the token check passed.
 
 Run by hand three times before it was a script, it found a hydration
 mismatch on every page, a full-viewport blank block on every page, and

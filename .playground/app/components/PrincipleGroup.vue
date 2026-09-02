@@ -39,9 +39,9 @@ h2 {
   font: var(--w-semibold) var(--fs-title-sm)/1.2 var(--font-sans);
   letter-spacing: var(--tr-title-sm);
 }
-.count { color: var(--ink-3); font-family: var(--font-mono); font-size: 11px; }
+.count { color: var(--ink-2); font-family: var(--font-mono); font-size: 11px; }
 .scope {
-  color: var(--ink-3);
+  color: var(--ink-2);
   font: var(--w-regular) var(--fs-small)/1.5 var(--font-sans);
   margin: 10px 0 0;
 }
@@ -50,7 +50,7 @@ h2 {
   padding: 20px 0; border-bottom: 1px solid var(--rule);
 }
 .p:last-child { border-bottom: 0; }
-.num { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); padding-top: 5px; }
+.num { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding-top: 5px; }
 .rule {
   font: var(--w-medium) var(--fs-lead)/1.45 var(--font-sans);
   letter-spacing: var(--tr-lead); margin-bottom: 6px;
@@ -64,7 +64,7 @@ h2 {
 .empty {
   border: 1px dashed var(--rule); border-radius: 10px;
   padding: 22px; margin-top: 16px;
-  color: var(--ink-3);
+  color: var(--ink-2);
   font: var(--w-regular) var(--fs-small)/1.6 var(--font-sans);
 }
 code { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); }

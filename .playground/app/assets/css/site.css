@@ -24,7 +24,10 @@ body {
    than as a margin below a sticky header. */
 .wrap { max-width: 1080px; margin: 0 auto; padding: 56px 40px 140px; }
 .sec-label {
-  color: var(--ink-3); letter-spacing: var(--tr-caption);
+  /* ink-2, not ink-3: this is read, and ink-3 on white is 2.42:1 —
+     measured by the page sweep the first time it measured rendered text
+     instead of tokens. ink-3 is for glyphs and rules, not sentences. */
+  color: var(--ink-2); letter-spacing: var(--tr-caption);
   font-size: 13px; font-weight: var(--w-semibold); margin-bottom: 28px;
 }
 
@@ -47,9 +50,13 @@ body {
 .lede { margin: 0 0 10px; }
 .body { margin: 0; color: var(--ink-2); max-width: 68ch; }
 .wrap section { margin-bottom: 64px; }
-.hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
-.warn { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
-.dim { color: var(--ink-3); }
+/* Prose, all of it: 4.83:1 light and 7.51:1 dark on ink-2, against
+   2.42:1 and 3.66:1 on the ink-3 it used to be. The whole workshop's
+   explanations were below AA and nobody measured, because the token check
+   measures the layer's tokens and these are the workshop's own. */
+.hint { color: var(--ink-2); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
+.warn { color: var(--ink-2); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
+.dim { color: var(--ink-2); }
 .wrap code { font-family: var(--font-mono); font-size: 11px; }
 
 .row { display: flex; flex-wrap: wrap; gap: var(--s-6); align-items: center; }

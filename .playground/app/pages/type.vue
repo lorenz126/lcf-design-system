@@ -115,7 +115,7 @@ onMounted(() => {
   display: grid; grid-template-columns: 132px 1fr; gap: 28px;
   align-items: baseline; padding: 16px 0; border-bottom: 1px solid var(--rule);
 }
-.meta { color: var(--ink-3); font-family: var(--font-mono); font-size: 11px; line-height: 1.5; }
+.meta { color: var(--ink-2); font-family: var(--font-mono); font-size: 11px; line-height: 1.5; }
 .meta b {
   display: block; color: var(--ink-2); font-family: var(--font-sans);
   font-weight: var(--w-medium); font-size: 12px; margin-bottom: 3px;
@@ -126,7 +126,7 @@ onMounted(() => {
 .cmp > div { padding: 24px; background: var(--ui-bg-2); border-radius: 12px; }
 h4 {
   margin: 0 0 14px; font-size: 11px; letter-spacing: .09em;
-  text-transform: uppercase; color: var(--ink-3); font-weight: var(--w-semibold);
+  text-transform: uppercase; color: var(--ink-2); font-weight: var(--w-semibold);
 }
 .sp { margin-top: 12px; }
 .flat { letter-spacing: 0 !important; }

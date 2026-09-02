@@ -165,7 +165,7 @@ const loading = ref(false)
   align-items: center;
 }
 .col-head, .row-head {
-  font-family: var(--font-mono); font-size: 10px; color: var(--ink-3);
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-2);
 }
 .row-head { text-align: right; padding-right: var(--s-2); }
 .cell { display: flex; }

@@ -79,5 +79,5 @@ useHead({ title: 'Menu — Design Framework' })
 </template>
 
 <style scoped>
-.dim { color: var(--ink-3); }
+.dim { color: var(--ink-2); }
 </style>

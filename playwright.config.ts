@@ -35,6 +35,30 @@ export default defineConfig({
     viewport: { width: 1280, height: 900 },
     trace: 'retain-on-failure'
   },
+  /*
+   * THREE PASSES OVER THE SAME PAGES, because one was not enough.
+   *
+   * Every contrast failure this framework has ever had was in the dark
+   * theme — 4.34:1 on a menu's danger row, 4.04:1 on the current nav
+   * row, 1.47:1 on a slider handle — and the sweep loaded each page once,
+   * with the theme unset, which is light. So dark is its own pass, set
+   * the way a real visitor sets it: the theme script reads
+   * localStorage, and so does this.
+   *
+   * Reduced motion is the third. Spinner and Progress claim to slow down
+   * rather than stop under it, and Dialog's backdrop to still arrive;
+   * nothing had ever loaded a page with the preference on to see.
+   */
+  projects: [
+    { name: 'light' },
+    {
+      name: 'dark',
+      use: { storageState: { cookies: [], origins: [{ origin: 'http://localhost:3010', localStorage: [{ name: 'theme', value: 'dark' }] }] } }
+    },
+    /* Through contextOptions: the option is real and documented on the
+       browser context, but this version's `use` type does not list it. */
+    { name: 'reduced-motion', use: { contextOptions: { reducedMotion: 'reduce' } } }
+  ],
   webServer: {
     command: 'pnpm exec nuxi dev .playground --port 3010',
     url: 'http://localhost:3010',

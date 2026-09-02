@@ -24,7 +24,7 @@ real browser — ordered so the cheapest failure is reported first:
 | `test:package` | what `files` would actually install | lists what would be missing |
 | `test:unit` | the keyboard contracts and the behaviour | ordinary test output |
 | `test:types` | the workshop and the demo app, `vue-tsc` | file, line, and what was expected |
-| `test:e2e` | every page loaded in Chromium: console, overflow at 390px, duplicate ids, unnamed controls, closed dialogs taking room | the page, and the sentence |
+| `test:e2e` | every page loaded in Chromium, three times — light, dark, reduced motion: console, overflow at 390px, duplicate ids, unnamed controls, closed dialogs taking room, and rendered text contrast | the page, the pass, and the sentence |
 
 Run one on its own with `pnpm test:contrast`, `pnpm test:layers` and so
 on. The static part takes about twelve seconds and the browser sweep
@@ -102,6 +102,15 @@ knowably empty there, and the client replaced it on hydration. Anything
 whose content depends on client-only state renders nothing until
 `onMounted`.
 
+**A fill that is read against is opaque.** The hue fills are
+`color-mix` onto the page, not `rgb(hue / alpha)`: a translucent wash
+calibrated on the page loses on a card and loses more on a highlighted
+row. `--fill` itself stays translucent — nothing is set in it.
+
+**`getComputedStyle` returns two colour syntaxes.** `rgb(r g b / a)` in
+0–255, and `color(srgb r g b / a)` in 0–1 for anything that went through
+`color-mix`. Read the second as the first and every ground is black.
+
 **`\w` is ASCII-only, so `\W` contains `ä`.** `[^\W\d_]+` split "März"
 into "M" and "rz". Use `\p{L}` with the `u` flag.
 
@@ -122,9 +131,20 @@ see. What found them was loading each page and reading what the browser
 said.
 
 That sweep is `pnpm test:e2e` now — every route, derived from the pages
-directory, loaded in Chromium against the dev server, asked four
-questions. It is against the dev server on purpose: a hydration mismatch
-is a dev-only warning and production Vue says nothing about it.
+directory, loaded in Chromium against the dev server, asked five
+questions, in light, in dark, and with reduced motion. It is against the
+dev server on purpose: a hydration mismatch is a dev-only warning and
+production Vue says nothing about it.
+
+The fifth question is rendered contrast, and it is not the same check as
+`test:contrast`. That one measures tokens against the grounds they were
+designed for; this one measures pixels against whatever they landed on,
+compositing every translucent layer down to the page. The first time it
+ran it found fifteen failing pairs the token check had passed — one
+recipe, every hue, on a card and on a sidebar's current row — and the
+token check now stacks grounds too. When they disagree, both are wrong
+about something, and it has happened: `color(srgb …)` is 0–1 not 0–255,
+and `calc()` inside a `color-mix` weight was being read as 50%.
 
 It does not replace looking. For anything visible: open it, drive it
 with the keyboard, and read the console yourself. The sweep asks four

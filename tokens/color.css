@@ -107,22 +107,44 @@
 
   --yellow:      rgb(var(--yellow-rgb));
   --yellow-text: rgb(var(--yellow-text-rgb));
-  --yellow-fill: rgb(var(--yellow-rgb) / var(--fill-alpha-light-hue));
+  /*
+   * A FILL THAT IS READ AGAINST IS OPAQUE.
+   *
+   * These used to be `rgb(hue / var(--fill-alpha))`: a translucent wash
+   * calibrated against the page, so that on the page a badge cleared AA.
+   * On a card it did not — --bg-raised is a step off the page, and a
+   * badge on the CURRENT ROW of a sidebar sits on --fill on --bg-raised,
+   * two washes deep. The page sweep measured that badge at 2.87:1 while
+   * every pair in check-contrast passed, because check-contrast measured
+   * against the page. Stacking the grounds there found fifteen failures
+   * across both themes — every hue, one recipe.
+   *
+   * So each fill is now the same wash FLATTENED ONTO THE PAGE with
+   * color-mix: the identical colour where it was designed, and now the
+   * identical colour everywhere else. The cost is that a badge on a dark
+   * card no longer takes the card's tone by a few percent. That property
+   * was the defect.
+   *
+   * --fill (neutral) stays translucent on purpose. It is a highlight
+   * over content, nothing is set in it, and it is the ground the others
+   * were failing on.
+   */
+  --yellow-fill: color-mix(in srgb, rgb(var(--yellow-rgb)) calc(var(--fill-alpha-light-hue) * 100%), var(--bg));
   --green:       rgb(var(--green-rgb));
   --green-text:  rgb(var(--green-text-rgb));
-  --green-fill:  rgb(var(--green-rgb) / var(--fill-alpha));
+  --green-fill:  color-mix(in srgb, rgb(var(--green-rgb)) calc(var(--fill-alpha) * 100%), var(--bg));
   --blue:        rgb(var(--blue-rgb));
   --blue-text:   rgb(var(--blue-text-rgb));
-  --blue-fill:   rgb(var(--blue-rgb) / var(--fill-alpha));
+  --blue-fill:   color-mix(in srgb, rgb(var(--blue-rgb)) calc(var(--fill-alpha) * 100%), var(--bg));
   --purple:      rgb(var(--purple-rgb));
   --purple-text: rgb(var(--purple-text-rgb));
-  --purple-fill: rgb(var(--purple-rgb) / var(--fill-alpha));
+  --purple-fill: color-mix(in srgb, rgb(var(--purple-rgb)) calc(var(--fill-alpha) * 100%), var(--bg));
   --red:         rgb(var(--red-rgb));
   --red-text:    rgb(var(--red-text-rgb));
-  --red-fill:    rgb(var(--red-rgb) / var(--fill-alpha));
+  --red-fill:    color-mix(in srgb, rgb(var(--red-rgb)) calc(var(--fill-alpha) * 100%), var(--bg));
   --orange:      rgb(var(--orange-rgb));
   --orange-text: rgb(var(--orange-text-rgb));
-  --orange-fill: rgb(var(--orange-rgb) / var(--fill-alpha-light-hue));
+  --orange-fill: color-mix(in srgb, rgb(var(--orange-rgb)) calc(var(--fill-alpha-light-hue) * 100%), var(--bg));
 
   /* ---------- Badges ----------
      Two recipes, chosen by the hue's own lightness — not by preference.

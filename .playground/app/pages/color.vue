@@ -146,7 +146,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <style scoped>
 .probe { position: absolute; width: 0; height: 0; visibility: hidden; }
-.warn { margin: 14px 0 0; color: var(--ink-3); max-width: 68ch; line-height: 1.6; }
+.warn { margin: 14px 0 0; color: var(--ink-2); max-width: 68ch; line-height: 1.6; }
 
 .group { margin-bottom: 40px; }
 .head {
@@ -157,7 +157,7 @@ h2 {
   margin: 0; font: var(--w-semibold) var(--fs-title-sm)/1.2 var(--font-sans);
   letter-spacing: var(--tr-title-sm);
 }
-.scope { color: var(--ink-3); font-size: var(--fs-small); }
+.scope { color: var(--ink-2); font-size: var(--fs-small); }
 
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .swatch {
@@ -173,8 +173,8 @@ h2 {
   font-family: var(--font-mono); font-size: 11px; color: var(--ink);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.hex { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-top: 2px; }
-.alpha { color: var(--ink-3); }
+.hex { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); margin-top: 2px; }
+.alpha { color: var(--ink-2); }
 .preview {
   display: inline-block; margin-top: 5px; padding: 2px 8px; border-radius: 999px;
   font: var(--w-medium) 11px var(--font-sans);
@@ -183,9 +183,15 @@ h2 {
 .badge {
   font-size: 10px; font-weight: var(--w-semibold); padding: 1px 5px; border-radius: 4px;
 }
-.good { background: color-mix(in srgb, var(--always) 16%, transparent); color: var(--always); }
-.bad  { background: color-mix(in srgb, var(--never) 16%, transparent);  color: var(--never); }
-.num { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+/* Solid, with the page's own colour as ink: 5.02 and 5.18:1 light,
+   11.0 and 8.47:1 dark. These used to be the tint recipe — 16% of the
+   hue over transparent with the hue as text — and measured 4.03:1 on the
+   very page that grades the layer's tokens for contrast. The same
+   defect the layer just fixed in its own fills, copied into the tool
+   that was supposed to catch it. */
+.good { background: var(--always); color: var(--ui-bg); }
+.bad  { background: var(--never);  color: var(--ui-bg); }
+.num { font-family: var(--font-mono); font-size: 10px; color: var(--ink-2); }
 
 .ramp { display: flex; gap: 2px; }
 .step { flex: 1; min-width: 0; }
@@ -197,5 +203,5 @@ h2 {
   font-family: var(--font-mono); font-size: 9px; color: var(--ink-2);
   margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.step-hex { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); }
+.step-hex { font-family: var(--font-mono); font-size: 9px; color: var(--ink-2); }
 </style>

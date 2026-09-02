@@ -163,10 +163,22 @@ function mix(v, map, seen) {
   if (parts[0].trim() !== 'in srgb') {
     throw new Error(`only srgb color-mix is supported: ${v}`)
   }
+  /* A weight is a percentage, or `calc(<number> * 100%)` — which is how
+     a fill written as `rgb(hue / var(--fill-alpha))` says the same 14%
+     once it is flattened with color-mix. Unread, the calc fell through
+     to the default of 50%, and every hue fill measured a mid-tone that
+     nothing on any page actually paints. */
+  const weight = w => {
+    const pct = w.match(/^([\d.]+)%$/)
+    if (pct) return Number(pct[1]) / 100
+    const calc = w.match(/^calc\(\s*([\d.]+)\s*\*\s*100%\s*\)$/)
+    if (calc) return Number(calc[1])
+    throw new Error(`cannot read a color-mix weight from "${w}"`)
+  }
   const parse = p => {
-    const m = p.trim().match(/^(.*?)\s+([\d.]+)%$/)
+    const m = p.trim().match(/^(.*?)\s+((?:[\d.]+%)|(?:calc\([^)]*\)))$/)
     return m
-      ? { c: resolve(m[1], map, seen), w: Number(m[2]) / 100 }
+      ? { c: resolve(m[1], map, seen), w: weight(m[2]) }
       : { c: resolve(p, map, seen), w: null }
   }
   const a = parse(parts[1])
@@ -351,6 +363,17 @@ function expectations() {
       { what: `text/${h}`, fg: `--${h}-text`, bg: '--bg', min, why },
       { what: `badge/${h}`, fg: `--${h}-badge-fg`, bg: `--${h}-badge-bg`, min, why },
       { what: `tinted/${h}`, fg: `--${h}-tint-fg`, bg: `--${h}-tint-bg`, min, why },
+      // The same two, ON A PANEL. A badge fill is translucent, so what
+      // it composites against decides the number — and a sidebar, a
+      // card and a board column are all --bg-raised, not --bg. The page
+      // sweep measured a blue badge at 2.96:1 on a dark sidebar while
+      // this file said 4.5 on the page. Both were right.
+      { what: `badge/${h} on raised`, fg: `--${h}-badge-fg`, bg: `--${h}-badge-bg`, on: '--bg-raised', min, why },
+      { what: `tinted/${h} on raised`, fg: `--${h}-tint-fg`, bg: `--${h}-tint-bg`, on: '--bg-raised', min, why },
+      // And on the CURRENT ROW of a sidebar: the badge's fill, on the
+      // row's fill, on the panel. Three translucent layers is where a
+      // recipe calibrated against the page goes furthest from it.
+      { what: `badge/${h} on current row`, fg: `--${h}-badge-fg`, bg: `--${h}-badge-bg`, on: ['--fill', '--bg-raised'], min, why },
       // Solid takes white text always, so it must clear AA for every hue.
       { what: `solid/${h}`, fg: '--solid-fg', bg: `--${h}-solid-bg`, min: AA },
       // A diagram node: tinted ground on a card, outlined in the hue.
@@ -402,7 +425,17 @@ for (const theme of ['light', 'dark']) {
       // A translucent colour has to be flattened onto whatever is really
       // behind it, and that is not always the page.
       const ratios = pairs.map(p => {
-        const page = resolve(map[p.on ?? e.on ?? '--bg'], map)
+        /* `on` may be a CHAIN, innermost first, because the ground under
+           a thing is not always one layer. A badge on the current row of
+           a sidebar sits on --fill, which is translucent, which sits on
+           --bg-raised: two translucent layers before the page. The page
+           sweep measured that badge at 2.87:1 while every single-ground
+           pair here passed. Folded from the outside in. */
+        const layers = [].concat(p.on ?? e.on ?? '--bg')
+        const page = layers.reduceRight(
+          (under, token) => over(resolve(map[token], map), under),
+          resolve(map['--bg'], map)
+        )
         const bg = over(resolve(map[p.bg], map), page)
         const fg = over(resolve(map[p.fg], map), bg)
         return { r: ratio(fg, bg), by: p.by }
