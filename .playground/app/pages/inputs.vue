@@ -122,7 +122,7 @@ const sizes = ['sm', 'md', 'lg'] as const
              large one say dim and bright without a word between them. -->
         <UiSlider v-model="volume" label="Brightness" size="lg" block>
           <template #leading><UiIcon :is="Sun" size="sm" /></template>
-          <template #trailing><UiIcon :is="Sun" :size="26" /></template>
+          <template #trailing><UiIcon :is="Sun" size="lg" /></template>
         </UiSlider>
         <UiSlider
           v-model="bass"
