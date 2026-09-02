@@ -230,6 +230,15 @@ function expectations() {
     { what: 'text/muted on raised', fg: '--fg-muted', bg: '--bg-raised', min: AA },
     { what: 'text/muted on sunken', fg: '--fg-muted', bg: '--bg-sunken', min: AA },
     {
+      // Group headings and trailing notes inside a panel — a suggestion
+      // list, a menu, a card footer.
+      what: 'text/subtle on raised',
+      fg: '--fg-subtle',
+      bg: '--bg-raised',
+      min: UI,
+      why: 'headings and notes beside a label that carries the meaning'
+    },
+    {
       what: 'text/subtle on sunken',
       fg: '--fg-subtle',
       bg: '--bg-sunken',

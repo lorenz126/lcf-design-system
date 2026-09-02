@@ -2,6 +2,17 @@
 useHead({ title: 'Inputs — Design Framework' })
 const a = ref(''); const b = ref('lorenz@dewa-id.com'); const c = ref('nope')
 const find = ref('')
+const fruit = [
+  { id: 1, label: 'Apricot', note: 'Stone' },
+  { id: 2, label: 'Apple', note: 'Pome' },
+  { id: 3, label: 'Blackberry', note: 'Aggregate' },
+  { id: 4, label: 'Blueberry', note: 'Berry' },
+  { id: 5, label: 'Cherry', note: 'Stone' }
+]
+const found = computed(() => {
+  const n = find.value.trim().toLowerCase()
+  return n ? fruit.filter(f => f.label.toLowerCase().includes(n)) : []
+})
 const sizes = ['sm', 'md', 'lg'] as const
 </script>
 
@@ -64,8 +75,15 @@ const sizes = ['sm', 'md', 'lg'] as const
     <section>
       <div class="sec-label">SearchField</div>
       <div class="col">
-        <UiSearchField v-model="find" size="lg" placeholder="Search components" />
-        <UiSearchField v-model="find" size="md" placeholder="Search mail" />
+        <UiSearchField
+          v-model="find"
+          size="lg"
+          placeholder="Type a letter"
+          :suggestions="found"
+          :recent="[fruit[2], fruit[4]]"
+          empty-text="Nothing like that here."
+        />
+        <UiSearchField size="md" placeholder="No suggestions configured" />
         <UiSearchField size="sm" placeholder="Filter" />
         <UiSearchField size="md" placeholder="Unavailable" disabled />
       </div>
@@ -77,8 +95,23 @@ const sizes = ['sm', 'md', 'lg'] as const
         one, and is marked out by its ground rather than by an outline.
       </p>
       <p class="t-caption hint">
-        Type something and press <strong>Escape</strong>. The clear button is a real
-        button so it is reachable without a mouse, and both routes go through the same
+        Give the first field focus. Empty, it offers what you looked at last; with a
+        query it offers matches. The arrows move a <em>highlight</em>, never the focus
+        — that is what <code>aria-activedescendant</code> is for, and moving real
+        focus into the list would send every keystroke after it somewhere other than
+        the box you are typing in. Enter takes the highlighted row, or the best match
+        if there is none.
+      </p>
+      <p class="t-caption hint">
+        It renders what it is given and does not search. Ranking, fuzziness and where
+        results come from are the application's business — and the recents are a prop
+        for the same reason, since a control that quietly wrote to
+        <code>localStorage</code> would be a surprise.
+      </p>
+      <p class="t-caption hint">
+        Type something and press <strong>Escape</strong>. The first press closes the
+        list, the second clears the field — one key, two steps, most specific first.
+        The clear button is a real button so it is reachable without a mouse, and both routes go through the same
         <code>clear()</code> — which also puts focus back in the field, since clearing
         and then losing the box is how you end up typing into the page.
       </p>

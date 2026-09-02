@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { NuxtLink } from '#components'
 import type { MenuItem } from '../../../ui/molecules/Menu.vue'
-import type { SidebarItem } from '../../../ui/organisms/Sidebar.vue'
+import type { SearchSuggestion } from '../../../ui/molecules/SearchField.vue'
 import { Moon, Shapes, Sun } from 'lucide-vue-next'
-import { sidebar } from '~/data/nav'
+import { foundations, sidebar, tiers } from '~/data/nav'
 
 /**
  * The workshop wears its own chrome: AppShell holding UiTopBar and
@@ -27,21 +27,64 @@ const themeItems = computed<MenuItem[]>(() => [
   { id: 'dark', label: 'Dark', checked: theme.value === 'dark' }
 ])
 
-/* The search filters the navigation. A search box in a workshop about
-   not shipping decoration had better do something. */
+/* The search goes to a dropdown rather than filtering the sidebar. Two
+   result surfaces for one query is one too many, and the navigation
+   collapsing under you while you read a list above it is noise. */
 const q = ref('')
-const items = computed<SidebarItem[]>(() => {
+
+const everything: SearchSuggestion[] = [
+  ...foundations.map(f => ({ id: `f-${f.name}`, label: f.name, note: 'Foundation' })),
+  ...tiers.flatMap(t =>
+    t.items.map(i => ({ id: `${t.label}-${i.name}`, label: i.name, note: t.label }))
+  )
+]
+const where = new Map<string | number, string>([
+  ...foundations.map(f => [`f-${f.name}`, f.to] as const),
+  ...tiers.flatMap(t => t.items.map(i => [`${t.label}-${i.name}`, i.to] as const))
+])
+
+const matches = computed(() => {
   const needle = q.value.trim().toLowerCase()
-  if (!needle) return sidebar
-  const hit = (s: string) => s.toLowerCase().includes(needle)
-  return sidebar.flatMap(i => {
-    if (!i.children) return hit(i.label) ? [i] : []
-    const kids = i.children.filter(k => hit(k.label))
-    // A group whose own name matches keeps all of its children.
-    if (hit(i.label)) return [i]
-    return kids.length ? [{ ...i, children: kids }] : []
+  if (!needle) return []
+  // Names that START with the query first: typing "ta" wants Table
+  // before Attachments.
+  const hits = everything.filter(s => s.label.toLowerCase().includes(needle))
+  return hits.sort((a, b) => {
+    const ai = a.label.toLowerCase().startsWith(needle) ? 0 : 1
+    const bi = b.label.toLowerCase().startsWith(needle) ? 0 : 1
+    return ai - bi || a.label.localeCompare(b.label)
   })
 })
+
+/* The field takes recents as a prop and never writes them itself, so the
+   remembering is here — where the storage decision belongs. */
+const RECENT_KEY = 'search-recent'
+const recent = ref<SearchSuggestion[]>([])
+onMounted(() => {
+  try {
+    const ids: (string | number)[] = JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]')
+    recent.value = ids
+      .map(id => everything.find(e => e.id === id))
+      .filter((e): e is SearchSuggestion => !!e)
+  } catch { /* a corrupted list is not worth a broken page */ }
+})
+
+function remember(s: SearchSuggestion) {
+  recent.value = [s, ...recent.value.filter(r => r.id !== s.id)].slice(0, 5)
+  localStorage.setItem(RECENT_KEY, JSON.stringify(recent.value.map(r => r.id)))
+}
+
+function goTo(s: SearchSuggestion) {
+  remember(s)
+  q.value = ''
+  navigateTo(where.get(s.id))
+}
+
+/** Enter with nothing highlighted takes the best match. */
+function onSubmit() {
+  const first = matches.value[0]
+  if (first) goTo(first)
+}
 </script>
 
 <template>
@@ -55,6 +98,12 @@ const items = computed<SidebarItem[]>(() => {
             block
             placeholder="Search components"
             label="Search components"
+            :suggestions="matches"
+            :recent="recent"
+            recent-label="Recently opened"
+            empty-text="No component by that name."
+            @select="goTo"
+            @submit="onSubmit"
           />
         </template>
 
@@ -88,12 +137,10 @@ const items = computed<SidebarItem[]>(() => {
 
     <template #sidebar>
       <UiSidebar
-        :items="items"
+        :items="sidebar"
         :current="route.path"
-        :expand-all="!!q.trim()"
         :link="NuxtLink"
         label="Framework"
-        empty-text="Nothing matches that."
       />
     </template>
 

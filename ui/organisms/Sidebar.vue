@@ -110,7 +110,7 @@ watch(
   () => [props.current, props.items] as const,
   () => {
     const next = new Set(opened.value)
-    for (const i of props.items) {
+    for (const i of props.items ?? []) {
       if (i.children?.some(c => isCurrent(c))) next.add(key(i))
     }
     opened.value = next
