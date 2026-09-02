@@ -64,3 +64,14 @@ jobs:
       # successful build does not cover.
       - name: Types
         run: pnpm test:types
+
+      # Every page in a real browser, reading what it says. This is the
+      # check that found a hydration mismatch on all fifty pages, a
+      # full-viewport blank block on all fifty, and eight workshop
+      # defects — none visible to anything above. Against the dev
+      # server on purpose: a hydration mismatch is a dev-only warning.
+      - name: Browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Every page, in a browser
+        run: pnpm test:e2e

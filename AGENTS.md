@@ -12,8 +12,8 @@ somebody an afternoon first.
 pnpm test
 ```
 
-Five static guards, then the tests, then both typechecks — ordered so the
-cheapest failure is reported first:
+Five static guards, the tests, both typechecks, then every page in a
+real browser — ordered so the cheapest failure is reported first:
 
 | step | what it protects | how it fails |
 |---|---|---|
@@ -24,10 +24,12 @@ cheapest failure is reported first:
 | `test:package` | what `files` would actually install | lists what would be missing |
 | `test:unit` | the keyboard contracts and the behaviour | ordinary test output |
 | `test:types` | the workshop and the demo app, `vue-tsc` | file, line, and what was expected |
+| `test:e2e` | every page loaded in Chromium: console, overflow at 390px, duplicate ids, unnamed controls, closed dialogs taking room | the page, and the sentence |
 
 Run one on its own with `pnpm test:contrast`, `pnpm test:layers` and so
-on. The whole thing takes about twelve seconds; there is no reason to
-skip it. CI runs the same steps in the same order, plus the build.
+on. The static part takes about twelve seconds and the browser sweep
+another forty; there is no reason to skip either. CI runs the same steps
+in the same order, plus the build.
 
 `pnpm dev` is the workshop, `pnpm demo` the consumer app, `pnpm build`
 builds the workshop.
@@ -119,10 +121,14 @@ defects across the workshop — none of which the build or the suite could
 see. What found them was loading each page and reading what the browser
 said.
 
-So for anything visible: open it, drive it with the keyboard, and read
-the console. For anything that changed a page, sweep all of them —
-console warnings, horizontal overflow at 390px, duplicate ids,
-interactive elements with no accessible name.
+That sweep is `pnpm test:e2e` now — every route, derived from the pages
+directory, loaded in Chromium against the dev server, asked four
+questions. It is against the dev server on purpose: a hydration mismatch
+is a dev-only warning and production Vue says nothing about it.
+
+It does not replace looking. For anything visible: open it, drive it
+with the keyboard, and read the console yourself. The sweep asks four
+questions; a person asks the fifth.
 
 **Measure rather than judge.** "The slider feels notchy" became three
 findings only after counting pixels per step. Report the number.

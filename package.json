@@ -9,8 +9,9 @@
     "build": "nuxi build .playground",
     "generate": "nuxi generate .playground",
     "preview": "nuxi preview .playground",
-    "test": "node scripts/check-contrast.mjs && node scripts/check-layers.mjs && node scripts/check-dialogs.mjs && node scripts/check-pages.mjs && node scripts/check-package.mjs && vitest run && pnpm test:types",
+    "test": "node scripts/check-contrast.mjs && node scripts/check-layers.mjs && node scripts/check-dialogs.mjs && node scripts/check-pages.mjs && node scripts/check-package.mjs && vitest run && pnpm test:types && pnpm test:e2e",
     "test:types": "nuxt typecheck --cwd .playground && nuxt typecheck --cwd demo",
+    "test:e2e": "playwright test",
     "test:contrast": "node scripts/check-contrast.mjs",
     "test:layers": "node scripts/check-layers.mjs",
     "test:dialogs": "node scripts/check-dialogs.mjs",
@@ -21,6 +22,7 @@
     "demo:build": "nuxi build demo"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/test-utils": "^2.5.0",
     "happy-dom": "^20.13.0",

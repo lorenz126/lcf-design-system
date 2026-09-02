@@ -11,3 +11,7 @@ dist/
 .playground/.nuxt/
 demo/.nuxt/
 demo/.output/
+
+# Playwright
+test-results/
+playwright-report/

@@ -366,9 +366,19 @@ Nothing. Every entry in this catalogue is built, and the three dependency
 decisions it reserved were all answered the same way: no dependency was
 taken.
 
-What is left is not a list of components. It is the habits that found the
-last dozen defects: measuring instead of judging, and loading every page
-and reading what the browser says.
+What is left is not a list of components. It is the habit that found the
+last dozen defects — measuring instead of judging — and the second one is
+no longer a habit.
+
+**Playwright — taken.** Loading every page and reading what the browser
+says was done by hand three times and found a hydration mismatch on all
+fifty pages, a full-viewport blank block on all fifty, and eight workshop
+defects. A check that lives in somebody's memory runs only when they
+remember, so it is `pnpm test:e2e`: every route derived from the pages
+directory, Chromium only, against the dev server because a hydration
+mismatch is a dev-only warning. Proven the same way check-dialogs was —
+the bug put back, the sweep naming it: `closed dialog.u-cp is 1280×900`,
+`Property "pct" was accessed during render but is not defined`.
 
 **`vue-tsc` — taken.** It is the only dependency this catalogue added,
 and it earned it in the first run. The layer itself came back clean:

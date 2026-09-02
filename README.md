@@ -83,8 +83,8 @@ redistribution — self-hosting SF for a public site falls outside it.
 ```
 pnpm install
 pnpm dev     # the playground
-pnpm test        # all six: contrast, layers, dialogs, pages, package,
-                 # behaviour, and both typechecks
+pnpm test        # contrast, layers, dialogs, pages, package, behaviour,
+                 # both typechecks, and every page in a browser
 pnpm test:watch  # the behaviour tests, while you work
 ```
 
@@ -110,6 +110,20 @@ Popover API, no `ResizeObserver` and no `matchMedia`, and this framework
 leans on all three deliberately. A stub is a place where a test stops
 testing reality, so none of them decides an outcome: the popover stubs
 only remember whether they were opened.
+
+### Every page, in a browser
+
+`pnpm test:e2e` walks every route of the workshop in Chromium — derived
+from the pages directory, so a new page is swept the moment it exists —
+and asks four things of each: what did the console say while it loaded,
+does it scroll sideways at 390px, are any ids duplicated, and is any
+interactive element without an accessible name. Closed dialogs and
+popovers must take up no room. It runs against the dev server because a
+hydration mismatch is a dev-only warning; the build would stay silent.
+
+Run by hand three times before it was a script, it found a hydration
+mismatch on every page, a full-viewport blank block on every page, and
+eight workshop defects — none visible to any check above it.
 
 ### Proving it is consumable
 
