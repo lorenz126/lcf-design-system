@@ -112,7 +112,13 @@ const sizes = ['sm', 'md', 'lg'] as const
     <section>
       <div class="sec-label">Slider</div>
       <div class="row sliders">
-        <UiSlider v-model="volume" label="Volume" show-value block />
+        <UiSlider
+          v-model="volume"
+          label="Volume"
+          :ticks="[12.5, 25, 50]"
+          show-value
+          block
+        />
         <UiSlider
           v-model="bass"
           label="Bass"
@@ -123,7 +129,15 @@ const sizes = ['sm', 'md', 'lg'] as const
           show-value
           block
         />
-        <UiSlider v-model="volume" label="Upright" orientation="vertical" size="sm" show-value />
+        <UiSlider
+          v-model="volume"
+          label="Upright"
+          orientation="vertical"
+          size="sm"
+          :ticks="[25, 50, 75]"
+          show-value
+        />
+        <UiSlider v-model="volume" label="Large" size="lg" :ticks="[25, 50, 75]" block />
       </div>
       <p class="t-caption hint">
         A real <code>&lt;input type="range"&gt;</code>: arrows, Home and End, Page Up
@@ -141,6 +155,19 @@ const sizes = ['sm', 'md', 'lg'] as const
         <code>aria-valuetext</code> matters more here than anywhere: a screen reader
         reading “40” for a volume tells you nothing. The second slider says
         <strong>“+3 dB”</strong>, because that is what the number means.
+      </p>
+      <p class="t-caption hint">
+        The dots are <strong>marks, not stops</strong>. An eighth, a quarter and a half
+        are worth pointing at; making the thumb land on them is what <code>step</code>
+        is for, and a slider that pulls toward marks it was never told to honour is one
+        that cannot be set to 51.
+      </p>
+      <p class="t-caption hint">
+        They also decided a geometry question. The thumb travels <em>inside</em> the
+        track rather than across it, so a mark at one half belongs at half of
+        (width − thumb) plus half a thumb — not at half the width. The fill had the
+        same error: invisible on a thin rail, obvious on a thick one with dots under
+        it.
       </p>
     </section>
 
