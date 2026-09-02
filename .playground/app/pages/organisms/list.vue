@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { MoreHorizontal } from 'lucide-vue-next'
 useHead({ title: 'List — Design Framework' })
 const picked = ref<(string | number)[]>([])
 const listItems = [

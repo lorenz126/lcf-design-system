@@ -18,7 +18,7 @@ const bass = ref(-2)
     </div>
 
     <section>
-      <div class="sec-label">Four of them</div>
+      <div class="sec-label">Four of them, and every decision in them</div>
       <div class="row sliders">
         <UiSlider
           v-model="volume"
@@ -64,22 +64,6 @@ const bass = ref(-2)
         Try it with the mouse left alone — the whole keyboard model is the browser’s.
       </p>
       <p class="t-caption hint">
-        <strong>A range with two thumbs cannot be this component.</strong> No native
-        control carries two values, so a second thumb means rebuilding the whole
-        keyboard model by hand on pointer capture. That is a different component
-        wearing the same clothes, and saying so is better than growing into it one
-        prop at a time.
-      </p>
-      <p class="t-caption hint">
-        <code>aria-valuetext</code> matters more here than anywhere: a screen reader
-        reading “40” for a volume tells you nothing. Bass says <strong>“+3 dB”</strong>,
-        because that is what the number means.
-      </p>
-    </section>
-
-    <section>
-      <div class="sec-label">Marks, and when they catch</div>
-      <p class="t-caption hint">
         The dots are <strong>marks until you say otherwise</strong>. A slider that
         pulled toward marks it was never told to honour would be one that cannot be set
         to 51, so <code>snap</code> is a prop rather than a consequence of having marks
@@ -101,10 +85,6 @@ const bass = ref(-2)
         (width − thumb) plus half a thumb — not at half the width. The fill had the
         same error: invisible on a thin rail, obvious on a thick one with dots under it.
       </p>
-    </section>
-
-    <section>
-      <div class="sec-label">Two grids, one control</div>
       <p class="t-caption hint">
         <code>step</code> was doing three jobs at once — what an arrow key moves by,
         what the number reads as, and where the thumb may land. Only the third wanted
@@ -120,7 +100,20 @@ const bass = ref(-2)
         should move in twenty-four whole jumps, because there the steps <em>are</em> the
         meaning.
       </p>
+      <p class="t-caption hint">
+        <strong>A range with two thumbs cannot be this component.</strong> No native
+        control carries two values, so a second thumb means rebuilding the whole
+        keyboard model by hand on pointer capture. That is a different component
+        wearing the same clothes, and saying so is better than growing into it one
+        prop at a time.
+      </p>
+      <p class="t-caption hint">
+        <code>aria-valuetext</code> matters more here than anywhere: a screen reader
+        reading “40” for a volume tells you nothing. Bass says <strong>“+3 dB”</strong>,
+        because that is what the number means.
+      </p>
     </section>
+
   </div>
 </template>
 

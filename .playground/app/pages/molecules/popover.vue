@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { SlidersHorizontal } from 'lucide-vue-next'
+import { Pencil, SlidersHorizontal } from 'lucide-vue-next'
 const onlyMine = ref(true)
+const rename = ref(false)
+const newName = ref('Quarterly report')
+const lastAction = ref('—')
 useHead({ title: 'Popover — Design Framework' })
 </script>
 

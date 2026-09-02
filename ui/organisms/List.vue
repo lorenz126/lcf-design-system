@@ -36,6 +36,18 @@ const emit = defineEmits<{ activate: [ListItem] }>()
 const uid = useId()
 const groupName = computed(() => `list-${uid}`)
 
+/**
+ * A ROW'S BOX IS NAMED BY THE ROW, by pointing at its label rather than
+ * by building a sentence — so the name is what the row actually says,
+ * and stays right when the data changes. Without it a column of these
+ * announces as "checkbox, checkbox, checkbox".
+ *
+ * A caller replacing the row with the `item` slot takes the naming with
+ * it: there is no label element left to point at, and only that caller
+ * knows what its row is called.
+ */
+const nameId = (id: string | number) => `${uid}-i${id}`
+
 function isOn(id: string | number) { return selected.value.includes(id) }
 
 function toggle(item: ListItem) {
@@ -73,6 +85,7 @@ function toggle(item: ListItem) {
           v-if="select === 'multiple'"
           :model-value="isOn(item.id)"
           :disabled="item.disabled"
+          :aria-labelledby="nameId(item.id)"
           @update:model-value="toggle(item)"
         />
         <UiRadio
@@ -81,6 +94,7 @@ function toggle(item: ListItem) {
           :value="String(item.id)"
           :name="groupName"
           :disabled="item.disabled"
+          :aria-labelledby="nameId(item.id)"
           @update:model-value="toggle(item)"
         />
 
@@ -91,7 +105,7 @@ function toggle(item: ListItem) {
           @click="interactive && !item.disabled && emit('activate', item)"
         >
           <slot name="item" :item="item">
-            <span class="u-list-label">{{ item.label }}</span>
+            <span :id="nameId(item.id)" class="u-list-label">{{ item.label }}</span>
             <span v-if="item.description" class="u-list-desc">{{ item.description }}</span>
           </slot>
         </component>

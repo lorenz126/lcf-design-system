@@ -19,6 +19,20 @@ const props = defineProps<{
   id?: string
 }>()
 
+/**
+ * UNMATCHED ATTRIBUTES GO ON THE INPUT, not on the wrapper.
+ *
+ * By default Vue puts them on the root element, which here is the
+ * <div> holding the box and the label — so `aria-label` landed on a
+ * div and named nothing. That is how Table and List shipped a column of
+ * selection checkboxes a screen reader announces as "checkbox, checkbox,
+ * checkbox", with no way for the caller to fix it from outside.
+ *
+ * name, required, form, aria-* and data-* all belong to the control
+ * rather than to the box drawn around it.
+ */
+defineOptions({ inheritAttrs: false })
+
 defineEmits<{ 'update:modelValue': [string] }>()
 
 const uid = useId()
@@ -28,6 +42,7 @@ const id = computed(() => props.id ?? `r-${uid}`)
 <template>
   <div class="u-row" :class="{ 'u-disabled': disabled }">
     <input
+      v-bind="$attrs"
       :id="id"
       type="radio"
       class="u-dot"

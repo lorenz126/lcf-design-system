@@ -56,9 +56,29 @@ const props = withDefaults(defineProps<{
    * number you give, and the scroll container has been waiting for it.
    */
   minWidth?: string
-}>(), { rowKey: 'id', emptyText: 'No rows.', variant: 'rows' })
+  /** Names the header box. Every checkbox needs one; this one has no
+   *  row to take it from. */
+  selectAllLabel?: string
+}>(), { rowKey: 'id', emptyText: 'No rows.', variant: 'rows', selectAllLabel: 'Select all rows' })
 
 const selected = defineModel<(string | number)[]>('selected', { default: () => [] })
+
+const uid = useId()
+/**
+ * A ROW'S CHECKBOX IS NAMED BY THE ROW, by pointing at its first cell
+ * rather than by building a sentence. The name is then literally what is
+ * in that cell, in whatever markup the caller rendered, and it stays
+ * right when the data changes — where "Select " + row.name would be an
+ * English sentence invented for a table that might be in German.
+ *
+ * Without it a column of these announces as "checkbox, checkbox,
+ * checkbox", which is what shipped until a sweep of every page counted
+ * the controls with no accessible name.
+ *
+ * The first column is the row's identity by convention. Where it is not,
+ * the columns are in the wrong order for a reader too.
+ */
+const nameId = (i: number) => `${uid}-r${i}`
 
 const sortKey = ref<string | null>(null)
 const sortDir = ref<'asc' | 'desc'>('asc')
@@ -112,9 +132,9 @@ function alignOf(col: Column) {
             <UiCheckbox
               :model-value="allOn"
               :indeterminate="someOn"
+              :aria-label="selectAllLabel"
               @update:model-value="toggleAll"
             />
-            <span class="u-tbl-sr">Select all rows</span>
           </th>
           <th
             v-for="col in columns"
@@ -156,12 +176,14 @@ function alignOf(col: Column) {
           <td v-if="selectable" class="u-tbl-pick">
             <UiCheckbox
               :model-value="selected.includes(keyOf(row, i))"
+              :aria-labelledby="nameId(i)"
               @update:model-value="toggleRow(keyOf(row, i))"
             />
           </td>
           <td
-            v-for="col in columns"
+            v-for="(col, c) in columns"
             :key="col.key"
+            :id="c === 0 ? nameId(i) : undefined"
             :class="{ 'nums-tabular': col.numeric }"
             :style="{ textAlign: alignOf(col) }"
           >

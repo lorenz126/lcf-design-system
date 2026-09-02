@@ -1,9 +1,10 @@
 <script setup lang="ts">
 const selected = ref<number | null>(null)
 const messages = [
-  { id: 1, from: 'Anna Weber', subject: 'Quarterly review', at: '09:14' },
-  { id: 2, from: 'Design Framework', subject: 'Nightly build passed', at: '08:02' },
-  { id: 3, from: 'Tobias Krause', subject: 'Re: colour tokens', at: 'Yesterday' }
+  { id: 1, label: 'Quarterly review', description: 'Anna Weber · 09:14' },
+  { id: 2, label: 'Design system sync', description: 'Tom Krause · 08:02' },
+  { id: 3, label: 'Invoice #2291', description: 'Billing · yesterday' },
+  { id: 4, label: 'Welcome aboard', description: 'People · Monday' }
 ]
 const current = computed(() => messages.find(m => m.id === selected.value))
 useHead({ title: 'SplitView — Design Framework' })

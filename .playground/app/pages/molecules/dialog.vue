@@ -3,6 +3,7 @@ const rename = ref(false)
 const confirm = ref(false)
 const required = ref(false)
 const newName = ref('Quarterly report')
+const lastAction = ref('—')
 useHead({ title: 'Dialog — Design Framework' })
 </script>
 

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 useHead({ title: 'Progress — Design Framework' })
+const pct = ref(38)
+const busy = ref(true)
 </script>
 
 <template>
