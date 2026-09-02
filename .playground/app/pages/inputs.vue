@@ -2,6 +2,10 @@
 useHead({ title: 'Inputs — Design Framework' })
 const a = ref(''); const b = ref('lorenz@dewa-id.com'); const c = ref('nope')
 const find = ref('')
+const notes = ref('')
+const bio = ref('Two lines already, so the box has something to grow from.\nPress Enter a few times.')
+const volume = ref(40)
+const bass = ref(-2)
 const fruit = [
   { id: 1, label: 'Apricot', note: 'Stone' },
   { id: 2, label: 'Apple', note: 'Pome' },
@@ -73,6 +77,74 @@ const sizes = ['sm', 'md', 'lg'] as const
     </section>
 
     <section>
+      <div class="sec-label">Textarea</div>
+      <div class="col">
+        <UiTextarea
+          v-model="bio"
+          label="Description"
+          help="It grows as you type, and stops at eight lines."
+          :max-rows="8"
+          block
+        />
+        <UiTextarea
+          v-model="notes"
+          label="Notes"
+          placeholder="Say what happened"
+          :max-length="120"
+          block
+        />
+      </div>
+      <p class="t-caption hint">
+        Growing with the content is the only interesting part.
+        <code>field-sizing: content</code> does it in one declaration and is not
+        everywhere yet, so this takes the good path where it exists and measures
+        <code>scrollHeight</code> where it does not — the same shape as the anchor
+        positioning decision, and the fallback is small enough to delete later.
+      </p>
+      <p class="t-caption hint">
+        The counter <strong>reports, it does not block</strong>. There is no
+        <code>maxlength</code> attribute: silently refusing keystrokes at a limit is
+        the same lie as refusing a kanban card over a WIP limit — the text does not
+        get shorter, it gets finished somewhere else and pasted in.
+      </p>
+    </section>
+
+    <section>
+      <div class="sec-label">Slider</div>
+      <div class="row sliders">
+        <UiSlider v-model="volume" label="Volume" show-value block />
+        <UiSlider
+          v-model="bass"
+          label="Bass"
+          :min="-12"
+          :max="12"
+          :step="1"
+          :format="(n: number) => `${n > 0 ? '+' : ''}${n} dB`"
+          show-value
+          block
+        />
+        <UiSlider v-model="volume" label="Upright" orientation="vertical" size="sm" show-value />
+      </div>
+      <p class="t-caption hint">
+        A real <code>&lt;input type="range"&gt;</code>: arrows, Home and End, Page Up
+        and Page Down, touch dragging and the announcement all arrive free and correct.
+        Try it with the mouse left alone.
+      </p>
+      <p class="t-caption hint">
+        <strong>A range with two thumbs cannot be this component.</strong> No native
+        control carries two values, so a second thumb means rebuilding the whole
+        keyboard model by hand on pointer capture. That is a different component
+        wearing the same clothes, and saying so is better than growing into it one
+        prop at a time.
+      </p>
+      <p class="t-caption hint">
+        <code>aria-valuetext</code> matters more here than anywhere: a screen reader
+        reading “40” for a volume tells you nothing. The second slider says
+        <strong>“+3 dB”</strong>, because that is what the number means.
+      </p>
+    </section>
+
+    <section>
       <div class="sec-label">SearchField</div>
       <div class="col">
         <UiSearchField
@@ -133,6 +205,7 @@ code { font-family: var(--font-mono); font-size: 11px; }
 section { margin-bottom: 64px; }
 .row { display: flex; flex-wrap: wrap; gap: var(--s-6); align-items: flex-start; margin-bottom: var(--s-6); }
 .hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
+.sliders { align-items: flex-end; gap: var(--s-9); }
 .col { display: flex; flex-direction: column; gap: var(--s-5); align-items: flex-start; max-width: 380px; }
 .form { display: flex; flex-direction: column; gap: var(--s-6); max-width: 360px; }
 .actions { display: flex; gap: var(--s-4); margin-top: var(--s-3); }

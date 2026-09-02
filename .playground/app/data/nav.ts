@@ -32,7 +32,10 @@ export const tiers: NavGroup[] = [
       { name: 'Spinner', to: '/buttons' },
       { name: 'Divider', to: '/data' },
       { name: 'Avatar', to: '/templates', note: 'shown with the shell' },
+      { name: 'Field', to: '/inputs', note: 'Input and Select use it' },
       { name: 'Input', to: '/inputs' },
+      { name: 'Textarea', to: '/inputs' },
+      { name: 'Slider', to: '/inputs' },
       { name: 'Checkbox', to: '/controls' },
       { name: 'Radio', to: '/controls' },
       { name: 'Switch', to: '/controls' }
@@ -43,6 +46,8 @@ export const tiers: NavGroup[] = [
     icon: Blocks,
     items: [
       { name: 'Select', to: '/controls', note: 'uses Icon' },
+      { name: 'ToggleGroup', to: '/controls' },
+      { name: 'Drawer', to: '/overlays' },
       { name: 'Card', to: '/data' },
       { name: 'EmptyState', to: '/data' },
       { name: 'Pagination', to: '/data' },

@@ -18,12 +18,15 @@ the easy half and the decision inside it is the whole job.
 
 Three facts from the current tree, each of which decides a priority:
 
-- **There is no textarea.** Not anywhere. The demo application's "New
-  issue" dialog collects a description in a single-line `Input`, which is
-  wrong, and it was wrong the moment it was written.
-- **The label / help / error / id-generation block is duplicated across
-  five files** — Input, Select, Checkbox, Radio, Switch. That is the
-  largest duplication in the codebase, larger than the two spinners were.
+- ~~**There is no textarea.**~~ *Done.* It was found by the demo
+  application, which collected an issue description in a single-line
+  `Input`.
+- ~~**The label / help / error / id-generation block is duplicated across
+  five files**~~ — **four**, and the correction matters. Checkbox, Radio
+  and Switch put the label BESIDE the control, so wrapping them would
+  give a wrapper with a hole in the middle. What looked like one
+  duplication is two: four fields that stack, and three controls in a
+  row. Field covers the first. *Done.*
 - **Three components hand-roll their own `aria-live` region** — Kanban,
   Calendar, Attachments. A fourth is coming with Toast.
 
@@ -32,6 +35,8 @@ Three facts from the current tree, each of which decides a priority:
 ## Phase 8 — Controls
 
 ### 8.1 Slider — *the volume one*
+
+> **Built.**
 
 Native `<input type="range">` first, for the same reason every other
 control here is native: arrows, Home/End, Page Up/Down, touch and the
@@ -59,6 +64,8 @@ empty one. Both are UI boundaries at 3:1, and neither is obvious by eye.
 
 ### 8.2 ToggleGroup — *the toggles one*
 
+> **Built.**
+
 **The hard part is that "toggles" is two components.** Choosing one of
 several is a `radiogroup`: one tab stop, arrows move *and* select. Turning
 several on independently is a group of buttons with `aria-pressed`: Tab
@@ -77,6 +84,8 @@ should refuse too.
 
 ### 8.3 Textarea
 
+> **Built.**
+
 **The hard part is auto-growing.** `field-sizing: content` does it in one
 line and is Chromium-only today; the fallback is measuring `scrollHeight`
 on every input, or the hidden-mirror trick. This is the same shape as the
@@ -89,6 +98,8 @@ does not block**. Truncating what somebody typed is the same lie as
 refusing a kanban drop over a WIP limit.
 
 ### 8.4 Field — *and a tier problem*
+
+> **Built.**
 
 The wrapper five components duplicate: label, help text, error, the
 generated id, the `aria-describedby` wiring that connects them.
@@ -108,6 +119,8 @@ is worth deciding on purpose rather than by whichever answer compiles.
 ## Phase 9 — Surfaces
 
 ### 9.1 Drawer — *the side panel*
+
+> **Built.**
 
 **The hard part is modal or not, and it is not a styling choice.**
 
@@ -216,13 +229,15 @@ Worth writing down, because a catalogue without refusals is a wish list.
 
 ---
 
-## Where I would start
+## Done
 
-**Slider, ToggleGroup, Textarea, Drawer.** Your three, plus the gap the
-demo exposed. It is one coherent slice — three controls and the surface
-they most often sit in — and the Drawer is the piece that unblocks
-settings panels, filters and detail views everywhere else.
+**Field, Textarea, Slider, ToggleGroup, Drawer.** The tier question was
+answered in the building: Field is an atom, because three of its four
+callers are atoms and an atom that cannot use it keeps its own copy. That
+also exposed a rule check-layers documented but did not enforce.
 
-**Field before any of them, if you want the cheapest win.** Five files
-stop repeating themselves, and the tier question gets answered while it
-is still one afternoon rather than nine components.
+## Next
+
+**Toast**, and with it the `useAnnounce()` that collapses the three
+hand-rolled live regions in Kanban, Calendar and Attachments into one.
+Then **Progress** out of Attachments, **Banner**, and **Tabs**.
