@@ -47,6 +47,26 @@ pnpm add -D github:lorenz126/flechtenmacher-font#v0.2.0 lucide-vue-next
 The tag is the version promise — `CHANGELOG.md` says what each one
 changed, and `AGENTS.md` says what counts as breaking.
 
+### What it costs
+
+Measured on the 0.2.0 tarball, installed into an empty project, built
+for production, client assets gzipped:
+
+| page | JS | CSS | over the Nuxt floor |
+|---|---|---|---|
+| a Nuxt app with no layer at all | 53 KB | 0 | — |
+| the layer, nothing from it used | 56 KB | 3 KB | **+3 KB / +3 KB** |
+| one `<UiButton>` | 57 KB | 4 KB | +4 KB / +4 KB |
+| eleven of the heaviest — Table, Calendar, DatePicker, Combobox, TreeView, Diagram, Kanban, Slider, Dialog, Toaster, CommandPalette | 78 KB | 10 KB | +25 KB / +10 KB |
+
+So the layer costs every page about 3 KB of JS (the theme script and the
+link plugin) and 3 KB of CSS (the tokens and `styles/base.css`, which
+are global by design), and then only what the page actually uses: one
+button is one kilobyte. The one-button bundle contains no Kanban,
+Calendar, Diagram, TreeView, palette or table code at all — auto-import
+is real tree-shaking here, not a whole-library include with a
+convenient name.
+
 `lucide-vue-next` is listed twice on purpose. The layer depends on it for its
 own glyphs, but **you** need it declared too if your pages import icons
 directly:
