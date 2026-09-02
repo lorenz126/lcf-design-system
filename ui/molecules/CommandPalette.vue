@@ -39,6 +39,20 @@ import type { Command } from '../../composables/useCommands'
  * A DISABLED COMMAND IS LISTED AND REFUSED, the same argument as a
  * disabled tab. Hiding it means someone searches for the thing they
  * cannot do and concludes it does not exist.
+ *
+ * NOTHING INSIDE IT IS RENDERED ON THE SERVER, and that follows from a
+ * decision `useCommands` already made: registering does nothing when
+ * there is no window, because a command is a thing a person invokes and
+ * there is no person during SSR. So the registry is knowably empty
+ * there, the server rendered "No matching commands." into a dialog
+ * nobody could see, and the client replaced it with the list on its
+ * first breath — a hydration mismatch on every page of every app that
+ * mounted this.
+ *
+ * The dialog element itself still ships, so nothing about the document
+ * moves; only its contents wait for a client. `ready` flips in
+ * onMounted, which is after hydration, so the first client render agrees
+ * with the server by rendering nothing too.
  */
 const props = withDefaults(defineProps<{
   placeholder?: string
@@ -55,6 +69,10 @@ const props = withDefaults(defineProps<{
 
 const { open, show, hide, sections, ran } = useCommandPalette()
 const announce = useAnnounce()
+
+/** False until there is a client — see above. */
+const ready = ref(false)
+onMounted(() => { ready.value = true })
 
 const uid = useId()
 const listId = `cp-${uid}`
@@ -177,7 +195,7 @@ watch(flat, l => {
     @close="onClose"
     @click="onBackdrop"
   >
-    <div class="u-cp-panel">
+    <div v-if="ready" class="u-cp-panel">
       <div class="u-cp-head">
         <UiIcon :is="Search" size="sm" class="u-cp-glyph" />
         <input

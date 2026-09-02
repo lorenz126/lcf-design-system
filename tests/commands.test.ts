@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, effectScope, h, ref } from 'vue'
+import { createSSRApp, defineComponent, effectScope, h, ref } from 'vue'
+import { renderToString } from 'vue/server-renderer'
+import Icon from '../ui/atoms/Icon.vue'
 import {
   _resetCommands, match, score, useCommandPalette, useCommands
 } from '../composables/useCommands'
@@ -165,6 +167,21 @@ describe('CommandPalette', () => {
     await nextTick(); await nextTick()
     return w
   }
+
+  it('renders nothing inside itself on the server', async () => {
+    // useCommands does nothing without a window, so the registry is
+    // knowably empty there — the server was rendering "No matching
+    // commands." into a dialog nobody could see, and the client replaced
+    // it with the list on its first breath. That was a hydration
+    // mismatch on every page of every app that mounted this.
+    useCommands(() => [cmd('a', 'One')])
+    const app = createSSRApp(CommandPalette)
+    app.component('UiIcon', Icon)
+    const html = await renderToString(app)
+    expect(html).toContain('<dialog')
+    expect(html).not.toContain('u-cp-panel')
+    expect(html).not.toContain('No matching commands')
+  })
 
   it('opens on the shortcut and closes on the same press', async () => {
     const w = mount(CommandPalette, { attachTo: document.body })
