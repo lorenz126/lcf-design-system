@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { MenuItem } from '../../../ui/molecules/Menu.vue'
 import type { SearchSuggestion } from '../../../ui/molecules/SearchField.vue'
-import { Moon, Shapes, Sun } from 'lucide-vue-next'
+import type { Command } from '../../../composables/useCommands'
+import { Compass, Moon, Shapes, Sun } from 'lucide-vue-next'
 import { foundations, sidebar, tiers } from '~/data/nav'
 
 /**
@@ -21,6 +22,55 @@ function setTheme(next: 'light' | 'dark') {
   document.documentElement.dataset.theme = next
   localStorage.setItem('theme', next)
 }
+
+/**
+ * The workshop's own commands, registered from the layout — so they are
+ * present on every page, and they go away with the layout rather than
+ * with any one page. /overlays adds two more that exist only there,
+ * which is the part worth watching: open the palette there, then leave,
+ * and they are gone with nothing having remembered to remove them.
+ *
+ * The palette is on ⌘J here and NOT ⌘K, because the sidebar search
+ * already owns ⌘K. Two things cannot have one key, and the framework
+ * refuses to arbitrate: whoever mounts them decides.
+ */
+const router = useRouter()
+useCommands((): Command[] => [
+  ...foundations.map(f => ({
+    id: `nav-${f.to}`,
+    label: `Go to ${f.name}`,
+    group: 'Navigation',
+    icon: Compass,
+    keywords: [f.name],
+    run: () => router.push(f.to)
+  })),
+  ...tiers.flatMap(t =>
+    t.items.map(i => ({
+      id: `nav-${t.label}-${i.name}`,
+      label: `Open ${i.name}`,
+      group: t.label,
+      icon: t.icon,
+      keywords: [i.name, t.label],
+      run: () => router.push(i.to)
+    }))
+  ),
+  {
+    id: 'theme-toggle',
+    label: theme.value === 'dark' ? 'Switch to light' : 'Switch to dark',
+    group: 'Appearance',
+    icon: theme.value === 'dark' ? Sun : Moon,
+    keywords: ['theme', 'dark', 'light', 'appearance'],
+    run: () => setTheme(theme.value === 'dark' ? 'light' : 'dark')
+  },
+  {
+    id: 'palette-locked',
+    label: 'Publish the framework',
+    group: 'Appearance',
+    keywords: ['release', 'ship'],
+    disabled: true,
+    run: () => {}
+  }
+])
 
 const themeItems = computed<MenuItem[]>(() => [
   { id: 'light', label: 'Light', checked: theme.value === 'light' },
@@ -150,8 +200,10 @@ function onSubmit() {
       <slot />
     </div>
 
-    <!-- Once, near the root. Everything else calls useToast(). -->
+    <!-- Once, near the root. Everything else calls useToast()
+         and useCommands(). -->
     <UiToaster />
+    <UiCommandPalette shortcut="j" />
   </UiAppShell>
 </template>
 

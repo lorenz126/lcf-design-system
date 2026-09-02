@@ -230,7 +230,32 @@ those keeps the keyboard model intact.
 
 ### 10.2 CommandPalette
 
-Half of it exists. SearchField already has the combobox model, the ⌘K
+> **Built.** `ui/molecules/CommandPalette.vue`, `composables/useCommands.ts`.
+
+The registry was the whole job, and the three questions had one answer
+each.
+
+**What a command is:** a label, a way to find it, and a function.
+
+**Where it comes from:** a module-level store, for the reason Toaster's
+queue is one — a route guard or a plugin has commands and is not inside a
+component. Registering does nothing when there is no window.
+
+**How it disappears when its page does:** registration is bound to the
+calling effect scope, so a page that registers "Close this issue" takes
+it away by unmounting, with nothing to remember. Called outside a scope
+it returns its own `off()` rather than warning.
+
+Two things fell out of building it. **The palette ranks and SearchField
+refuses to**, which looks like an inconsistency and is the opposite: a
+component should rank exactly when it knows what it is ranking, and this
+one owns its corpus. And **keywords are scored separately, never
+joined** — joined, "theme dark light appearance" answered to "kan" and a
+theme switch turned up under a search for Kanban.
+
+The original note read:
+
+> Half of it exists. SearchField already has the combobox model, the ⌘K
 shortcut and the suggestion list; Dialog has the top layer and the focus
 trap. What is missing is grouping, actions that are not navigations, and
 a registry so any part of an app can contribute a command.
@@ -293,12 +318,13 @@ a scale, like half volume), and only the first should catch a drag.
 
 ## Next
 
-**CommandPalette**, and the honest description of it is that the palette
-is the easy half. SearchField already has the combobox model, the ⌘K
-shortcut and the suggestion list; Dialog has the top layer and the focus
-trap. What is missing is a *registry* — what a command is, where it comes
-from, and how it disappears when its page does — and that is an
-architecture decision, not a component.
+Phase 10 is done. What is left is **Phase 11**, which is three separate
+dependency decisions — DatePicker's date parsing, a form Combobox's
+value-as-an-id, TreeView's arbitrary depth — and none of them should be
+taken together.
 
-After that, Phase 11 is three separate dependency decisions and none of
-them should be taken together.
+The one with the most behind it is **DatePicker**: Calendar already
+exists and is fully keyboard-driven, so what is missing is only the
+pairing with a text field that accepts typed dates. That is also the one
+with the sharpest question in it, because a typed date is locale-shaped
+and ambiguous, and it is where `Intl` stops being enough.
