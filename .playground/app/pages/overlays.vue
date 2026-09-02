@@ -1,11 +1,36 @@
 <script setup lang="ts">
-import { Info, MoreHorizontal, Trash2 } from 'lucide-vue-next'
+import type { MenuItem } from '../../../ui/molecules/Menu.vue'
+import {
+  Archive, Check, Copy, Info, MoreHorizontal, Pencil, Share2, Trash2
+} from 'lucide-vue-next'
 useHead({ title: 'Overlays — Design Framework' })
 
-const menu = ref(false)
+const rename = ref(false)
 const confirm = ref(false)
 const required = ref(false)
 const lastAction = ref('—')
+const newName = ref('Quarterly report')
+
+const actions: MenuItem[] = [
+  { id: 'rename', label: 'Rename', icon: Pencil, shortcut: '⏎' },
+  { id: 'duplicate', label: 'Duplicate', icon: Copy, shortcut: '⌘D' },
+  { id: 'share', label: 'Share…', icon: Share2 },
+  { id: 'archive', label: 'Archive', icon: Archive, disabled: true },
+  { id: 'delete', label: 'Delete', icon: Trash2, danger: true, divider: true, shortcut: '⌫' }
+]
+
+const shown = ref<Record<string, boolean>>({ done: true, archived: false, drafts: true })
+const view = computed<MenuItem[]>(() => [
+  { id: 'done', label: 'Completed', checked: shown.value.done },
+  { id: 'archived', label: 'Archived', checked: shown.value.archived },
+  { id: 'drafts', label: 'Drafts', checked: shown.value.drafts },
+  { id: 'reset', label: 'Reset to defaults', divider: true }
+])
+
+function onView(item: MenuItem) {
+  if (item.id === 'reset') { shown.value = { done: true, archived: false, drafts: true }; return }
+  shown.value = { ...shown.value, [item.id]: !shown.value[item.id as string] }
+}
 </script>
 
 <template>
@@ -46,27 +71,64 @@ const lastAction = ref('—')
     </section>
 
     <section>
-      <div class="sec-label">Popover</div>
+      <div class="sec-label">Menu</div>
       <div class="row">
-        <UiPopover v-model:open="menu" placement="bottom">
+        <UiMenu :items="actions" label="Report actions" @select="lastAction = $event.label">
           <template #trigger="{ props: p }">
             <UiButton variant="outline" tone="neutral" v-bind="p">
               <template #leading><UiIcon :is="MoreHorizontal" /></template>
               Actions
             </UiButton>
           </template>
+        </UiMenu>
+
+        <UiMenu :items="view" label="What to show" align="end" @select="onView">
+          <template #trigger="{ props: p }">
+            <UiButton variant="plain" tone="neutral" v-bind="p">
+              <template #leading><UiIcon :is="Check" /></template>
+              View
+            </UiButton>
+          </template>
+        </UiMenu>
+
+        <span class="t-small dim">Last action: {{ lastAction }}</span>
+      </div>
+      <p class="t-caption hint">
+        Open it and put the mouse down. Arrows move and wrap past the disabled row,
+        Home and End jump to the ends, and typing jumps by name — press
+        <strong>d</strong> twice and it cycles Duplicate, Delete. Tab closes the menu
+        and carries on to the next control rather than trapping you.
+      </p>
+      <p class="t-caption hint">
+        <strong>Enter and Space are not handled at all.</strong> Every row is a real
+        <code>&lt;button&gt;</code>, so the browser already activates it — the same
+        rule that makes the trigger use <code>popovertarget</code> instead of a click
+        handler. The second menu uses <code>menuitemcheckbox</code>; it emits and the
+        page owns the state, because a menu that remembers is a second source of truth.
+      </p>
+    </section>
+
+    <section>
+      <div class="sec-label">Popover</div>
+      <div class="row">
+        <UiPopover v-model:open="rename" placement="bottom">
+          <template #trigger="{ props: p }">
+            <UiButton variant="outline" tone="neutral" v-bind="p">
+              <template #leading><UiIcon :is="Pencil" /></template>
+              Rename
+            </UiButton>
+          </template>
           <template #default="{ close }">
-            <div class="menu">
-              <button class="mi" @click="lastAction = 'Renamed'; close()">Rename</button>
-              <button class="mi" @click="lastAction = 'Duplicated'; close()">Duplicate</button>
-              <div class="sep" />
-              <button class="mi danger" @click="lastAction = 'Deleted'; close()">
-                <UiIcon :is="Trash2" size="sm" /> Delete
-              </button>
+            <div class="panel">
+              <UiInput v-model="newName" label="Name" size="sm" />
+              <div class="panel-foot">
+                <UiButton variant="plain" tone="neutral" size="sm" @click="close">Cancel</UiButton>
+                <UiButton size="sm" @click="lastAction = `Renamed to ${newName}`; close()">Save</UiButton>
+              </div>
             </div>
           </template>
         </UiPopover>
-        <span class="t-small dim">Last action: {{ lastAction }}</span>
+        <span class="t-small dim">A popover holds anything; a menu holds commands.</span>
       </div>
       <p class="t-caption hint">
         The trigger carries <code>popovertarget</code>, so the browser owns opening
@@ -121,14 +183,6 @@ section { margin-bottom: 64px; }
 .hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
 .dim { color: var(--ink-3); }
 
-.menu { display: flex; flex-direction: column; min-width: 170px; margin: calc(var(--s-5) * -1); padding: var(--s-3); }
-.mi {
-  display: flex; align-items: center; gap: var(--s-4);
-  padding: var(--s-3) var(--s-4); border: 0; background: transparent;
-  border-radius: var(--r-sm); cursor: pointer; text-align: left;
-  font: var(--w-regular) var(--fs-body)/1 var(--font-sans); color: var(--fg);
-}
-.mi:hover { background: var(--fill); }
-.mi.danger { color: var(--danger-text); }
-.sep { height: 1px; background: var(--border); margin: var(--s-2) 0; }
+.panel { display: flex; flex-direction: column; gap: var(--s-5); min-width: 220px; }
+.panel-foot { display: flex; justify-content: flex-end; gap: var(--s-4); }
 </style>

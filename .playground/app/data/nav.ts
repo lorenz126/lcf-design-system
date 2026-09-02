@@ -38,6 +38,7 @@ export const tiers: NavGroup[] = [
       { name: 'FormSection', to: '/forms' },
       { name: 'Prose', to: '/docs' },
       { name: 'Tooltip', to: '/overlays' },
+      { name: 'Menu', to: '/overlays', note: 'uses Popover, Icon' },
       { name: 'Popover', to: '/overlays' },
       { name: 'Dialog', to: '/overlays' }
     ]

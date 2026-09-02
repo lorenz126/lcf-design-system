@@ -14,6 +14,16 @@
  */
 export type Placement = 'top' | 'bottom' | 'left' | 'right'
 
+/**
+ * Where the panel sits along the side it is on.
+ *
+ * Centring is right for a tooltip, whose arrow points at the middle of
+ * its trigger. It is wrong for a menu: a wide menu centred on a small
+ * icon button hangs off both sides of it, and neither edge lines up with
+ * anything. A menu aligns to an edge.
+ */
+export type Align = 'center' | 'start' | 'end'
+
 /** Keeps the panel this far from the viewport edge and the trigger. */
 const EDGE = 8
 const GAP = 6
@@ -21,7 +31,8 @@ const GAP = 6
 export function useAnchored(
   trigger: Ref<HTMLElement | null | undefined>,
   floating: Ref<HTMLElement | null | undefined>,
-  placement: Ref<Placement> | Placement = 'bottom'
+  placement: Ref<Placement> | Placement = 'bottom',
+  align: Ref<Align> | Align = 'center'
 ) {
   const place = () => {
     const t = unref(trigger)
@@ -51,14 +62,20 @@ export function useAnchored(
       side = opposite[want]
     }
 
+    // Along the cross axis: centred, or flush with one of the trigger's
+    // own edges.
+    const how = unref(align)
+    const cross = (lo: number, hi: number, len: number) =>
+      how === 'start' ? lo : how === 'end' ? hi - len : lo + (hi - lo) / 2 - len / 2
+
     let x: number
     let y: number
     if (side === 'top' || side === 'bottom') {
-      x = a.left + a.width / 2 - b.width / 2
+      x = cross(a.left, a.right, b.width)
       y = side === 'top' ? a.top - b.height - GAP : a.bottom + GAP
     } else {
       x = side === 'left' ? a.left - b.width - GAP : a.right + GAP
-      y = a.top + a.height / 2 - b.height / 2
+      y = cross(a.top, a.bottom, b.height)
     }
 
     // Clamp along the cross axis so a panel near the edge stays on screen.

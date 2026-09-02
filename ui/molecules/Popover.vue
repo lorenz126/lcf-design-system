@@ -19,9 +19,15 @@
  */
 const props = withDefaults(defineProps<{
   placement?: Placement
+  /** Where along that side it sits. Centred by default; a menu wants an
+   *  edge, so this is not hardcoded. */
+  align?: Align
   /** Match the trigger's width — for select-like panels. */
   matchWidth?: boolean
-}>(), { placement: 'bottom' })
+  /** `none` is for panels whose content owns its own edges — a menu,
+   *  whose rows have to run the full width to be clickable at the edge. */
+  padding?: 'none' | 'md'
+}>(), { placement: 'bottom', align: 'center', padding: 'md' })
 
 const open = defineModel<boolean>('open', { default: false })
 
@@ -29,7 +35,12 @@ const uid = useId()
 const id = computed(() => `pop-${uid}`)
 const trigger = useTemplateRef<HTMLElement>('trigger')
 const panel = useTemplateRef<HTMLElement>('panel')
-const { track, untrack } = useAnchored(trigger, panel, toRef(() => props.placement))
+const { track, untrack } = useAnchored(
+  trigger,
+  panel,
+  toRef(() => props.placement),
+  toRef(() => props.align)
+)
 
 /* Defined here rather than as inline arrows in the slot bindings. An
    assignment to a defineModel ref inside a template expression does not
@@ -85,7 +96,14 @@ watch(open, v => {
       />
     </div>
 
-    <div :id="id" ref="panel" popover="auto" class="u-pop" @toggle="onToggle">
+    <div
+      :id="id"
+      ref="panel"
+      popover="auto"
+      class="u-pop"
+      :class="`u-pop-p-${padding}`"
+      @toggle="onToggle"
+    >
       <slot :close="close" />
     </div>
   </div>
@@ -102,13 +120,15 @@ watch(open, v => {
   border-radius: var(--r-lg);
   background: var(--bg-raised);
   color: var(--fg);
-  padding: var(--s-5);
   box-shadow: var(--shadow-3);
   opacity: 0;
   scale: .97;
   transition: opacity var(--dur-fast) var(--ease-out), scale var(--dur-fast) var(--ease-out),
               overlay var(--dur-fast) allow-discrete, display var(--dur-fast) allow-discrete;
 }
+.u-pop-p-md { padding: var(--s-5); }
+.u-pop-p-none { padding: 0; }
+
 .u-pop:popover-open { opacity: 1; scale: 1; }
 @starting-style { .u-pop:popover-open { opacity: 0; scale: .97; } }
 </style>

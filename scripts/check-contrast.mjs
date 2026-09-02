@@ -237,6 +237,21 @@ function expectations() {
       why: 'counts and limits in a column header; never body copy'
     },
     { what: 'danger on sunken', fg: '--danger-text', bg: '--bg-sunken', min: AA },
+    // A destructive menu row, highlighted: red text on the neutral fill,
+    // on a raised panel. The worst case in both themes, since the fill
+    // moves the ground TOWARDS the text in each.
+    {
+      // A destructive menu row while the keyboard or pointer is on it.
+      // The highlight moves the ground TOWARDS the text in both themes,
+      // so this is the worst case a coloured row ever measures — and it
+      // is why the highlight is --fill-quiet rather than --fill: at 9%
+      // in dark mode the same row falls to 4.11:1.
+      what: 'danger on highlight',
+      fg: '--red-text',
+      bg: '--fill-quiet',
+      on: '--bg-raised',
+      min: AA
+    },
     // Chart marks are graphics, so 3:1 is the right threshold. Their
     // separation FROM EACH OTHER is a different question this script
     // cannot answer — that is the dataviz validator's six checks, and
@@ -253,6 +268,17 @@ function expectations() {
       bg: '--bg',
       min: UI,
       why: 'focus indicator, graded against the page it sits on'
+    },
+    {
+      // The same ring inside a raised panel — a menu row, a card. Dark
+      // mode moves the ground two steps here, which is a different
+      // measurement, not the same one rounded.
+      what: 'focus-ring on raised',
+      fg: '--focus-color',
+      bg: '--fill-quiet',
+      on: '--bg-raised',
+      min: UI,
+      why: 'focus indicator on a panel'
     }
   ]
   for (const h of HUES) {
