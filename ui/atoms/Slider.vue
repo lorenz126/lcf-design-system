@@ -156,14 +156,16 @@ const marks = computed(() =>
   position: relative;
   flex: 1;
   min-width: 0;
-  /* The thumb is a capsule: narrow across the rail and tall along it,
-     which is the shape that says "grip" rather than "point". */
-  --sl-tw: 10px;
-  --sl-th: 24px;
-  --sl-rail: 8px;
+  /* A THICK rail with the thumb INSIDE it, rather than a thin rail with
+     a thumb crossing it. The handle is a lozenge — wider than it is tall
+     — inset within the track, so the control reads as one object with a
+     grip in it instead of a line with a bead threaded on. */
+  --sl-rail: 24px;
+  --sl-tw: 30px;
+  --sl-th: 16px;
 }
-.u-s-sm .u-sl-wrap { --sl-tw: 8px;  --sl-th: 18px; --sl-rail: 5px; }
-.u-s-lg .u-sl-wrap { --sl-tw: 12px; --sl-th: 30px; --sl-rail: 12px; }
+.u-s-sm .u-sl-wrap { --sl-rail: 18px; --sl-tw: 24px; --sl-th: 12px; }
+.u-s-lg .u-sl-wrap { --sl-rail: 32px; --sl-tw: 40px; --sl-th: 22px; }
 /* Room beside the rail for the marks, only when there are any. */
 .u-sl-ticked { padding-block-end: 12px; }
 
@@ -171,7 +173,7 @@ const marks = computed(() =>
   appearance: none;
   display: block;
   width: 100%;
-  height: var(--sl-th);
+  height: var(--sl-rail);
   background: transparent;
   cursor: pointer;
   /* One box, split exactly where the thumb's centre is — not at the
@@ -191,7 +193,7 @@ const marks = computed(() =>
   writing-mode: vertical-lr;
   direction: rtl;
   height: 100%;
-  width: var(--sl-th);
+  width: var(--sl-rail);
   --sl-to: top;
 }
 
@@ -208,24 +210,29 @@ const marks = computed(() =>
   background: var(--sl-paint);
 }
 
+/* Centred inside the track rather than on top of it: the margin is
+   positive now, because the thumb is the smaller of the two. */
 .u-sl-track::-webkit-slider-thumb {
   appearance: none;
   width: var(--sl-tw);
   height: var(--sl-th);
-  /* Centred on the rail rather than sitting on it. */
   margin-top: calc((var(--sl-rail) - var(--sl-th)) / 2);
   border: 0;
   border-radius: var(--r-full);
   background: var(--bg);
-  box-shadow: var(--shadow-2), 0 0 0 1px var(--border-strong) inset;
+  /* The RING is what makes it findable, not the fill and not the shadow.
+     The handle takes --bg, so half of it always sits on a track of
+     nearly its own lightness: 1.47:1 in dark mode, measured. --fg-muted
+     is the lightest edge that clears 3:1 on both. */
+  box-shadow: 0 0 0 1px var(--fg-muted) inset, var(--shadow-1);
 }
 .u-sl-track::-moz-range-thumb {
   width: var(--sl-tw);
   height: var(--sl-th);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--fg-muted);
   border-radius: var(--r-full);
   background: var(--bg);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-1);
 }
 
 .u-sl-track:focus-visible {
@@ -242,7 +249,7 @@ const marks = computed(() =>
 .u-sl-ticks {
   position: absolute;
   inset-inline: 0;
-  inset-block-start: calc((var(--sl-th) + var(--sl-rail)) / 2 + 6px);
+  inset-block-start: calc(var(--sl-rail) + 6px);
   height: 4px;
   pointer-events: none;
 }
@@ -259,7 +266,7 @@ const marks = computed(() =>
 
 .u-sl-vertical .u-sl-ticks {
   inset-block: 0;
-  inset-inline: calc((var(--sl-th) + var(--sl-rail)) / 2 + 6px) auto;
+  inset-inline: calc(var(--sl-rail) + 6px) auto;
   width: 4px;
   height: auto;
 }

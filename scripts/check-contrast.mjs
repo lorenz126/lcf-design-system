@@ -263,6 +263,16 @@ function expectations() {
       why: 'placeholder text; the value typed over it is --fg'
     },
     { what: 'search value', fg: '--fg', bg: '--fill', min: AA },
+    {
+      // A slider's handle sits INSIDE its track and takes --bg, which
+      // puts it at 1.47:1 against the empty side in dark mode. The ring
+      // is what makes it findable, so the ring is what gets measured.
+      what: 'slider handle',
+      fg: '--fg-muted',
+      bg: '--fill-strong',
+      min: UI,
+      why: 'the edge of a control, not text'
+    },
     // The row a sidebar marks as current: a neutral ground, on a panel.
     { what: 'nav current', fg: '--fg', bg: '--fill', on: '--bg-raised', min: AA },
     // The current row in a sidebar: accent text on the accent tint, on a
