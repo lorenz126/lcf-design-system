@@ -32,6 +32,11 @@ skip it. CI runs the same steps in the same order, plus the build.
 `pnpm dev` is the workshop, `pnpm demo` the consumer app, `pnpm build`
 builds the workshop.
 
+`typescript` is pinned to `^5` on purpose: `vue-tsc` reads
+`typescript/lib/tsc`, which TypeScript 7 no longer exports, and it dies
+on it with a stack that names neither. Found by installing the tarball
+into an empty project, where a fresh `npm i -D typescript` brought 7.
+
 On a fresh clone the `.nuxt` directories do not exist yet, so an editor
 will report every auto-import as undefined until something generates
 them. `pnpm test:types` does it on its own; so does `pnpm dev`. There is

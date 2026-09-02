@@ -139,9 +139,25 @@ open it, and check three things the build will not tell you: the tokens
 resolved, `styles/base.css` applied them, and the theme script arrived in
 the `<head>` ahead of the first stylesheet.
 
-Last run: 36 components, both themes, no console errors — which was
-before the layer grew to 49 and before Combobox, TreeView, DatePicker and
-the palette existed. It is due again.
+Last run: **49 components**, from a 132 kB tarball of 65 files, into an
+empty `npm init` project. Both themes, no console error of any kind.
+Nuxt and Vue installed once each at the consumer's top level rather than
+a second copy inside the layer, which is what `peerDependencies` is for.
+The theme script arrived at character 220 of the document, ahead of every
+stylesheet; `--bg` resolved to `#fff` and `#0a0a0a`; `styles/base.css`
+applied them to `body`. The awkward ones all worked from the tarball:
+Diagram measured itself, Kanban teleported, Calendar and DatePicker got
+their month names from `Intl`, and a `<dialog>` went to the top layer and
+came back to `display: none`.
+
+**A consumer can typecheck it too** — zero errors, which is what shipping
+`types/` is for: `DatePicker` sets `anchorName` and `positionAnchor`, and
+the DOM library has neither.
+
+One thing to know if you try it: `vue-tsc` reads `typescript/lib/tsc`,
+which **TypeScript 7 no longer exports**. A fresh `npm i -D typescript`
+installs 7 today and vue-tsc dies on it with an unhelpful stack. Ask for
+`typescript@^5`.
 
 ## For an agent working here
 
