@@ -194,7 +194,31 @@ well is the same thing said twice, bought with legibility.
 
 ### 10.1 Tabs
 
-**The hard part is automatic versus manual activation.** Arrow keys that
+> **Built.** `ui/molecules/Tabs.vue`.
+
+Three answers came out of it.
+
+**Automatic versus manual activation is a prop, because both are right.**
+Arrows that select as they move is the ARIA default and correct for
+panels that are already there. For a panel that fetches, the same
+behaviour fires a request per keypress. The consumer knows which it has;
+the component cannot.
+
+**Overflow scrolls, and that is the only one of the three that works.**
+Wrapping keeps the keyboard model but turns Left and Right into a guess
+about line breaks. Collapsing the extras into a "More" menu moves them
+*out* of the tablist — the arrows can no longer reach them, the roving
+tabindex spans two widgets, and `role="tablist"` stops containing its own
+tabs. Scrolling changes neither the order nor the keys.
+
+**If switching changes the URL, it is not a tablist.** It is navigation,
+and it wants links with `aria-current`. So there is no `link` prop, and
+the same line separates Tabs from ToggleGroup, which can be made to look
+identical: choose by what it does, not by how it looks.
+
+The original note read:
+
+> **The hard part is automatic versus manual activation.** Arrow keys that
 activate as they move is the ARIA default and it is right for cheap
 panels; for anything that loads, it fires a request per keypress and the
 answer is manual activation with Enter. Both exist in the spec, and the
@@ -269,8 +293,12 @@ a scale, like half volume), and only the first should catch a drag.
 
 ## Next
 
-**Tabs.** The last navigation primitive that is a component rather than
-an architecture — CommandPalette is really a question about a registry,
-and Phase 11 is three dependency decisions. Tabs is neither: it is
-bounded, it is used by every app, and its one real decision (automatic
-versus manual activation) has a documented answer on both sides.
+**CommandPalette**, and the honest description of it is that the palette
+is the easy half. SearchField already has the combobox model, the ⌘K
+shortcut and the suggestion list; Dialog has the top layer and the focus
+trap. What is missing is a *registry* — what a command is, where it comes
+from, and how it disappears when its page does — and that is an
+architecture decision, not a component.
+
+After that, Phase 11 is three separate dependency decisions and none of
+them should be taken together.

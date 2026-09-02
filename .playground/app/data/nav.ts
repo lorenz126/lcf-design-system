@@ -55,6 +55,7 @@ export const tiers: NavGroup[] = [
       { name: 'EmptyState', to: '/data' },
       { name: 'Pagination', to: '/data' },
       { name: 'Breadcrumb', to: '/templates' },
+      { name: 'Tabs', to: '/templates', note: 'not for routes — see the page' },
       { name: 'FormSection', to: '/forms' },
       { name: 'Prose', to: '/docs' },
       { name: 'Tooltip', to: '/overlays' },

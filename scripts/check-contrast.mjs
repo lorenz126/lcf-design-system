@@ -289,6 +289,11 @@ function expectations() {
     },
     // The row a sidebar marks as current: a neutral ground, on a panel.
     { what: 'nav current', fg: '--fg', bg: '--fill', on: '--bg-raised', min: AA },
+    // The count beside a tab label. It is a number someone reads, not a
+    // dot, so it is held to AA and not to the UI floor — and it sits on
+    // the same neutral fill the tab itself uses when it is the open one.
+    { what: 'tab count', fg: '--fg-muted', bg: '--fill', min: AA },
+    { what: 'tab count, open', fg: '--fg', bg: '--fill', min: AA },
     // The current row in a sidebar: accent text on the accent tint, on a
     // raised panel. The most important line in the navigation.
     // A destructive menu row, highlighted: red text on the neutral fill,
