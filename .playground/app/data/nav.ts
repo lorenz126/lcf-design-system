@@ -78,6 +78,7 @@ export const tiers: NavGroup[] = [
       { name: 'Attachments', to: '/files' },
       { name: 'Chart', to: '/charts' },
       { name: 'Calendar', to: '/calendar' },
+      { name: 'DatePicker', to: '/calendar', note: 'uses Calendar, Field' },
       { name: 'Kanban', to: '/board' },
       { name: 'Diagram', to: '/diagrams' },
       { name: 'Sidebar', to: '/templates', note: 'owns a tree of items' }

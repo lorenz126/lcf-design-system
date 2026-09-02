@@ -269,10 +269,26 @@ where it comes from, and how it disappears when its page does.
 
 Each gets its own, as before. No blanket approval.
 
-- **DatePicker.** Calendar exists and is fully keyboard-driven; what is
-  missing is the pairing with a text field that accepts typed dates. The
-  hard part is parsing — a typed date is locale-shaped, ambiguous, and
-  the place where `Intl` stops being enough.
+- **DatePicker.** *Built* — `ui/organisms/DatePicker.vue`,
+  `composables/useDateText.ts`. **No dependency taken.**
+
+  The hard part was the parsing, and the way out was to stop guessing:
+  Intl has no parse API but `formatToParts` says which of day, month and
+  year comes first in a locale, so the field order is *asked for* rather
+  than kept in a table that goes stale. Everything ambiguous is decided
+  by that order, with ISO winning everywhere above it and a named month
+  above that.
+
+  The rest is refusals. `31/02` is not a date, so every result is built
+  and read back — `new Date(2025, 1, 31)` is the third of March and says
+  nothing about it. `3 ma` is not a date, because "ma" is March and May.
+  `04/2025` is not a date, it is a month, and filling in the first of it
+  would be inventing data.
+
+  Not `<input type="date">`, and that is a cost rather than a win — its
+  popup is unstyleable, so it cannot show the events and the range
+  Calendar already draws, and its segmented display cannot be pasted
+  into. The price is owning the parsing, and it is paid in one file.
 - **Combobox for forms.** SearchField is a combobox for chrome. A form
   one has different needs: a value that is an id rather than a string,
   multiple selection, creation of new options.
@@ -318,13 +334,16 @@ a scale, like half volume), and only the first should catch a drag.
 
 ## Next
 
-Phase 10 is done. What is left is **Phase 11**, which is three separate
-dependency decisions — DatePicker's date parsing, a form Combobox's
-value-as-an-id, TreeView's arbitrary depth — and none of them should be
-taken together.
+Two left, both in Phase 11, and they are unrelated enough that neither
+should wait for the other.
 
-The one with the most behind it is **DatePicker**: Calendar already
-exists and is fully keyboard-driven, so what is missing is only the
-pairing with a text field that accepts typed dates. That is also the one
-with the sharpest question in it, because a typed date is locale-shaped
-and ambiguous, and it is where `Intl` stops being enough.
+**Combobox for forms.** SearchField is a combobox for chrome; a form one
+has different needs — a value that is an id rather than a string,
+multiple selection, and creating an option that does not exist yet. The
+last of those is the real question, because it is the point where the
+control stops choosing and starts writing.
+
+**TreeView.** Sidebar explicitly refused to become one. When something
+actually needs arbitrary depth this is the component, and the work is
+roving tabindex, arrows that expand and collapse, and level
+announcements.
