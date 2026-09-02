@@ -36,5 +36,10 @@ jobs:
       - name: Package surface
         run: pnpm test:package
 
+      # The keyboard contracts. Nothing else here would notice if an
+      # arrow key stopped moving or a mode stopped clearing.
+      - name: Behaviour
+        run: pnpm test:unit
+
       - name: Build
         run: pnpm build

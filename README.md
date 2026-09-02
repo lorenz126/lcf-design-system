@@ -80,8 +80,31 @@ redistribution — self-hosting SF for a public site falls outside it.
 ```
 pnpm install
 pnpm dev     # the playground
-pnpm test    # contrast, layer boundaries, package surface
+pnpm test        # contrast, layer boundaries, package surface, behaviour
+pnpm test:watch  # the behaviour tests, while you work
 ```
+
+### What the tests are for
+
+Three of the four checks look at what a component *is* — its contrast,
+where it sits in the tiers, whether it would install. Only the fourth
+looks at what it **does**, and that is the part nothing else can see: an
+arrow key that stops moving, a mode that stops clearing, a highlight that
+takes the focus with it. None of those changes a colour or a file list.
+
+So the behaviour tests cover the keyboard contracts and nothing else.
+They do not assert padding or check that a class is present; a test that
+pins the styling makes the styling harder to change, which is the
+opposite of the point. They run against real components with the real
+ones they depend on — `tests/setup.ts` reproduces what Nuxt provides
+rather than stubbing it away, because a Menu that has never met a Popover
+is not the Menu anyone ships.
+
+Every stub in that file says what it stands in for. `happy-dom` has no
+Popover API, no `ResizeObserver` and no `matchMedia`, and this framework
+leans on all three deliberately. A stub is a place where a test stops
+testing reality, so none of them decides an outcome: the popover stubs
+only remember whether they were opened.
 
 ### Proving it is consumable
 

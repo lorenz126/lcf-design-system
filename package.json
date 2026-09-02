@@ -8,14 +8,21 @@
     "build": "nuxi build .playground",
     "generate": "nuxi generate .playground",
     "preview": "nuxi preview .playground",
-    "test": "node scripts/check-contrast.mjs && node scripts/check-layers.mjs && node scripts/check-package.mjs",
+    "test": "node scripts/check-contrast.mjs && node scripts/check-layers.mjs && node scripts/check-package.mjs && vitest run",
     "test:contrast": "node scripts/check-contrast.mjs",
     "test:layers": "node scripts/check-layers.mjs",
-    "test:package": "node scripts/check-package.mjs"
+    "test:package": "node scripts/check-package.mjs",
+    "test:unit": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/test-utils": "^2.5.0",
+    "happy-dom": "^20.13.0",
     "nuxt": "^4.0.0",
     "typescript": "^5.6.0",
+    "unplugin-auto-import": "^21.1.0",
+    "vitest": "^4.1.11",
     "vue": "^3.5.0",
     "vue-router": "^4.4.0"
   },

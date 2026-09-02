@@ -193,7 +193,7 @@ function onKey(e: KeyboardEvent) {
               'u-cal-on': selected === iso(d)
             }"
             :tabindex="iso(d) === iso(cursor) ? 0 : -1"
-            :disabled="disabled(d)"
+            :aria-disabled="disabled(d) || undefined"
             :aria-current="iso(d) === today ? 'date' : undefined"
             @click="choose(d)"
             @focus="cursor = d"
@@ -254,12 +254,20 @@ function onKey(e: KeyboardEvent) {
   color: var(--fg);
   transition: background-color var(--dur-instant) var(--ease-out);
 }
-.u-cal-day:hover:not(:disabled) { background: var(--fill-quiet); }
+.u-cal-day:hover:not([aria-disabled]) { background: var(--fill-quiet); }
 .u-cal-day:focus-visible {
   outline: var(--focus-width) solid var(--focus-color);
   outline-offset: 1px;
 }
-.u-cal-day:disabled { opacity: .35; cursor: not-allowed; }
+.u-cal-day[aria-disabled] { opacity: .35; cursor: not-allowed; }
+
+/* aria-disabled, NOT the disabled attribute. A disabled button is out of
+   the focus order, so the roving tabindex cannot put the cursor on it:
+   the arrow key moves the cursor, focus() finds nothing to focus, and
+   the two silently come apart — focus sticks on the last enabled day
+   while the cursor walks on without it. Marked inert instead, and
+   refused in choose(), which is what "travel across but do not select"
+   actually requires. */
 
 /* Days from the neighbouring months stay visible but recede — removing
    them leaves holes that break the week rows. */
@@ -268,7 +276,7 @@ function onKey(e: KeyboardEvent) {
 .u-cal-today .u-cal-num { font-weight: var(--w-semibold); color: var(--accent-text); }
 .u-cal-on { background: var(--accent); color: var(--solid-fg); }
 .u-cal-on .u-cal-num { color: var(--solid-fg); }
-.u-cal-on:hover:not(:disabled) { background: var(--accent); }
+.u-cal-on:hover:not([aria-disabled]) { background: var(--accent); }
 
 .u-cal-num { grid-area: 1 / 1; }
 .u-cal-dots {
