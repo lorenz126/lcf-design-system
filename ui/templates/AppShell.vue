@@ -20,18 +20,26 @@
  * because a fixed 260px column on a 700px screen is most of the screen.
  *
  * That gives the sidebar TWO states, not one, and they are genuinely
- * different: wide, it is a column that collapses out of the layout;
- * narrow, it is an overlay that opens over it. `toggle` picks the right
- * one, so a top bar has one button and no idea which case it is in.
+ * different: wide, it is a column that narrows to a rail; narrow, it is
+ * an overlay that opens over the content. `toggle` picks the right one,
+ * so a top bar has one button and no idea which case it is in.
+ *
+ * COLLAPSED IS A RAIL, NOT A DISAPPEARANCE. Folding the column to zero
+ * buys 260px and costs every destination in the application — you can no
+ * longer see where you might go, only where you are. A rail keeps the
+ * icons, and the sidebar slot is handed `collapsed` so what is in it can
+ * render for the width it actually has.
  */
 withDefaults(defineProps<{
   sidebarWidth?: string
+  /** Width of the collapsed rail. Zero would hide it; see above. */
+  railWidth?: string
   /** How far the top bar reaches. See above — this is a real choice. */
   topbar?: 'full' | 'main'
   /** Defaults to the viewport. Override to embed it — a preview frame,
    *  or an app that already owns the full-height element. */
   height?: string
-}>(), { sidebarWidth: '260px', topbar: 'full', height: '100dvh' })
+}>(), { sidebarWidth: '260px', railWidth: '56px', topbar: 'full', height: '100dvh' })
 
 /** Narrow screens: the overlay. */
 const open = defineModel<boolean>('open', { default: false })
@@ -64,14 +72,14 @@ function toggle() {
   <div
     class="u-shell"
     :class="[`u-shell-${topbar}`, { 'u-shell-collapsed': collapsed }]"
-    :style="{ '--sw': sidebarWidth, '--sh': height }"
+    :style="{ '--sw': sidebarWidth, '--rw': railWidth, '--sh': height }"
   >
     <header v-if="$slots.topbar" class="u-shell-top">
       <slot name="topbar" :toggle="toggle" :collapsed="collapsed" :open="open" />
     </header>
 
     <aside class="u-shell-side" :class="{ 'u-shell-side-open': open }">
-      <slot name="sidebar" />
+      <slot name="sidebar" :collapsed="collapsed" />
     </aside>
 
     <!-- Only present while the overlay sidebar is, so it never intercepts
@@ -125,8 +133,7 @@ function toggle() {
   min-height: 0;
 }
 
-.u-shell-collapsed { grid-template-columns: 0 minmax(0, 1fr); }
-.u-shell-collapsed .u-shell-side { border-inline-end-width: 0; }
+.u-shell-collapsed { grid-template-columns: var(--rw) minmax(0, 1fr); }
 
 /* min-height:0 on the row plus overflow here is what makes THIS the
    scroll container rather than the page. A grid item defaults to
@@ -152,7 +159,6 @@ function toggle() {
   .u-shell-side,
   .u-shell-collapsed .u-shell-side {
     position: absolute; inset-block: 0; inset-inline-start: 0;
-    border-inline-end-width: var(--border-width);
     width: min(var(--sw), 84vw);
     z-index: var(--z-overlay);
     transform: translateX(-100%);

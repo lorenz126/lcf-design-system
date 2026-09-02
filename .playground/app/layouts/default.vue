@@ -11,6 +11,7 @@ import { foundations, sidebar, tiers } from '~/data/nav'
  * every page, before anyone else meets it.
  */
 const route = useRoute()
+const railed = ref(false)
 
 const theme = ref<'light' | 'dark'>('light')
 onMounted(() => {
@@ -88,7 +89,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <UiAppShell sidebar-width="248px">
+  <UiAppShell v-model:collapsed="railed" sidebar-width="248px">
     <template #topbar="{ toggle }">
       <UiTopBar title="Design Framework" :logo="Shapes" href="/" @toggle="toggle">
         <template #search>
@@ -136,12 +137,14 @@ function onSubmit() {
       </UiTopBar>
     </template>
 
-    <template #sidebar>
+    <template #sidebar="{ collapsed }">
       <UiSidebar
         :items="sidebar"
         :current="route.path"
+        :collapsed="collapsed"
         :link="NuxtLink"
         label="Framework"
+        @expand="railed = false"
       />
     </template>
 

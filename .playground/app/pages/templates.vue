@@ -86,12 +86,14 @@ const current = computed(() => messages.find(m => m.id === selected.value))
             </UiTopBar>
           </template>
 
-          <template #sidebar>
+          <template #sidebar="{ collapsed }">
             <UiSidebar
               :items="mail"
               :current="here"
+              :collapsed="collapsed"
               label="Mailbox"
               @select="here = $event.id!"
+              @expand="navCollapsed = false"
             />
           </template>
 
@@ -106,10 +108,10 @@ const current = computed(() => messages.find(m => m.id === selected.value))
                 page, which is not what application chrome is for.
               </p>
               <p>
-                Press the button at the far left. On a wide screen the sidebar is a
-                column that folds out of the layout; below 860px it is an overlay
-                that opens over the content. Two different states, one button —
-                a top bar should not have to know which case it is in.
+                Press the button at the far left. On a wide screen the sidebar
+                narrows to a rail of icons; below 860px it is an overlay that opens
+                over the content. Two different states, one button — a top bar
+                should not have to know which case it is in.
               </p>
               <p>
                 Scroll this panel: the sidebar and topbar stay exactly where they
@@ -129,6 +131,14 @@ const current = computed(() => messages.find(m => m.id === selected.value))
         <code>topbar="main"</code> to stop it at the content instead, which suits a
         shell whose sidebar carries its own brand. It is a real choice, not a
         cosmetic one, so it is a prop rather than a house style.
+      </p>
+      <p class="t-caption hint">
+        Collapsed is a <strong>rail</strong>, not a disappearance. Folding the column
+        to nothing buys 260px and costs every destination in the application — you can
+        still see where you are, but no longer where you might go. So the icons stay,
+        each with a tooltip, because an icon on its own is a guess. A group has nowhere
+        to put its children in a strip that narrow, so its row asks for the width back
+        rather than opening something nobody can see.
       </p>
       <p class="t-caption hint">
         This is also the page you are on. The workshop wears the same three

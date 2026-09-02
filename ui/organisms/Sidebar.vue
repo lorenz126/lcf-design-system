@@ -20,6 +20,14 @@ import { ChevronRight, ExternalLink } from 'lucide-vue-next'
  * The group holding the current page opens itself. A navigation that
  * hides where you are is worse than one that shows too much.
  *
+ * COLLAPSED IS A RAIL, NOT A DISAPPEARANCE. The icons stay, and every
+ * one of them gets a tooltip — an icon on its own is a guess, and a rail
+ * whose rows cannot be identified saves space by making the navigation
+ * useless. A group has nowhere to put its children in a strip that
+ * narrow, so its row asks for the width back instead of opening
+ * something nobody can see: one interaction model, rather than a second
+ * one that exists only while the sidebar is small.
+ *
  * Headings and rules are PROPERTIES OF A ROW rather than entries in the
  * list, the same as in Menu: a consumer should never have to filter
  * separators out of their own data.
@@ -27,7 +35,7 @@ import { ChevronRight, ExternalLink } from 'lucide-vue-next'
 type Tone = 'neutral' | 'yellow' | 'green' | 'blue' | 'purple' | 'red' | 'orange'
 
 export interface SidebarItem {
-  /** Falls back to `to`, then the label. */
+  /** Falls back to the label and `to` together. */
   id?: string | number
   label: string
   /** Makes the row a link. Without it the row is a button that emits. */
@@ -70,6 +78,8 @@ const props = withDefaults(defineProps<{
   link?: Component | 'a'
   /** Accessible name, for when a page has more than one nav landmark. */
   label?: string
+  /** Icons only. AppShell hands this to the sidebar slot. */
+  collapsed?: boolean
   /**
    * Opens every group regardless of what is current. For a filtered
    * list: a search result buried in a shut group has not been found.
@@ -79,7 +89,11 @@ const props = withDefaults(defineProps<{
   emptyText?: string
 }>(), { link: 'a', label: 'Main', emptyText: 'No match.' })
 
-const emit = defineEmits<{ select: [SidebarItem] }>()
+const emit = defineEmits<{
+  select: [SidebarItem]
+  /** A collapsed group was opened and needs the sidebar's width back. */
+  expand: []
+}>()
 
 /* Not `to` alone: several rows can point at the same page — this
    workshop has two atoms documented on one — and a v-for key has to stay
@@ -88,9 +102,37 @@ const key = (i: SidebarItem) => i.id ?? `${i.label}|${i.to ?? ''}`
 const isCurrent = (i: SidebarItem) =>
   props.current !== undefined && (i.to === props.current || i.id === props.current)
 
-/** Bound to `to` or `href` depending on what the link component wants. */
-const linkProps = (i: SidebarItem) =>
-  props.link === 'a' || i.external ? { href: i.to } : { to: i.to }
+/* ---------- one row, three shapes ---------- */
+
+/** A group, and a row with no destination, are buttons; the rest links. */
+const rowTag = (i: SidebarItem) =>
+  i.children || !i.to ? 'button' : i.external ? 'a' : props.link
+
+function rowAttrs(i: SidebarItem) {
+  if (i.children || !i.to) {
+    return { type: 'button' as const, disabled: i.disabled || undefined }
+  }
+  return {
+    // `to` or `href`, depending on what the link component wants.
+    ...(props.link === 'a' || i.external ? { href: i.to } : { to: i.to }),
+    target: i.external ? '_blank' : undefined,
+    rel: i.external ? 'noreferrer noopener' : undefined,
+    'aria-disabled': i.disabled || undefined
+  }
+}
+
+/**
+ * In a rail a group stands in for its children, so it inherits their
+ * state: on a page documented under Atoms, the Atoms icon is where you
+ * are. Without this the rail highlights nothing at all on most pages,
+ * since the row that matches is one the rail does not render.
+ */
+const railCurrent = (i: SidebarItem) =>
+  isCurrent(i) || !!i.children?.some(c => isCurrent(c))
+
+/** "page" belongs to a link. A button that is merely current says so. */
+const currentAttr = (i: SidebarItem) =>
+  isCurrent(i) ? (i.to && !i.children ? 'page' : true) : undefined
 
 /* ---------- open groups ---------- */
 
@@ -120,139 +162,128 @@ watch(
 
 function activate(i: SidebarItem) {
   if (i.disabled) return
-  if (i.children) return toggle(i)
+  if (i.children) {
+    if (props.collapsed) {
+      // Open it and ask for room, rather than opening something that has
+      // nowhere to appear.
+      opened.value = new Set(opened.value).add(key(i))
+      emit('expand')
+      return
+    }
+    return toggle(i)
+  }
   if (!i.to) emit('select', i)
 }
 </script>
 
 <template>
-  <nav class="u-sb" :aria-label="label">
-    <div v-if="$slots.header" class="u-sb-head"><slot name="header" /></div>
+  <nav class="u-sb" :class="{ 'u-sb-rail': collapsed }" :aria-label="label">
+    <div v-if="$slots.header && !collapsed" class="u-sb-head"><slot name="header" /></div>
 
     <div class="u-sb-scroll">
-      <p v-if="!items.length" class="u-sb-empty">{{ emptyText }}</p>
+      <p v-if="!items.length && !collapsed" class="u-sb-empty">{{ emptyText }}</p>
 
-      <template v-for="item in items" :key="key(item)">
-        <hr v-if="item.divider" class="u-sb-rule">
-        <p v-if="item.heading" class="u-sb-heading">{{ item.heading }}</p>
+      <!-- A rail: icons, rules, and a tooltip on every row. Nothing else
+           fits, and nothing else would be legible if it did. -->
+      <template v-if="collapsed">
+        <template v-for="item in items" :key="key(item)">
+          <hr v-if="item.divider" class="u-sb-rule">
+          <UiTooltip :text="item.label" placement="right">
+            <component
+              :is="rowTag(item)"
+              class="u-sb-row"
+              :class="{ 'u-sb-on': railCurrent(item), 'u-sb-off': item.disabled }"
+              v-bind="rowAttrs(item)"
+              :aria-current="railCurrent(item) ? (item.to && !item.children ? 'page' : true) : undefined"
+              @click="activate(item)"
+            >
+              <span class="u-sb-lead">
+                <UiAvatar
+                  v-if="item.avatar"
+                  shape="square"
+                  size="sm"
+                  :name="item.label"
+                  v-bind="item.avatar"
+                />
+                <UiIcon v-else-if="item.icon" :is="item.icon" size="md" />
+              </span>
+            </component>
+          </UiTooltip>
+        </template>
+      </template>
 
-        <!-- Expandable: a button, so Enter and Space are the browser's. -->
-        <button
-          v-if="item.children"
-          type="button"
-          class="u-sb-row"
-          :class="{ 'u-sb-off': item.disabled }"
-          :disabled="item.disabled"
-          :aria-expanded="isOpen(item)"
-          @click="activate(item)"
-        >
-          <span class="u-sb-lead">
-            <UiAvatar
-              v-if="item.avatar"
-              shape="square"
-              size="sm"
-              :name="item.label"
-              v-bind="item.avatar"
-            />
-            <UiIcon v-else-if="item.icon" :is="item.icon" size="md" />
-          </span>
-          <span class="u-sb-label">{{ item.label }}</span>
-          <span v-if="item.badge" class="u-sb-note">{{ item.badge }}</span>
-          <UiIcon
-            :is="ChevronRight"
-            size="sm"
-            class="u-sb-chev"
-            :class="{ 'u-sb-chev-on': isOpen(item) }"
-          />
-        </button>
+      <template v-else>
+        <template v-for="item in items" :key="key(item)">
+          <hr v-if="item.divider" class="u-sb-rule">
+          <p v-if="item.heading" class="u-sb-heading">{{ item.heading }}</p>
 
-        <component
-          :is="item.external ? 'a' : link"
-          v-else-if="item.to"
-          class="u-sb-row"
-          :class="{ 'u-sb-on': isCurrent(item), 'u-sb-off': item.disabled }"
-          v-bind="linkProps(item)"
-          :target="item.external ? '_blank' : undefined"
-          :rel="item.external ? 'noreferrer noopener' : undefined"
-          :aria-current="isCurrent(item) ? 'page' : undefined"
-          :aria-disabled="item.disabled || undefined"
-        >
-          <span class="u-sb-lead">
-            <UiAvatar
-              v-if="item.avatar"
-              shape="square"
-              size="sm"
-              :name="item.label"
-              v-bind="item.avatar"
-            />
-            <UiIcon v-else-if="item.icon" :is="item.icon" size="md" />
-          </span>
-          <span class="u-sb-label">{{ item.label }}</span>
-          <UiBadge v-if="item.badge" :tone="item.badgeTone ?? 'purple'" size="sm">
-            {{ item.badge }}
-          </UiBadge>
-          <UiIcon v-if="item.external" :is="ExternalLink" size="sm" class="u-sb-ext" />
-          <slot name="trailing" :item="item" />
-        </component>
-
-        <button
-          v-else
-          type="button"
-          class="u-sb-row"
-          :class="{ 'u-sb-on': isCurrent(item), 'u-sb-off': item.disabled }"
-          :disabled="item.disabled"
-          :aria-current="isCurrent(item) ? true : undefined"
-          @click="activate(item)"
-        >
-          <span class="u-sb-lead">
-            <UiAvatar
-              v-if="item.avatar"
-              shape="square"
-              size="sm"
-              :name="item.label"
-              v-bind="item.avatar"
-            />
-            <UiIcon v-else-if="item.icon" :is="item.icon" size="md" />
-          </span>
-          <span class="u-sb-label">{{ item.label }}</span>
-          <UiBadge v-if="item.badge" :tone="item.badgeTone ?? 'purple'" size="sm">
-            {{ item.badge }}
-          </UiBadge>
-          <slot name="trailing" :item="item" />
-        </button>
-
-        <div v-if="item.children && isOpen(item)" class="u-sb-kids">
           <component
-            :is="!kid.to ? 'button' : kid.external ? 'a' : link"
-            v-for="kid in item.children"
-            :key="key(kid)"
-            class="u-sb-row u-sb-kid"
-            :class="{ 'u-sb-on': isCurrent(kid), 'u-sb-off': kid.disabled }"
-            :type="!kid.to ? 'button' : undefined"
-            v-bind="kid.to ? linkProps(kid) : {}"
-            :target="kid.external ? '_blank' : undefined"
-            :rel="kid.external ? 'noreferrer noopener' : undefined"
-            :aria-current="isCurrent(kid) ? (kid.to ? 'page' : true) : undefined"
-            @click="!kid.to && activate(kid)"
+            :is="rowTag(item)"
+            class="u-sb-row"
+            :class="{ 'u-sb-on': isCurrent(item), 'u-sb-off': item.disabled }"
+            v-bind="rowAttrs(item)"
+            :aria-current="currentAttr(item)"
+            :aria-expanded="item.children ? isOpen(item) : undefined"
+            @click="activate(item)"
           >
             <span class="u-sb-lead">
               <UiAvatar
-                v-if="kid.avatar"
+                v-if="item.avatar"
                 shape="square"
                 size="sm"
-                :name="kid.label"
-                v-bind="kid.avatar"
+                :name="item.label"
+                v-bind="item.avatar"
               />
-              <UiIcon v-else-if="kid.icon" :is="kid.icon" size="sm" />
+              <UiIcon v-else-if="item.icon" :is="item.icon" size="md" />
             </span>
-            <span class="u-sb-label">{{ kid.label }}</span>
-            <span v-if="kid.badge" class="u-sb-note">{{ kid.badge }}</span>
+            <span class="u-sb-label">{{ item.label }}</span>
+
+            <span v-if="item.children && item.badge" class="u-sb-note">{{ item.badge }}</span>
+            <UiBadge v-else-if="item.badge" :tone="item.badgeTone ?? 'purple'" size="sm">
+              {{ item.badge }}
+            </UiBadge>
+
+            <UiIcon v-if="item.external" :is="ExternalLink" size="sm" class="u-sb-ext" />
+            <UiIcon
+              v-if="item.children"
+              :is="ChevronRight"
+              size="sm"
+              class="u-sb-chev"
+              :class="{ 'u-sb-chev-on': isOpen(item) }"
+            />
+            <slot v-if="!item.children" name="trailing" :item="item" />
           </component>
-        </div>
+
+          <div v-if="item.children && isOpen(item)" class="u-sb-kids">
+            <component
+              :is="rowTag(kid)"
+              v-for="kid in item.children"
+              :key="key(kid)"
+              class="u-sb-row u-sb-kid"
+              :class="{ 'u-sb-on': isCurrent(kid), 'u-sb-off': kid.disabled }"
+              v-bind="rowAttrs(kid)"
+              :aria-current="currentAttr(kid)"
+              @click="activate(kid)"
+            >
+              <span class="u-sb-lead">
+                <UiAvatar
+                  v-if="kid.avatar"
+                  shape="square"
+                  size="sm"
+                  :name="kid.label"
+                  v-bind="kid.avatar"
+                />
+                <UiIcon v-else-if="kid.icon" :is="kid.icon" size="sm" />
+              </span>
+              <span class="u-sb-label">{{ kid.label }}</span>
+              <span v-if="kid.badge" class="u-sb-note">{{ kid.badge }}</span>
+            </component>
+          </div>
+        </template>
       </template>
     </div>
 
-    <div v-if="$slots.footer" class="u-sb-foot"><slot name="footer" /></div>
+    <div v-if="$slots.footer && !collapsed" class="u-sb-foot"><slot name="footer" /></div>
   </nav>
 </template>
 
@@ -304,8 +335,8 @@ function activate(i: SidebarItem) {
    set a step heavier, which stays legible when several rows match at
    once. Accent-on-accent-tint also measured 4.04:1 in dark mode on a
    raised panel, under AA — the tint recipe is calibrated against the
-   page, and a sidebar is not the page. */
-/* Two classes, not one: .u-sb-kid sets a lighter weight further down the
+   page, and a sidebar is not the page.
+   Two classes, not one: .u-sb-kid sets a lighter weight further down the
    file, and at equal specificity the later rule wins. */
 .u-sb-row.u-sb-on {
   background: var(--fill);
@@ -371,5 +402,25 @@ function activate(i: SidebarItem) {
   color: var(--fg-subtle);
   font: var(--w-regular) var(--fs-micro)/1 var(--font-sans);
   font-variant-numeric: tabular-nums;
+}
+
+/* ---- the rail ---- */
+
+/* Wide screens only. Below --bp-md AppShell has already swapped the
+   column for a full-width overlay, and a rail there would be a 260px
+   panel of centred icons. The number is written a third time because a
+   custom property cannot appear in a media query: --bp-md records it,
+   nothing can share it. */
+@media (min-width: 861px) {
+  .u-sb-rail { padding-inline: var(--s-3); }
+  .u-sb-rail .u-sb-row {
+    justify-content: center;
+    padding: var(--s-4) 0;
+    margin-block-end: var(--s-1);
+  }
+  .u-sb-rail .u-sb-rule { margin-inline: var(--s-2); }
+  /* Tooltip wraps its trigger and its anchor is inline-flex, so without
+     this the row shrinks to its icon and the hit area goes with it. */
+  .u-sb-rail :deep(.u-tt-anchor) { display: flex; }
 }
 </style>
