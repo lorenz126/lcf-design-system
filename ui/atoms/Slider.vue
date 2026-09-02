@@ -23,6 +23,25 @@
  * reading "40" for a volume tells you nothing. `format` supplies the
  * unit, and the default supplies a percent when min and max make one.
  *
+ * THE POINTER AND THE KEYBOARD GET DIFFERENT GRIDS. `step` over a range
+ * of a hundred puts the thumb on one of a hundred and one places — about
+ * three pixels apart, measured, which is a staircase you can see. But
+ * `step` is also what an arrow key moves by and what the value reads as,
+ * and neither of those wants to be finer. So `precision` gives the
+ * POINTER a finer grid and leaves the keyboard on the coarse one, by
+ * swapping the element's own step as the interaction changes hands.
+ *
+ * Which means the element's step has to be right BEFORE the browser acts
+ * on the event that changed hands. Vue patches a microtask too late, so
+ * the attribute goes in by hand in the handler and the binding catches
+ * up to the same value.
+ *
+ * AND A MOVING KEY PUTS THE VALUE BACK ON THE COARSE GRID. Otherwise the
+ * browser quietly sanitises the element to the nearest step, keeps no
+ * event about it, and the thumb and the fill disagree until the next
+ * keystroke. Landing on a readable number the moment you reach for the
+ * keyboard is the behaviour you want anyway.
+ *
  * TICKS ARE MARKS UNTIL YOU SAY OTHERWISE. A dot under the rail says
  * "half" without making the thumb land there, because a slider that
  * pulls toward marks it was never told to honour is one that cannot be
@@ -64,9 +83,24 @@ const props = withDefaults(defineProps<{
    */
   ticks?: number[]
   /**
+   * The grid the POINTER gets, in the slider's own units — finer than
+   * `step`, which stays what a key moves by and what the value reads as.
+   *
+   * IT IS THE VALUE'S RESOLUTION TOO: with `0.1` the model really will
+   * hold 63.4, and anything else bound to it has to be able to. Leave it
+   * off where the steps ARE the meaning — twenty-four whole decibels
+   * should move in twenty-four whole jumps.
+   */
+  precision?: number
+  /**
    * Makes the marks catch a dragged handle. A number sets how close the
    * pointer has to come, in the slider's own units; `true` uses 4% of
    * the range. The keyboard is never magnetised — see above.
+   *
+   * FOR DETENTS, NOT FOR GRADATIONS. Zero on a bass control is a place
+   * you want to get back to, so catching there is a help. Half volume is
+   * not a place — it is one reading of a scale, and a slider that
+   * hesitates at it is a slider fighting you for no reason.
    */
   snap?: boolean | number
   /** What a screen reader hears, and what `showValue` prints. */
@@ -81,12 +115,22 @@ const props = withDefaults(defineProps<{
 
 const model = defineModel<number>({ default: 0 })
 
+/** What the value READS as. A pointer may land between steps; nobody
+ *  should have to hear about it, and toFixed clears the float dust that
+ *  makes a volume of 0.30000000000000004. */
+const shown = computed(() => {
+  const s = props.step
+  if (!s || !Number.isFinite(s)) return model.value
+  const dp = (String(s).split('.')[1] ?? '').length
+  return Number((Math.round(model.value / s) * s).toFixed(dp))
+})
+
 const text = computed(() =>
   props.format
-    ? props.format(model.value)
+    ? props.format(shown.value)
     : props.min === 0 && props.max === 100
-      ? `${model.value} percent`
-      : String(model.value)
+      ? `${shown.value} percent`
+      : String(shown.value)
 )
 
 const span = computed(() => props.max - props.min)
@@ -111,8 +155,35 @@ const pull = computed(() =>
   typeof props.snap === 'number' ? props.snap : Math.abs(span.value) * 0.04
 )
 
-/** True while the last thing that touched this was a key. */
+/** True while the last thing that touched this was a key. Decides both
+ *  the grid and whether the magnet runs at all. */
 const keying = ref(false)
+
+const fine = computed(() => props.precision ?? props.step)
+const grid = computed(() => (keying.value ? props.step : fine.value))
+
+/** Keys that actually move the thumb. Tab is not one of them, and a Tab
+ *  that rounded the value would be a keystroke changing something the
+ *  user was only leaving. */
+const MOVES = new Set([
+  'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+  'Home', 'End', 'PageUp', 'PageDown'
+])
+
+function hand(el: HTMLInputElement, toKey: boolean) {
+  keying.value = toKey
+  el.step = String(toKey ? props.step : fine.value)
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (!MOVES.has(e.key)) return
+  const el = e.target as HTMLInputElement
+  hand(el, true)
+  if (model.value !== shown.value) {
+    model.value = shown.value
+    el.value = String(shown.value)
+  }
+}
 
 function magnet(v: number) {
   if (!props.snap || !marks.value.length) return v
@@ -123,8 +194,17 @@ function magnet(v: number) {
 }
 
 function onInput(e: Event) {
-  const raw = Number((e.target as HTMLInputElement).value)
-  model.value = keying.value ? raw : magnet(raw)
+  const el = e.target as HTMLInputElement
+  const raw = Number(el.value)
+  const next = keying.value ? raw : magnet(raw)
+  model.value = next
+  /* The thumb is painted by the input from ITS OWN value; the fill from
+     the model. While the magnet holds the model still, the input keeps
+     following the pointer — measured at three steps of drift, so the
+     handle slid a clear eight pixels past the edge it is meant to cap.
+     Nothing re-rendered, because from Vue's side nothing changed. So put
+     the element back on the value we actually chose. */
+  if (Number(el.value) !== next) el.value = String(next)
 }
 </script>
 
@@ -149,7 +229,7 @@ function onInput(e: Event) {
             class="u-sl-track"
             :min="min"
             :max="max"
-            :step="step"
+            :step="grid"
             :disabled="disabled"
             :aria-invalid="invalid"
             :aria-describedby="describedBy"
@@ -157,8 +237,8 @@ function onInput(e: Event) {
             :aria-orientation="orientation"
             :style="{ '--sl-stop': at(model) }"
             @input="onInput"
-            @keydown="keying = true"
-            @pointerdown="keying = false"
+            @keydown="onKeydown"
+            @pointerdown="hand($event.target as HTMLInputElement, false)"
           >
 
           <!-- Decoration: the value is already announced, and four dots

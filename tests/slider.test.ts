@@ -116,6 +116,73 @@ describe('Slider', () => {
     expect(w.emitted('update:modelValue')!.at(-1)).toEqual([2])
   })
 
+  it('keeps the handle on the value while the magnet holds it', async () => {
+    // The thumb is painted by the input from its own value and the fill
+    // from the model. Without this the input walks on under the pointer
+    // while the fill stays at the mark, and the handle visibly slides
+    // off the edge it is meant to cap.
+    const w = open({ modelValue: 25, ticks: [25, 50, 75], snap: true })
+    const i = w.find('input')
+    await i.trigger('pointerdown')
+    i.element.value = '27'
+    await i.trigger('input')
+    expect(i.element.value).toBe('25')
+  })
+
+  it('leaves the grid alone when no finer one is asked for', async () => {
+    const w = open({ modelValue: 40, step: 1 })
+    const i = w.find('input')
+    expect(i.attributes('step')).toBe('1')
+    await i.trigger('pointerdown')
+    expect(i.element.step).toBe('1')
+  })
+
+  it('hands the pointer a finer grid than the keyboard', async () => {
+    // Three pixels a step is a staircase you can see. An arrow key wants
+    // none of that fineness, and neither does the number you read.
+    const w = open({ modelValue: 40, step: 1, precision: 0.1 })
+    const i = w.find('input')
+    await i.trigger('pointerdown')
+    expect(i.element.step).toBe('0.1')
+    await i.trigger('keydown', { key: 'ArrowRight' })
+    expect(i.element.step).toBe('1')
+  })
+
+  it('sets the element‘s step before the browser acts on the event', async () => {
+    // Vue patches a microtask too late: by then the drag has already
+    // been quantised on the old grid.
+    const w = open({ modelValue: 40, step: 1, precision: 0.1 })
+    const i = w.find('input')
+    i.element.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    expect(i.element.step).toBe('0.1') // no await
+  })
+
+  it('reads the value at the step, not at the precision', () => {
+    const w = open({ modelValue: 63.4, step: 1, precision: 0.1 })
+    expect(w.find('input').attributes('aria-valuetext')).toBe('63 percent')
+  })
+
+  it('keeps the float dust out of the number', () => {
+    const w = open({ modelValue: 0.30000000000000004, min: 0, max: 1, step: 0.1, precision: 0.01 })
+    expect(w.find('input').attributes('aria-valuetext')).toBe('0.3')
+  })
+
+  it('puts the value back on the coarse grid when a moving key arrives', async () => {
+    // Otherwise the browser sanitises the element to the nearest step
+    // without an event, and the thumb and the fill disagree until the
+    // next keystroke.
+    const w = open({ modelValue: 63.4, step: 1, precision: 0.1 })
+    const i = w.find('input')
+    await i.trigger('keydown', { key: 'ArrowRight' })
+    expect(w.emitted('update:modelValue')!.at(-1)).toEqual([63])
+  })
+
+  it('does not round the value on a key that was only leaving', async () => {
+    const w = open({ modelValue: 63.4, step: 1, precision: 0.1 })
+    await w.find('input').trigger('keydown', { key: 'Tab' })
+    expect(w.emitted('update:modelValue')).toBeUndefined()
+  })
+
   it('turns the marks with the slider', () => {
     const w = open({ modelValue: 40, orientation: 'vertical', ticks: [50] })
     const style = w.find('.u-sl-tick').attributes('style')!

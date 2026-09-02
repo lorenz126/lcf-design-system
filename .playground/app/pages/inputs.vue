@@ -116,8 +116,8 @@ const sizes = ['sm', 'md', 'lg'] as const
         <UiSlider
           v-model="volume"
           label="Volume"
+          :precision="0.1"
           :ticks="[25, 50, 75]"
-          snap
           show-value
           block
         >
@@ -127,7 +127,7 @@ const sizes = ['sm', 'md', 'lg'] as const
 
         <!-- The size difference IS the meaning here: a small sun and a
              large one say dim and bright without a word between them. -->
-        <UiSlider v-model="volume" label="Brightness" size="lg" block>
+        <UiSlider v-model="volume" label="Brightness" size="lg" :precision="0.1" block>
           <template #leading><UiIcon :is="Sun" size="sm" /></template>
           <template #trailing><UiIcon :is="Sun" size="lg" /></template>
         </UiSlider>
@@ -137,6 +137,8 @@ const sizes = ['sm', 'md', 'lg'] as const
           :min="-12"
           :max="12"
           :step="1"
+          :ticks="[0]"
+          :snap="1"
           :format="(n: number) => `${n > 0 ? '+' : ''}${n} dB`"
           show-value
           block
@@ -145,6 +147,7 @@ const sizes = ['sm', 'md', 'lg'] as const
           v-model="volume"
           label="Upright"
           orientation="vertical"
+          :precision="0.1"
           size="sm"
           :ticks="[25, 50, 75]"
           show-value
