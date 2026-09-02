@@ -38,9 +38,14 @@ no Nuxt dependency, usable from any stack.
 
 ## Using it
 
+Not on npm. Install from the repository at a tag:
+
 ```
-pnpm add -D @lf/design lucide-vue-next
+pnpm add -D github:lorenz126/flechtenmacher-font#v0.2.0 lucide-vue-next
 ```
+
+The tag is the version promise — `CHANGELOG.md` says what each one
+changed, and `AGENTS.md` says what counts as breaking.
 
 `lucide-vue-next` is listed twice on purpose. The layer depends on it for its
 own glyphs, but **you** need it declared too if your pages import icons
@@ -133,25 +138,22 @@ that fails silently — whether `files` would ship every component, token
 and composable, and whether Nuxt and Vue are peers rather than bundled
 copies. It runs on every commit.
 
-The rest needs a real project, which is worth doing whenever the public
-surface changes:
+The rest needs a real project, and that is a script now:
 
 ```bash
-npm pack                                   # a tarball, not a symlink —
-                                           # a link ignores `files`
-mkdir /tmp/consumer && cd /tmp/consumer
-npm init -y && npm pkg set type=module
-npm i ../path/to/lf-design-0.1.0.tgz
-npm i -D nuxt vue
-echo 'export default defineNuxtConfig({ extends: ["@lf/design"] })' > nuxt.config.ts
+pnpm verify:consumer
 ```
 
-Then write one page that uses a spread of components — including the ones
-with the least ordinary needs: Diagram measures the DOM, Kanban teleports,
-Calendar leans on `Intl`, the overlays live in the top layer. Build it,
-open it, and check three things the build will not tell you: the tokens
-resolved, `styles/base.css` applied them, and the theme script arrived in
-the `<head>` ahead of the first stylesheet.
+It packs a tarball — not a symlink, because a link ignores `files` —
+installs it into an empty `npm init` project with nothing but Nuxt and
+Vue, checks that neither was installed twice, writes a page that uses the
+components with the least ordinary needs (Diagram measures the DOM,
+Kanban teleports, Calendar and DatePicker lean on `Intl`, the overlays
+live in the top layer), builds it, typechecks it from the consumer's side
+with `vue-tsc`, serves it, and reads the head: the theme script must
+arrive ahead of the first stylesheet, and every component must be in the
+server's HTML. Run it before a tag. `KEEP=1` leaves the project behind to
+look at.
 
 Last run: **49 components**, from a 132 kB tarball of 65 files, into an
 empty `npm init` project. Both themes, no console error of any kind.

@@ -148,6 +148,32 @@ findings only after counting pixels per step. Report the number.
   thumbs is not Slider with a prop; a remote picker is not Combobox with a
   flag. Say so instead of growing into it.
 
+## What is a breaking change here
+
+The version is a promise about these, and only these:
+
+- **A component's name.** `<UiTable>` renaming is breaking; `Table.vue`
+  moving from `organisms/` to `molecules/` is not — `pathPrefix: false`
+  means the folder never appears in the name.
+- **A prop, a slot, an emitted event, or a `v-model` name** — removed,
+  renamed, or changed in type or meaning. Adding one is not breaking.
+  Narrowing what one accepts is.
+- **A semantic token's name** — anything in `tokens/` a component may
+  reference. Primitives may move freely, because components may not
+  touch them.
+- **An export of `composables/`**, including the pure ones.
+- **What an attribute does.** Checkbox forwarding unmatched attrs to its
+  input instead of its wrapper changed behaviour for anyone relying on
+  the wrapper, and that was a breaking change however small.
+
+Not breaking: the workshop, its routes, `demo/`, `scripts/`, anything a
+consumer cannot import. The workshop was rebuilt under different URLs
+once and no consumer noticed, because none of it is theirs.
+
+Record the change in `CHANGELOG.md` under *Unreleased* as you make it,
+not when you tag. Before a tag, `pnpm verify:consumer` — the tarball into
+an empty project, built and typechecked from the outside.
+
 ## Writing it down
 
 Component files carry their reasoning in the doc comment at the top — not
