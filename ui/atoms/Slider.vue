@@ -156,16 +156,17 @@ const marks = computed(() =>
   position: relative;
   flex: 1;
   min-width: 0;
-  /* A THICK rail with the thumb INSIDE it, rather than a thin rail with
-     a thumb crossing it. The handle is a lozenge — wider than it is tall
-     — inset within the track, so the control reads as one object with a
-     grip in it instead of a line with a bead threaded on. */
-  --sl-rail: 24px;
-  --sl-tw: 30px;
-  --sl-th: 16px;
+  /* The handle CROSSES the rail rather than sitting inside it: bigger
+     than the track in both directions, so its silhouette and its shadow
+     are what you grab rather than a shape cut out of the fill. Wider
+     than it is tall — a capsule, not a disc — which is the difference
+     between a grip and a bead. */
+  --sl-rail: 8px;
+  --sl-tw: 26px;
+  --sl-th: 20px;
 }
-.u-s-sm .u-sl-wrap { --sl-rail: 18px; --sl-tw: 24px; --sl-th: 12px; }
-.u-s-lg .u-sl-wrap { --sl-rail: 32px; --sl-tw: 40px; --sl-th: 22px; }
+.u-s-sm .u-sl-wrap { --sl-rail: 6px;  --sl-tw: 20px; --sl-th: 16px; }
+.u-s-lg .u-sl-wrap { --sl-rail: 12px; --sl-tw: 32px; --sl-th: 24px; }
 /* Room beside the rail for the marks, only when there are any. */
 .u-sl-ticked { padding-block-end: 12px; }
 
@@ -173,7 +174,7 @@ const marks = computed(() =>
   appearance: none;
   display: block;
   width: 100%;
-  height: var(--sl-rail);
+  height: var(--sl-th);
   background: transparent;
   cursor: pointer;
   /* One box, split exactly where the thumb's centre is — not at the
@@ -193,7 +194,7 @@ const marks = computed(() =>
   writing-mode: vertical-lr;
   direction: rtl;
   height: 100%;
-  width: var(--sl-rail);
+  width: var(--sl-th);
   --sl-to: top;
 }
 
@@ -210,29 +211,44 @@ const marks = computed(() =>
   background: var(--sl-paint);
 }
 
-/* Centred inside the track rather than on top of it: the margin is
-   positive now, because the thumb is the smaller of the two. */
+/*
+ * The handle is LIGHT IN BOTH THEMES, not --bg.
+ *
+ * A theme-following handle is near-black in dark mode sitting on a dark
+ * grey track — 1.47:1, measured. Every platform paints this one light in
+ * both, so --solid-fg, the token that already means "what sits on a
+ * saturated fill".
+ *
+ * THE SHADOW IS LOAD-BEARING HERE, and this is the only place in the
+ * system where that is true. A white handle on the pale side of a light
+ * track measures 1.32:1 and no ring changes that without becoming the
+ * hard outline this deliberately does not have. So the affordance is the
+ * raised silhouette: a tight dark halo doing the work of an edge, and a
+ * softer one under it doing the work of height.
+ *
+ * It is a knowing trade, recorded as one — check-contrast still measures
+ * the pair and still prints the number, held to a floor that says out
+ * loud what is carrying it. In dark mode the handle needs none of this
+ * and clears 13:1 on its own.
+ */
 .u-sl-track::-webkit-slider-thumb {
   appearance: none;
   width: var(--sl-tw);
   height: var(--sl-th);
+  /* Centred on the rail rather than sitting on it. */
   margin-top: calc((var(--sl-rail) - var(--sl-th)) / 2);
   border: 0;
   border-radius: var(--r-full);
-  background: var(--bg);
-  /* The RING is what makes it findable, not the fill and not the shadow.
-     The handle takes --bg, so half of it always sits on a track of
-     nearly its own lightness: 1.47:1 in dark mode, measured. --fg-muted
-     is the lightest edge that clears 3:1 on both. */
-  box-shadow: 0 0 0 1px var(--fg-muted) inset, var(--shadow-1);
+  background: var(--solid-fg);
+  box-shadow: 0 0 1px rgb(0 0 0 / .32), 0 1px 4px rgb(0 0 0 / .22);
 }
 .u-sl-track::-moz-range-thumb {
   width: var(--sl-tw);
   height: var(--sl-th);
-  border: 1px solid var(--fg-muted);
+  border: 0;
   border-radius: var(--r-full);
-  background: var(--bg);
-  box-shadow: var(--shadow-1);
+  background: var(--solid-fg);
+  box-shadow: 0 0 1px rgb(0 0 0 / .32), 0 1px 4px rgb(0 0 0 / .22);
 }
 
 .u-sl-track:focus-visible {
@@ -249,7 +265,7 @@ const marks = computed(() =>
 .u-sl-ticks {
   position: absolute;
   inset-inline: 0;
-  inset-block-start: calc(var(--sl-rail) + 6px);
+  inset-block-start: calc(var(--sl-th) + 4px);
   height: 4px;
   pointer-events: none;
 }
@@ -266,7 +282,7 @@ const marks = computed(() =>
 
 .u-sl-vertical .u-sl-ticks {
   inset-block: 0;
-  inset-inline: calc(var(--sl-rail) + 6px) auto;
+  inset-inline: calc(var(--sl-th) + 4px) auto;
   width: 4px;
   height: auto;
 }

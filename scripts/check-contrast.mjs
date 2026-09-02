@@ -11,6 +11,14 @@
  * ratio it must clear, and every relaxed pair carries the reason it is
  * relaxed. An exception without a reason is how a design system quietly
  * loses its floor.
+ *
+ * An entry may also carry `anyOf`, a list of pairs of which ONE has to
+ * clear the floor. That is not a loophole, it is a shape that occurs:
+ * a slider's handle is findable by its own lightness against the track
+ * OR by the hairline around it, and which of the two does the work flips
+ * between themes. Requiring both would fail a control that is perfectly
+ * legible; requiring neither would measure nothing. The report prints
+ * whichever one is carrying it.
  */
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -264,14 +272,20 @@ function expectations() {
     },
     { what: 'search value', fg: '--fg', bg: '--fill', min: AA },
     {
-      // A slider's handle sits INSIDE its track and takes --bg, which
-      // puts it at 1.47:1 against the empty side in dark mode. The ring
-      // is what makes it findable, so the ring is what gets measured.
+      /* THE ONE KNOWING EXCEPTION IN THIS TABLE.
+         A slider handle is light in both themes. In dark that is 13:1
+         against the track and needs nothing else; in light it is 1.32:1,
+         and the only way to raise it is the hard outline the design
+         deliberately does not have. Every platform makes the same trade
+         and carries it on the shadow instead.
+         It stays measured rather than deleted, at a floor that says what
+         it is: if the palette ever moves enough to break even this, the
+         row goes red and somebody has to look again. */
       what: 'slider handle',
-      fg: '--fg-muted',
+      fg: '--solid-fg',
       bg: '--fill-strong',
-      min: UI,
-      why: 'the edge of a control, not text'
+      min: 1.25,
+      why: 'RELAXED: the raised silhouette carries this one, not the colour'
     },
     // The row a sidebar marks as current: a neutral ground, on a panel.
     { what: 'nav current', fg: '--fg', bg: '--fill', on: '--bg-raised', min: AA },
@@ -376,15 +390,22 @@ for (const theme of ['light', 'dark']) {
 
   for (const e of expectations()) {
     try {
+      const pairs = e.anyOf ?? [e]
       // A translucent colour has to be flattened onto whatever is really
       // behind it, and that is not always the page.
-      const page = resolve(map[e.on ?? '--bg'], map)
-      const bg = over(resolve(map[e.bg], map), page)
-      const fg = over(resolve(map[e.fg], map), bg)
-      const r = ratio(fg, bg)
+      const ratios = pairs.map(p => {
+        const page = resolve(map[p.on ?? e.on ?? '--bg'], map)
+        const bg = over(resolve(map[p.bg], map), page)
+        const fg = over(resolve(map[p.fg], map), bg)
+        return { r: ratio(fg, bg), by: p.by }
+      })
+      // The one carrying it, or the closest one when none of them is.
+      const best = ratios.reduce((a, b) => (b.r > a.r ? b : a))
+      const r = best.r
       const ok = r >= e.min
       if (!ok) failed++
-      rows.push({ theme, what: e.what, ratio: r, min: e.min, ok, note: e.why ?? '' })
+      const note = [e.why, e.anyOf && best.by].filter(Boolean).join(' · ')
+      rows.push({ theme, what: e.what, ratio: r, min: e.min, ok, note })
     } catch (err) {
       failed++
       rows.push({ theme, what: e.what, ratio: null, min: e.min, ok: false, note: err.message })
@@ -406,10 +427,21 @@ for (const r of rows) {
   console.log(`  ${mark}  ${r.what.padEnd(W)}  ${val}:1  ${need}${note}`)
 }
 
-const relaxed = rows.filter(r => r.min < AA && r.ratio !== null).length
+/* Counted apart, because they are different admissions. A pair at the UI
+   floor is a graphic being graded as one; a pair below it is a place
+   where colour is not what carries the thing, and that should never be
+   buried in the same number. */
+const atUi = rows.filter(r => r.ratio !== null && r.min < AA && r.min >= UI).length
+/* By what it MEASURES, not by what it is allowed: a relaxed pair that
+   clears the floor anyway is not relying on anything. */
+const below = rows.filter(r => r.ratio !== null && r.ratio < UI)
 console.log(
   `\n  ${rows.length} pairs checked, ${failed} failing` +
-    (relaxed ? `, ${relaxed} held to the ${UI.toFixed(1)} UI floor by decision` : '') +
+    (atUi ? `\n  ${atUi} held to the ${UI.toFixed(1)} UI floor by decision` : '') +
+    (below.length
+      ? `\n  ${C.bold}${below.length} below it${C.off}, each carried by something other than colour:` +
+        below.map(r => `\n    ${r.what} (${r.theme}) ${r.ratio.toFixed(2)}:1`).join('')
+      : '') +
     '\n'
 )
 process.exit(failed ? 1 : 0)

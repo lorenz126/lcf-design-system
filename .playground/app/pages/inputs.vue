@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Sun, SunDim, Volume1, Volume2 } from 'lucide-vue-next'
 useHead({ title: 'Inputs — Design Framework' })
 const a = ref(''); const b = ref('lorenz@dewa-id.com'); const c = ref('nope')
 const find = ref('')
@@ -112,13 +113,15 @@ const sizes = ['sm', 'md', 'lg'] as const
     <section>
       <div class="sec-label">Slider</div>
       <div class="row sliders">
-        <UiSlider
-          v-model="volume"
-          label="Volume"
-          :ticks="[12.5, 25, 50]"
-          show-value
-          block
-        />
+        <UiSlider v-model="volume" label="Volume" :ticks="[12.5, 25, 50]" show-value block>
+          <template #leading><UiIcon :is="Volume1" size="sm" /></template>
+          <template #trailing><UiIcon :is="Volume2" size="sm" /></template>
+        </UiSlider>
+
+        <UiSlider v-model="volume" label="Brightness" size="lg" block>
+          <template #leading><UiIcon :is="SunDim" size="sm" /></template>
+          <template #trailing><UiIcon :is="Sun" size="sm" /></template>
+        </UiSlider>
         <UiSlider
           v-model="bass"
           label="Bass"
@@ -137,7 +140,6 @@ const sizes = ['sm', 'md', 'lg'] as const
           :ticks="[25, 50, 75]"
           show-value
         />
-        <UiSlider v-model="volume" label="Large" size="lg" :ticks="[25, 50, 75]" block />
       </div>
       <p class="t-caption hint">
         A real <code>&lt;input type="range"&gt;</code>: arrows, Home and End, Page Up
