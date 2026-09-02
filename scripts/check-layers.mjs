@@ -7,10 +7,14 @@
  * DEPENDENCY DIRECTION is not a judgement call, and it is the part that
  * rots without enforcement:
  *
- *   atoms      may use nothing from ui/
- *   molecules  may use atoms
- *   organisms  may use molecules and atoms
+ *   atoms      may use atoms
+ *   molecules  may use atoms and molecules
+ *   organisms  may use anything below templates
  *   templates  may use anything
+ *
+ * Same tier is allowed, and deliberately: Button uses Spinner and Input
+ * uses Field, both atoms, because the alternative is every atom keeping
+ * its own copy of a thing that was never bigger than an atom.
  *
  * So that is what this checks. It deliberately says nothing about whether
  * a component sits in the right tier — only that it does not reach upward.

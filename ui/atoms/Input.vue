@@ -9,7 +9,7 @@
  */
 type Size = 'sm' | 'md' | 'lg'
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   modelValue?: string
   label?: string
   /** Guidance shown under the field. Replaced by `error` when present. */
@@ -31,69 +31,53 @@ const props = withDefaults(defineProps<{
 
 defineEmits<{ 'update:modelValue': [string] }>()
 
-const uid = useId()
-const fieldId = computed(() => props.id ?? `f-${uid}`)
-const msgId = computed(() => `m-${uid}`)
-const hasMsg = computed(() => Boolean(props.error || props.help))
 </script>
 
 <template>
-  <div class="u-field" :class="[`u-s-${size}`, { 'u-block': block, 'u-invalid': !!error }]">
-    <label v-if="label" :for="fieldId" class="u-label">
-      {{ label }}
-      <span v-if="required" class="u-req" aria-hidden="true">*</span>
-    </label>
-
-    <input
-      :id="fieldId"
-      class="u-input"
-      :type="type"
-      :value="modelValue"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :readonly="readonly"
-      :required="required"
-      :aria-invalid="error ? 'true' : undefined"
-      :aria-describedby="hasMsg ? msgId : undefined"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-    >
-
-    <p v-if="hasMsg" :id="msgId" class="u-msg" :class="{ 'u-err': !!error }">
-      {{ error || help }}
-    </p>
-  </div>
+  <UiField
+    :label="label"
+    :help="help"
+    :error="error"
+    :required="required"
+    :size="size"
+    :block="block"
+    :id="id"
+  >
+    <template #default="{ id: fieldId, describedBy, invalid }">
+      <input
+        :id="fieldId"
+        class="u-input"
+        :type="type"
+        :value="modelValue"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :readonly="readonly"
+        :required="required"
+        :aria-invalid="invalid"
+        :aria-describedby="describedBy"
+        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+      >
+    </template>
+  </UiField>
 </template>
 
 <style scoped>
-.u-field { display: inline-flex; flex-direction: column; gap: var(--s-2); }
-.u-block { display: flex; width: 100%; }
-
-.u-label {
-  font: var(--w-medium) var(--fs-small)/1.3 var(--font-sans);
-  letter-spacing: var(--tr-small);
-  color: var(--fg);
-}
-.u-req { color: var(--danger-text); }
-
 .u-input {
-  --h: var(--field-md);
   width: 100%;
-  height: var(--h);
-  padding-inline: var(--s-5);
+  /* Set by Field from `size`. The fallback is for an input used bare. */
+  height: var(--fld-h, var(--field-md));
+  padding-inline: var(--fld-pad, var(--s-5));
   color: var(--fg);
   background: var(--bg);
   border: var(--border-width) solid var(--border-strong);
   /* Same 40% cap as the button — a field is not a pill either. */
-  border-radius: min(var(--r-control), calc(var(--h) * 0.4));
-  font: var(--w-regular) var(--fs-body)/1 var(--font-sans);
+  border-radius: min(var(--r-control), calc(var(--fld-h, var(--field-md)) * 0.4));
+  font: var(--w-regular) var(--fld-fs, var(--fs-body))/1 var(--font-sans);
   letter-spacing: var(--tr-body);
   transition: border-color var(--dur-fast) var(--ease-out),
               background-color var(--dur-fast) var(--ease-out),
               outline-color var(--dur-fast) var(--ease-out);
 }
-.u-s-sm .u-input { --h: var(--field-sm); font-size: var(--fs-small); padding-inline: var(--s-4); }
-.u-s-md .u-input { --h: var(--field-md); }
-.u-s-lg .u-input { --h: var(--field-lg); font-size: var(--fs-lead); padding-inline: var(--s-6); }
 
 .u-input::placeholder { color: var(--fg-subtle); }
 
@@ -108,6 +92,10 @@ const hasMsg = computed(() => Boolean(props.error || props.help))
   border-color: var(--accent);
 }
 
+/* .u-invalid sits on Field's root, which is this component's own root
+   element too — Vue stamps the parent's scope id onto a child's root, so
+   the descendant selector resolves. :deep() would be wrong here: it looks
+   DOWN, and this is looking up. */
 .u-invalid .u-input { border-color: var(--danger-text); }
 .u-invalid .u-input:focus-visible {
   outline-color: color-mix(in srgb, var(--danger-text) 40%, transparent);
@@ -122,12 +110,4 @@ const hasMsg = computed(() => Boolean(props.error || props.help))
   background: var(--fill-quiet);
   border-color: var(--border);
 }
-
-.u-msg {
-  margin: 0;
-  font: var(--w-regular) var(--fs-caption)/1.4 var(--font-sans);
-  letter-spacing: var(--tr-caption);
-  color: var(--fg-muted);
-}
-.u-msg.u-err { color: var(--danger-text); }
 </style>

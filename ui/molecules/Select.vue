@@ -12,7 +12,7 @@ import { ChevronDown } from 'lucide-vue-next'
 
 export interface Option { value: string; label: string; disabled?: boolean }
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   modelValue?: string
   options: Option[]
   label?: string
@@ -31,54 +31,45 @@ const props = withDefaults(defineProps<{
 
 defineEmits<{ 'update:modelValue': [string] }>()
 
-const uid = useId()
-const fieldId = computed(() => props.id ?? `s-${uid}`)
-const msgId = computed(() => `sm-${uid}`)
 </script>
 
 <template>
-  <div class="u-field" :class="[`u-s-${size}`, { 'u-block': block, 'u-invalid': !!error }]">
-    <label v-if="label" :for="fieldId" class="u-label">
-      {{ label }}<span v-if="required" class="u-req" aria-hidden="true">*</span>
-    </label>
+  <UiField
+    :label="label"
+    :help="help"
+    :error="error"
+    :required="required"
+    :size="size"
+    :block="block"
+    :id="id"
+  >
+    <template #default="{ id: fieldId, describedBy, invalid }">
+      <div class="u-select-shell">
+        <select
+          :id="fieldId"
+          class="u-select"
+          :value="modelValue"
+          :disabled="disabled"
+          :required="required"
+          :aria-invalid="invalid"
+          :aria-describedby="describedBy"
+          @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
+        >
+          <option v-if="placeholder" value="" disabled :selected="!modelValue">
+            {{ placeholder }}
+          </option>
+          <option v-for="o in options" :key="o.value" :value="o.value" :disabled="o.disabled">
+            {{ o.label }}
+          </option>
+        </select>
 
-    <div class="u-select-shell">
-      <select
-        :id="fieldId"
-        class="u-select"
-        :value="modelValue"
-        :disabled="disabled"
-        :required="required"
-        :aria-invalid="error ? 'true' : undefined"
-        :aria-describedby="error || help ? msgId : undefined"
-        @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
-      >
-        <option v-if="placeholder" value="" disabled :selected="!modelValue">
-          {{ placeholder }}
-        </option>
-        <option v-for="o in options" :key="o.value" :value="o.value" :disabled="o.disabled">
-          {{ o.label }}
-        </option>
-      </select>
-
-      <UiIcon :is="ChevronDown" size="sm" class="u-chevron" />
-    </div>
-
-    <p v-if="error || help" :id="msgId" class="u-msg" :class="{ 'u-err': !!error }">
-      {{ error || help }}
-    </p>
-  </div>
+        <UiIcon :is="ChevronDown" size="sm" class="u-chevron" />
+      </div>
+    </template>
+  </UiField>
 </template>
 
 <style scoped>
-.u-field { display: inline-flex; flex-direction: column; gap: var(--s-2); }
-.u-block { display: flex; width: 100%; }
-.u-label {
-  font: var(--w-medium) var(--fs-small)/1.3 var(--font-sans);
-  letter-spacing: var(--tr-small); color: var(--fg);
-}
-.u-req { color: var(--danger-text); margin-inline-start: 2px; }
-
 /* Named defensively. Scoped styles stop this component's rules leaking
    OUT; they do nothing to stop a consumer's global rules leaking IN. A
    class called .wrap collided with a global .wrap and inherited 140px of
@@ -87,23 +78,22 @@ const msgId = computed(() => `sm-${uid}`)
 .u-select-shell { position: relative; display: flex; }
 
 .u-select {
-  --h: var(--field-md);
   appearance: none;
   width: 100%;
-  height: var(--h);
+  /* Set by Field from `size`; the fallback is for a bare select. */
+  height: var(--fld-h, var(--field-md));
   /* Room for the chevron, which is not part of the text flow. */
-  padding-inline: var(--s-5) var(--s-8);
+  padding-inline: var(--fld-pad, var(--s-5)) var(--s-8);
   color: var(--fg);
   background: var(--bg);
   border: var(--border-width) solid var(--border-strong);
-  border-radius: min(var(--r-control), calc(var(--h) * 0.4));
-  font: var(--w-regular) var(--fs-body)/1 var(--font-sans);
+  border-radius: min(var(--r-control), calc(var(--fld-h, var(--field-md)) * 0.4));
+  font: var(--w-regular) var(--fld-fs, var(--fs-body))/1 var(--font-sans);
   letter-spacing: var(--tr-body);
   cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out);
 }
-.u-s-sm .u-select { --h: var(--field-sm); font-size: var(--fs-small); padding-inline: var(--s-4) var(--s-7); }
-.u-s-lg .u-select { --h: var(--field-lg); font-size: var(--fs-lead); }
+.u-s-sm .u-select { padding-inline-end: var(--s-7); }
 
 .u-select:hover:not(:disabled) { border-color: var(--fg-subtle); }
 .u-select:focus-visible {
@@ -120,15 +110,10 @@ const msgId = computed(() => `sm-${uid}`)
 .u-s-sm .u-chevron { inset-inline-end: var(--s-4); }
 .u-select:disabled + .u-chevron { opacity: .5; }
 
+/* Both of these hang off Field's root, which Vue also stamps with this
+   component's scope id. */
 .u-invalid .u-select { border-color: var(--danger-text); }
 .u-invalid .u-select:focus-visible {
   outline-color: color-mix(in srgb, var(--danger-text) 40%, transparent);
 }
-
-.u-msg {
-  margin: 0;
-  font: var(--w-regular) var(--fs-caption)/1.4 var(--font-sans);
-  letter-spacing: var(--tr-caption); color: var(--fg-muted);
-}
-.u-msg.u-err { color: var(--danger-text); }
 </style>
