@@ -8,8 +8,12 @@
  * Keep this in step with ui/. scripts/check-layers.mjs enforces the
  * dependency direction; nothing enforces that this list is complete.
  */
+import type { Component } from 'vue'
+import { Atom, Blocks, Boxes, Compass, Github, LayoutTemplate, Palette, Type } from 'lucide-vue-next'
+import type { SidebarItem } from '../../../ui/organisms/Sidebar.vue'
+
 export interface NavItem { name: string; to: string; note?: string }
-export interface NavGroup { label: string; items: NavItem[] }
+export interface NavGroup { label: string; icon: Component; items: NavItem[] }
 
 export const foundations: NavItem[] = [
   { name: 'Principles', to: '/' },
@@ -20,10 +24,12 @@ export const foundations: NavItem[] = [
 export const tiers: NavGroup[] = [
   {
     label: 'Atoms',
+    icon: Atom,
     items: [
       { name: 'Button', to: '/buttons' },
       { name: 'Icon', to: '/buttons', note: 'shown with Button' },
       { name: 'Badge', to: '/badges' },
+      { name: 'Avatar', to: '/templates', note: 'shown with the shell' },
       { name: 'Input', to: '/inputs' },
       { name: 'Checkbox', to: '/controls' },
       { name: 'Radio', to: '/controls' },
@@ -32,19 +38,22 @@ export const tiers: NavGroup[] = [
   },
   {
     label: 'Molecules',
+    icon: Blocks,
     items: [
       { name: 'Select', to: '/controls', note: 'uses Icon' },
       { name: 'Card', to: '/data' },
       { name: 'FormSection', to: '/forms' },
       { name: 'Prose', to: '/docs' },
       { name: 'Tooltip', to: '/overlays' },
-      { name: 'Menu', to: '/overlays', note: 'uses Popover, Icon' },
       { name: 'Popover', to: '/overlays' },
-      { name: 'Dialog', to: '/overlays' }
+      { name: 'Menu', to: '/overlays', note: 'uses Popover, Icon' },
+      { name: 'Dialog', to: '/overlays' },
+      { name: 'TopBar', to: '/templates', note: 'slots only' }
     ]
   },
   {
     label: 'Organisms',
+    icon: Boxes,
     items: [
       { name: 'List', to: '/data' },
       { name: 'Table', to: '/data' },
@@ -54,15 +63,45 @@ export const tiers: NavGroup[] = [
       { name: 'Chart', to: '/charts' },
       { name: 'Calendar', to: '/calendar' },
       { name: 'Kanban', to: '/board' },
-      { name: 'Diagram', to: '/diagrams' }
+      { name: 'Diagram', to: '/diagrams' },
+      { name: 'Sidebar', to: '/templates', note: 'owns a tree of items' }
     ]
   },
   {
     label: 'Templates',
+    icon: LayoutTemplate,
     items: [
       { name: 'AppShell', to: '/templates' },
       { name: 'SplitView', to: '/templates' },
       { name: 'DocLayout', to: '/docs', note: 'used on Docs' }
     ]
+  }
+]
+
+const ICONS: Record<string, Component> = { Principles: Compass, Type, Colour: Palette }
+
+/**
+ * The same data as a Sidebar tree. Notes are dropped here on purpose:
+ * in a 260px column a trailing sentence pushes the name into an ellipsis,
+ * and the note only ever said which page a component shares — which the
+ * sidebar answers anyway, by lighting up every row that page documents.
+ */
+export const sidebar: SidebarItem[] = [
+  ...foundations.map(f => ({ label: f.name, to: f.to, icon: ICONS[f.name] })),
+  ...tiers.map((t, i) => ({
+    label: t.label,
+    icon: t.icon,
+    heading: i === 0 ? 'Components' : undefined,
+    divider: i === 0,
+    badge: String(t.items.length),
+    children: t.items.map(x => ({ label: x.name, to: x.to }))
+  })),
+  {
+    label: 'Repository',
+    to: 'https://github.com/lorenz126/flechtenmacher-font',
+    icon: Github,
+    external: true,
+    divider: true,
+    heading: 'Elsewhere'
   }
 ]

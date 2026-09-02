@@ -1,8 +1,41 @@
 <script setup lang="ts">
-import { Menu, Inbox, Star, Archive, Settings } from 'lucide-vue-next'
+import type { SidebarItem } from '../../../ui/organisms/Sidebar.vue'
+import {
+  Archive, Bell, BookOpen, Inbox, Layers, Search, Settings, Star
+} from 'lucide-vue-next'
 useHead({ title: 'Templates — Design Framework' })
 
 const navOpen = ref(false)
+const navCollapsed = ref(false)
+
+/* No router in an embedded demo, so the rows are buttons and the
+   highlight is driven by `id` rather than by a path. */
+const here = ref<string | number>('inbox')
+const mail: SidebarItem[] = [
+  { id: 'inbox', label: 'Inbox', icon: Inbox, badge: '12', badgeTone: 'blue' },
+  { id: 'starred', label: 'Starred', icon: Star },
+  { id: 'archive', label: 'Archive', icon: Archive },
+  {
+    id: 'spaces',
+    label: 'Spaces',
+    icon: Layers,
+    heading: 'Workspaces',
+    divider: true,
+    children: [
+      { id: 'dewa', label: 'dewa commercial', avatar: { text: '🛰' } },
+      { id: 'dev', label: 'Development', avatar: {} },
+      { id: 'design', label: 'Design Framework', avatar: {} }
+    ]
+  },
+  {
+    label: 'Documentation',
+    to: 'https://github.com/lorenz126/flechtenmacher-font',
+    icon: BookOpen,
+    external: true,
+    divider: true,
+    heading: 'Elsewhere'
+  }
+]
 const selected = ref<number | null>(null)
 const messages = [
   { id: 1, label: 'Quarterly review', description: 'Anna Weber · 09:14' },
@@ -26,31 +59,40 @@ const current = computed(() => messages.find(m => m.id === selected.value))
     </div>
 
     <section>
-      <div class="sec-label">AppShell</div>
+      <div class="sec-label">AppShell · TopBar · Sidebar</div>
       <div class="frame">
-        <UiAppShell v-model:open="navOpen" height="100%" sidebar-width="200px">
-          <template #sidebar>
-            <div class="side">
-              <p class="side-title">Mailbox</p>
-              <a v-for="n in [['Inbox', Inbox], ['Starred', Star], ['Archive', Archive]]"
-                 :key="n[0] as string" class="side-link" href="#">
-                <UiIcon :is="n[1] as any" size="sm" />{{ n[0] }}
-              </a>
-            </div>
+        <UiAppShell
+          v-model:open="navOpen"
+          v-model:collapsed="navCollapsed"
+          height="100%"
+          sidebar-width="216px"
+        >
+          <template #topbar="{ toggle }">
+            <UiTopBar title="Mailbox" :logo="Inbox" @toggle="toggle">
+              <template #search>
+                <UiInput size="sm" block type="search" placeholder="Search mail" />
+              </template>
+              <template #actions>
+                <UiButton variant="plain" tone="neutral" size="sm" icon-only
+                          aria-label="Notifications">
+                  <UiIcon :is="Bell" size="sm" />
+                </UiButton>
+                <UiButton variant="plain" tone="neutral" size="sm" icon-only
+                          aria-label="Settings">
+                  <UiIcon :is="Settings" size="sm" />
+                </UiButton>
+                <UiAvatar name="Anna Weber" size="md" label="Anna Weber" />
+              </template>
+            </UiTopBar>
           </template>
 
-          <template #topbar="{ toggle }">
-            <div class="top">
-              <UiButton class="only-narrow" variant="plain" tone="neutral" size="sm"
-                        icon-only aria-label="Open navigation" @click="toggle">
-                <UiIcon :is="Menu" size="sm" />
-              </UiButton>
-              <strong class="t-body">Inbox</strong>
-              <UiButton variant="plain" tone="neutral" size="sm" icon-only
-                        aria-label="Settings" class="push">
-                <UiIcon :is="Settings" size="sm" />
-              </UiButton>
-            </div>
+          <template #sidebar>
+            <UiSidebar
+              :items="mail"
+              :current="here"
+              label="Mailbox"
+              @select="here = $event.id!"
+            />
           </template>
 
           <div class="content">
@@ -64,9 +106,10 @@ const current = computed(() => messages.find(m => m.id === selected.value))
                 page, which is not what application chrome is for.
               </p>
               <p>
-                Narrow the browser past 860px and the sidebar leaves the layout
-                entirely — a fixed 200px column on a 700px screen is most of the
-                screen. The button on the left of the topbar appears with it.
+                Press the button at the far left. On a wide screen the sidebar is a
+                column that folds out of the layout; below 860px it is an overlay
+                that opens over the content. Two different states, one button —
+                a top bar should not have to know which case it is in.
               </p>
               <p>
                 Scroll this panel: the sidebar and topbar stay exactly where they
@@ -80,6 +123,45 @@ const current = computed(() => messages.find(m => m.id === selected.value))
           </div>
         </UiAppShell>
       </div>
+      <p class="t-caption hint">
+        The bar spans the <strong>full</strong> width by default, which puts the
+        sidebar toggle above the sidebar — over the thing it controls. Pass
+        <code>topbar="main"</code> to stop it at the content instead, which suits a
+        shell whose sidebar carries its own brand. It is a real choice, not a
+        cosmetic one, so it is a prop rather than a house style.
+      </p>
+      <p class="t-caption hint">
+        This is also the page you are on. The workshop wears the same three
+        components, so anything broken about them is broken here first, on every
+        page, before anyone else meets it.
+      </p>
+    </section>
+
+    <section>
+      <div class="sec-label">Avatar</div>
+      <div class="row">
+        <UiAvatar name="Anna Weber" size="lg" label="Anna Weber" />
+        <UiAvatar name="Tom Krause" size="lg" label="Tom Krause" />
+        <UiAvatar name="Lorenz Flechtenmacher" size="lg" label="Lorenz Flechtenmacher" />
+        <span class="gap" />
+        <UiAvatar name="dewa commercial" shape="square" size="lg" label="dewa commercial" />
+        <UiAvatar name="Development" shape="square" size="lg" label="Development" />
+        <UiAvatar text="🛰" shape="square" size="lg" tone="orange" label="Satellites" />
+        <span class="gap" />
+        <UiAvatar name="Anna Weber" size="sm" />
+        <UiAvatar name="Anna Weber" size="md" />
+        <UiAvatar name="Anna Weber" size="lg" />
+      </div>
+      <p class="t-caption hint">
+        Circles are people, squares are things. Both need a mark, and if they look
+        alike the sidebar stops saying which is which.
+      </p>
+      <p class="t-caption hint">
+        The colour is <strong>derived from the name</strong>, not configured — so the
+        same workspace is the same colour on every screen it appears on and nobody
+        maintains a map of thing-to-colour. Pass a tone only when the colour itself
+        means something.
+      </p>
     </section>
 
     <section>
@@ -142,28 +224,14 @@ section { margin-bottom: 64px; }
 /* A stand-in for a browser window, so a full-page template can be seen
    in the middle of a documentation page. */
 .frame {
-  height: 380px;
+  height: 420px;
   border: 1px solid var(--rule);
   border-radius: var(--r-lg);
   overflow: clip;
 }
 
-.side { padding: var(--s-5); display: flex; flex-direction: column; gap: 2px; }
-.side-title {
-  margin: 0 0 var(--s-4); padding-inline: var(--s-3);
-  font: var(--w-semibold) var(--fs-caption)/1 var(--font-sans);
-  letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3);
-}
-.side-link {
-  display: flex; align-items: center; gap: var(--s-4);
-  padding: var(--s-3) var(--s-4); border-radius: var(--r-sm);
-  color: var(--ink); text-decoration: none;
-  font: var(--w-regular) var(--fs-small)/1 var(--font-sans);
-}
-.side-link:hover { background: var(--ui-bg-2); }
-
-.top { display: flex; align-items: center; gap: var(--s-4); padding: var(--s-4) var(--s-6); }
-.push { margin-inline-start: auto; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-5); }
+.gap { width: var(--s-6); }
 .content { padding: var(--s-8); }
 .detail { padding: var(--s-8); display: flex; flex-direction: column; gap: var(--s-3); }
 

@@ -20,7 +20,9 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
 }
-.wrap { max-width: 1080px; margin: 0 auto; padding: 0 40px 140px; }
+/* The shell's main region scrolls, so the top padding lives here rather
+   than as a margin below a sticky header. */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 56px 40px 140px; }
 .sec-label {
   color: var(--ink-3); text-transform: uppercase; letter-spacing: .09em;
   font-size: 11px; font-weight: var(--w-semibold); margin-bottom: 28px;
