@@ -291,9 +291,9 @@ watch(() => props.items, () => nextTick(measure), { deep: true })
   transition: color var(--dur-fast) var(--ease-out),
               background-color var(--dur-fast) var(--ease-out);
 }
-.u-s-sm { --tb-h: var(--control-sm); --tb-pad: var(--s-4); --tb-fs: var(--fs-caption); }
-.u-s-md { --tb-h: var(--control-md); --tb-pad: var(--s-5); --tb-fs: var(--fs-small); }
-.u-s-lg { --tb-h: var(--control-lg); --tb-pad: var(--s-6); --tb-fs: var(--fs-body); }
+.u-s-sm { --tb-h: var(--control-sm); --tb-pad: var(--s-4); --tb-fs: var(--fs-caption); --tb-vpad: var(--s-4); }
+.u-s-md { --tb-h: var(--control-md); --tb-pad: var(--s-5); --tb-fs: var(--fs-small); --tb-vpad: var(--s-5); }
+.u-s-lg { --tb-h: var(--control-lg); --tb-pad: var(--s-6); --tb-fs: var(--fs-body); --tb-vpad: var(--s-6); }
 
 .u-tb-tab:hover:not(.u-tb-off) { color: var(--fg); }
 .u-tb-tab:focus-visible {
@@ -309,8 +309,18 @@ watch(() => props.items, () => nextTick(measure), { deep: true })
    colour. The rule is a graphic, held to 3:1; the label stays neutral,
    because saying "here" in weight AND in hue is the same thing twice and
    it is the hue that loses. */
-.u-tb-underline { gap: var(--s-5); box-shadow: inset 0 -1px 0 var(--border); }
-.u-tb-underline .u-tb-tab { padding-inline: 0; }
+.u-tb-underline { gap: var(--s-6); box-shadow: inset 0 -1px 0 var(--border); }
+/* Taller than the pill's row, and it has to be. A pill's ground ends
+   where the chip does, so a control height is the whole of it. The
+   underline's rule sits on the ROW's bottom edge instead, which makes
+   the row's own padding the gap between the label and the rule — and at
+   a control height that gap is six pixels, which reads as the label
+   sitting on the line rather than above it. */
+.u-tb-underline .u-tb-tab {
+  height: auto;
+  padding-inline: 0;
+  padding-block: var(--tb-vpad);
+}
 .u-tb-underline .u-tb-tab::after {
   content: '';
   position: absolute;
