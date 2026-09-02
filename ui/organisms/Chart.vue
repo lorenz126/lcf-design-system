@@ -43,7 +43,14 @@ const PAD = { top: 12, right: 12, bottom: 28, left: 44 }
 const W = 640
 
 const max = computed(() => {
-  const all = props.series.flatMap(s => s.values)
+  /* Filtered, because ONE bad number takes the whole chart down rather
+     than one point: a non-finite value here makes max NaN, and every
+     coordinate derived from it is then NaN — axis, gridlines and labels
+     included. A chart is often the first place bad data reaches a
+     screen, and it should draw an empty axis rather than nothing at all.
+     Found by building a consumer project against the packed layer and
+     passing it the wrong prop shape. */
+  const all = props.series.flatMap(s => s.values ?? []).filter(Number.isFinite)
   const m = Math.max(0, ...all)
   if (m === 0) return 1
   // Round up to a clean step so the axis reads in whole numbers.

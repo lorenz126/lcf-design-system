@@ -30,5 +30,11 @@ jobs:
       - name: Layer boundaries
         run: pnpm test:layers
 
+      # What `files` would install. Nothing in the build touches that
+      # list, so a missing entry is invisible here and fatal in the
+      # project that installs it.
+      - name: Package surface
+        run: pnpm test:package
+
       - name: Build
         run: pnpm build

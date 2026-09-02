@@ -80,5 +80,35 @@ redistribution — self-hosting SF for a public site falls outside it.
 ```
 pnpm install
 pnpm dev     # the playground
-pnpm test    # contrast + layer boundaries
+pnpm test    # contrast, layer boundaries, package surface
 ```
+
+### Proving it is consumable
+
+The playground resolves everything from disk, so it cannot tell you
+whether an *installed* copy works. `pnpm test:package` covers the part
+that fails silently — whether `files` would ship every component, token
+and composable, and whether Nuxt and Vue are peers rather than bundled
+copies. It runs on every commit.
+
+The rest needs a real project, which is worth doing whenever the public
+surface changes:
+
+```bash
+npm pack                                   # a tarball, not a symlink —
+                                           # a link ignores `files`
+mkdir /tmp/consumer && cd /tmp/consumer
+npm init -y && npm pkg set type=module
+npm i ../path/to/lf-design-0.1.0.tgz
+npm i -D nuxt vue
+echo 'export default defineNuxtConfig({ extends: ["@lf/design"] })' > nuxt.config.ts
+```
+
+Then write one page that uses a spread of components — including the ones
+with the least ordinary needs: Diagram measures the DOM, Kanban teleports,
+Calendar leans on `Intl`, the overlays live in the top layer. Build it,
+open it, and check three things the build will not tell you: the tokens
+resolved, `styles/base.css` applied them, and the theme script arrived in
+the `<head>` ahead of the first stylesheet.
+
+Last run: 36 components, both themes, no console errors.
