@@ -44,8 +44,10 @@ export function contrast(
   a: [number, number, number],
   b: [number, number, number]
 ): number {
-  const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x)
-  return (l1 + 0.05) / (l2 + 0.05)
+  const la = luminance(a)
+  const lb = luminance(b)
+  const [hi, lo] = la > lb ? [la, lb] : [lb, la]
+  return (hi + 0.05) / (lo + 0.05)
 }
 
 /** WCAG grade for normal-size text. */

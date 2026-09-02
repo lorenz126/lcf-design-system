@@ -179,7 +179,7 @@ watch(open, v => {
         <slot
           name="trigger"
           :open="open"
-          :props="{ ...pop, 'aria-haspopup': 'menu', onKeydown: onTriggerKey }"
+          :props="{ ...pop, 'aria-haspopup': 'menu' as const, onKeydown: onTriggerKey }"
         />
       </template>
 

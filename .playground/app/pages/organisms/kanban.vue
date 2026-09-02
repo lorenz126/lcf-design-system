@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { KanbanColumn } from '../../../ui/organisms/Kanban.vue'
+import type { KanbanColumn } from '../../../../ui/organisms/Kanban.vue'
 
 useHead({ title: 'Kanban — Design Framework' })
 

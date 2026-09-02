@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="Row extends Record<string, any>">
 import { ChevronUp, ChevronDown } from 'lucide-vue-next'
 
 /**
@@ -36,9 +36,16 @@ export interface Column<Row = any> {
   sortable?: boolean
 }
 
+/*
+ * GENERIC OVER THE ROW, so a table handed Issue[] gives Issue back out
+ * of its cell slots. With `Record<string, any>` it did not: every slot
+ * handed the caller a bag of unknown keys, and the consumer either cast
+ * it back or lost the type — which a typecheck of the demo app said out
+ * loud the first time one ran.
+ */
 const props = withDefaults(defineProps<{
   columns: Column[]
-  rows: Record<string, any>[]
+  rows: Row[]
   /** Property to key rows by. Index is a last resort — it breaks
    *  selection as soon as the data is sorted or filtered. */
   rowKey?: string
@@ -104,7 +111,7 @@ function sortBy(col: Column) {
   else { sortKey.value = col.key; sortDir.value = 'asc' }
 }
 
-const keyOf = (row: Record<string, any>, i: number) => row[props.rowKey] ?? i
+const keyOf = (row: Row, i: number) => row[props.rowKey] ?? i
 const allOn = computed(() =>
   sorted.value.length > 0 && sorted.value.every((r, i) => selected.value.includes(keyOf(r, i))))
 const someOn = computed(() => selected.value.length > 0 && !allOn.value)

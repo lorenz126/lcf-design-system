@@ -1,0 +1,14 @@
+{
+  /*
+   * Nuxt writes the real one; this points at it so `nuxt typecheck` can
+   * find a tsconfig where it expects one.
+   *
+   * The exclude is a SCOPE statement, not a way to hide errors. `demo/`
+   * is a separate application with its own aliases — checked here, its
+   * own `~/data/issues` resolves against the wrong root — so it has its
+   * own run, and that run is the half of "prove the layer is consumable"
+   * a successful build does not cover.
+   */
+  "extends": "./.nuxt/tsconfig.json",
+  "exclude": ["../demo", "../node_modules", "./node_modules"]
+}

@@ -9,7 +9,8 @@
     "build": "nuxi build .playground",
     "generate": "nuxi generate .playground",
     "preview": "nuxi preview .playground",
-    "test": "node scripts/check-contrast.mjs && node scripts/check-layers.mjs && node scripts/check-dialogs.mjs && node scripts/check-pages.mjs && node scripts/check-package.mjs && vitest run",
+    "test": "node scripts/check-contrast.mjs && node scripts/check-layers.mjs && node scripts/check-dialogs.mjs && node scripts/check-pages.mjs && node scripts/check-package.mjs && vitest run && pnpm test:types",
+    "test:types": "nuxt typecheck --cwd .playground && nuxt typecheck --cwd demo",
     "test:contrast": "node scripts/check-contrast.mjs",
     "test:layers": "node scripts/check-layers.mjs",
     "test:dialogs": "node scripts/check-dialogs.mjs",
@@ -28,13 +29,15 @@
     "unplugin-auto-import": "^21.1.0",
     "vitest": "^4.1.11",
     "vue": "^3.5.0",
-    "vue-router": "^4.4.0"
+    "vue-router": "^4.4.0",
+    "vue-tsc": "^3.3.11"
   },
   "main": "./nuxt.config.ts",
   "files": [
     "tokens",
     "styles",
     "ui",
+    "types",
     "plugins",
     "composables",
     "nuxt.config.ts",

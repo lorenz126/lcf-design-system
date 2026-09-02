@@ -49,6 +49,10 @@ for (const f of readdirSync(join(root, 'tokens'))) wanted.push(`tokens/${f}`)
 for (const f of readdirSync(join(root, 'styles'))) wanted.push(`styles/${f}`)
 for (const f of readdirSync(join(root, 'composables'))) wanted.push(`composables/${f}`)
 for (const f of readdirSync(join(root, 'plugins'))) wanted.push(`plugins/${f}`)
+/* The platform declarations are part of the layer, not of its workshop:
+   a consumer typechecking DatePicker hits the same missing anchorName we
+   did, and shipping the .d.ts is what stops them writing it again. */
+for (const f of readdirSync(join(root, 'types'))) wanted.push(`types/${f}`)
 wanted.push('nuxt.config.ts', 'package.json')
 
 /* Placeholders for directories that are no longer empty, editor leftovers,

@@ -19,7 +19,14 @@ import type { Component } from 'vue'
  */
 withDefaults(defineProps<{
   is: Component
-  size?: 'sm' | 'md' | 'lg' | number
+  /**
+   * `inherit` is 1em — the size of whatever text it stands in, which is
+   * how a glyph sits inside a button without being told the button's
+   * size. Spinner has had it since the beginning; Icon not having it was
+   * an inconsistency, and the workshop page documented it as if it were
+   * there for a while before a typecheck said otherwise.
+   */
+  size?: 'sm' | 'md' | 'lg' | 'inherit' | number
   /** Accessible name. Omit when the adjacent text already says it. */
   label?: string
   /** Override the stroke; the default thins with size on purpose. */
@@ -60,4 +67,5 @@ withDefaults(defineProps<{
 .u-icon-sm { --s: var(--icon-sm); }
 .u-icon-md { --s: var(--icon-md); }
 .u-icon-lg { --s: var(--icon-lg); }
+.u-icon-inherit { --s: 1em; }
 </style>

@@ -1,0 +1,13 @@
+{
+  /*
+   * The demo is a real consumer of the layer, from outside, with its own
+   * aliases. Typechecking it is the half of "prove the layer is
+   * consumable" that a successful build does not cover: a build resolves
+   * the components, this checks their props.
+   *
+   * `tests/` belongs to the layer and is checked with it. It sits above
+   * this directory only because the demo extends the layer at the root.
+   */
+  "extends": "./.nuxt/tsconfig.json",
+  "exclude": ["../tests", "../.playground", "../node_modules", "./node_modules"]
+}

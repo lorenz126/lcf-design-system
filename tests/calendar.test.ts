@@ -30,7 +30,7 @@ describe('Calendar', () => {
 
   it('moves by a day and by a week', async () => {
     const w = open({ modelValue: '2026-01-15' })
-    w.find('[tabindex="0"]').element.focus()
+    ;(w.find('[tabindex="0"]').element as HTMLElement).focus()
     await press(w, 'ArrowRight')
     expect(here()).toBe('16')
     await press(w, 'ArrowDown')
@@ -43,7 +43,7 @@ describe('Calendar', () => {
   it('goes to the edges of the week, not of the month', async () => {
     // 15 January 2026 is a Thursday; the week starts on Monday.
     const w = open({ modelValue: '2026-01-15' })
-    w.find('[tabindex="0"]').element.focus()
+    ;(w.find('[tabindex="0"]').element as HTMLElement).focus()
     await press(w, 'Home')
     expect(here()).toBe('12')
     await press(w, 'End')
@@ -54,7 +54,7 @@ describe('Calendar', () => {
     // The reason addMonths exists: 31 January plus one month is the end
     // of February, not the third of March.
     const w = open({ modelValue: '2026-01-31' })
-    w.find('[tabindex="0"]').element.focus()
+    ;(w.find('[tabindex="0"]').element as HTMLElement).focus()
     await press(w, 'PageDown')
     expect(month(w)).toBe('February 2026')
     expect(here()).toBe('28')
@@ -65,7 +65,7 @@ describe('Calendar', () => {
 
   it('follows an arrow across a month boundary', async () => {
     const w = open({ modelValue: '2026-01-31' })
-    w.find('[tabindex="0"]').element.focus()
+    ;(w.find('[tabindex="0"]').element as HTMLElement).focus()
     await press(w, 'ArrowRight')
     expect(month(w)).toBe('February 2026')
   })
@@ -73,7 +73,7 @@ describe('Calendar', () => {
   it('moves without choosing', async () => {
     // Arriving somewhere is not the same as wanting it.
     const w = open({ modelValue: '2026-01-15' })
-    w.find('[tabindex="0"]').element.focus()
+    ;(w.find('[tabindex="0"]').element as HTMLElement).focus()
     await press(w, 'ArrowRight')
     await press(w, 'ArrowRight')
     expect(w.props('modelValue')).toBe('2026-01-15')
@@ -83,7 +83,7 @@ describe('Calendar', () => {
   it('chooses on Enter and on Space', async () => {
     for (const key of ['Enter', ' ']) {
       const w = open({ modelValue: '2026-01-15' })
-      w.find('[tabindex="0"]').element.focus()
+      ;(w.find('[tabindex="0"]').element as HTMLElement).focus()
       await press(w, 'ArrowRight')
       await press(w, key)
       expect(w.emitted('select')).toEqual([['2026-01-16']])
@@ -94,7 +94,7 @@ describe('Calendar', () => {
 
   it('refuses a day outside the range but still travels over it', async () => {
     const w = open({ modelValue: '2026-01-15', min: '2026-01-10', max: '2026-01-16' })
-    w.find('[tabindex="0"]').element.focus()
+    ;(w.find('[tabindex="0"]').element as HTMLElement).focus()
     await press(w, 'ArrowRight')
     await press(w, 'ArrowRight')
     // 17 January is past `max`: the cursor is on it, and it is inert.

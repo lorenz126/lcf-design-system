@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DiagramNode, DiagramEdge } from '../../../ui/organisms/Diagram.vue'
+import type { DiagramNode, DiagramEdge } from '../../../../ui/organisms/Diagram.vue'
 
 useHead({ title: 'Diagrams — Design Framework' })
 

@@ -366,10 +366,36 @@ Nothing. Every entry in this catalogue is built, and the three dependency
 decisions it reserved were all answered the same way: no dependency was
 taken.
 
-What is left is not a list of components. It is the two habits that found
-the last dozen defects — measuring instead of judging, and loading every
-page and reading what the browser says — and one open question:
-**`vue-tsc`**. Five regressions in one afternoon were identifiers a
-template referenced and a script no longer declared. A typecheck of the
-templates would have caught every one at build time, without a browser.
-It is a real dependency, so it gets its own decision like the rest.
+What is left is not a list of components. It is the habits that found the
+last dozen defects: measuring instead of judging, and loading every page
+and reading what the browser says.
+
+**`vue-tsc` — taken.** It is the only dependency this catalogue added,
+and it earned it in the first run. The layer itself came back clean:
+zero errors across `ui/`, `composables/` and `plugins/`. Everything it
+found was around them, and five of those were real:
+
+- Two `import type` paths broken by the page split. Invisible at runtime
+  because types are erased and the components resolve globally.
+- The Icon page documenting `size="inherit"`, which Icon did not have.
+  Spinner had it; Icon not having it was an inconsistency, and the
+  workshop had been describing a prop that was not there.
+- A `variant="secondary"` on a Button, which silently rendered the
+  default.
+- The Attachments page carrying a hand-copied version of the component's
+  own type, which had drifted: `id: number` where the component takes
+  `string | number`.
+
+And one API gap: **Table is generic over its row now.** With `rows:
+Record<string, any>[]` every cell slot handed the caller a bag of unknown
+keys, so a table given `Issue[]` could not give `Issue` back. The demo
+app's typecheck said so the first time one ran, which is the half of
+"prove the layer is consumable" a successful build does not cover.
+
+What it costs: five seconds a run, and a resolution stack printed four
+times because Nuxt asks for a Volar plugin at a path the installed
+vue-router no longer exports. Overriding it from the extending config
+does nothing — vue-tsc reads that option from the referenced project
+files — so the noise stands until vue-router ships the subpath again. It
+is written down here rather than filtered away: a grep that hides one
+known-benign line is a grep that will hide the next real one.

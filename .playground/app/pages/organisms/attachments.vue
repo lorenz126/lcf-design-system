@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import type { Attachment as Att } from '../../../../ui/organisms/Attachments.vue'
 useHead({ title: 'Attachments — Design Framework' })
 
-interface Att { id: number; name: string; size: number; type?: string; progress?: number; error?: string }
+/* The component's own type, not a copy of it. A copy drifts — this one
+   had `id: number` where the component takes `string | number`, so the
+   remove handler did not match the signature it was handed to. */
 
 const files = ref<Att[]>([
   { id: 1, name: 'brand-guidelines.pdf', size: 2_418_000, type: 'application/pdf' },

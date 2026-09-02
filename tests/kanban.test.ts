@@ -149,7 +149,7 @@ describe('Kanban', () => {
 
   it('keeps the handle focused across a move into another column', async () => {
     const w = open()
-    handle(w, 'a').element.focus()
+    ;(handle(w, 'a').element as HTMLElement).focus()
     await key(w, 'a', 'Enter')
     await key(w, 'a', 'ArrowRight')
     expect(document.activeElement).toBe(handle(w, 'a').element)

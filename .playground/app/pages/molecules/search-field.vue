@@ -34,7 +34,7 @@ const found = computed(() => {
           size="lg"
           placeholder="Type a letter"
           :suggestions="found"
-          :recent="[fruit[2], fruit[4]]"
+          :recent="fruit.slice(2, 3).concat(fruit.slice(4, 5))"
           empty-text="Nothing like that here."
         />
         <UiSearchField size="md" placeholder="No suggestions configured" />

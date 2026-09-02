@@ -46,7 +46,7 @@ useHead({ title: 'CommandPalette — Design Framework' })
     <section>
       <div class="sec-label">Try it</div>
       <div class="row">
-        <UiButton variant="secondary" @click="palette.show()">Open the palette</UiButton>
+        <UiButton variant="outline" tone="neutral" @click="palette.show()">Open the palette</UiButton>
         <span class="t-caption hint">…or press ⌘J.</span>
       </div>
       <p class="t-caption hint">
