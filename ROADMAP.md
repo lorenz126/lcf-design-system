@@ -158,20 +158,35 @@ focus, or a toast is a message you can lose by reading it slowly.
 And the rule that keeps toasts honest: **never put an action in one that
 exists nowhere else.** It is going to disappear.
 
-This is also where the three hand-rolled `aria-live` regions in Kanban,
-Calendar and Attachments should collapse into one `useAnnounce()`.
+This was also going to collapse "three hand-rolled `aria-live` regions"
+into one `useAnnounce()`. Counted, there was one. Calendar and
+Attachments put `aria-live` on an element that is *already on screen and
+already says the thing* — the month heading, the file list — which is the
+correct shape and not a region to be collected. Only Kanban was
+announcing into a box it had built for the purpose.
 
 ### 9.3 Progress
 
-Already written, inside Attachments, on a real `<progress>` element.
-Extract it, add the indeterminate state that Attachments does not need
-and everything else does.
+> **Built.** `ui/atoms/Progress.vue`.
+
+Out of Attachments and onto a real `<progress>`. Indeterminate turned out
+to be the *absence* of a value rather than a flag — the state the browser
+already understands, so there is no second one to keep in step. It costs
+the paint: an indeterminate `<progress>` is unstyleable in WebKit, so a
+rail underneath carries the sweep. Reduced motion slows that sweep rather
+than stopping it, because a stopped bar is not a finished one.
 
 ### 9.4 Banner
 
-An inline message with a tone — the thing a page says about itself, as
-opposed to a toast, which is what happened. Small, and it stops every app
-inventing its own. The tones are measured already.
+> **Built.** `ui/molecules/Banner.vue`.
+
+The rule that fell out: **a banner is usually not a live region.** One
+that is on the page when the page loads has nothing to announce — it is
+read in order, like the rest of the page. `announce` is for the other
+case, and takes its urgency from the tone.
+
+Tint ground, full-strength text, coloured mark. Colouring the words as
+well is the same thing said twice, bought with legibility.
 
 ---
 
@@ -237,13 +252,25 @@ Worth writing down, because a catalogue without refusals is a wish list.
 
 ## Done
 
-**Field, Textarea, Slider, ToggleGroup, Drawer.** The tier question was
-answered in the building: Field is an atom, because three of its four
-callers are atoms and an atom that cannot use it keeps its own copy. That
-also exposed a rule check-layers documented but did not enforce.
+**Field, Textarea, Slider, ToggleGroup, Drawer, Toast, Progress, Banner.**
+
+The tier question was answered in the building: Field is an atom, because
+three of its four callers are atoms and an atom that cannot use it keeps
+its own copy. That also exposed a rule check-layers documented but did
+not enforce.
+
+Slider took the longest and taught the most, all of it about **one value
+wearing two meanings**. `step` was simultaneously what an arrow key
+moves by, what the number reads as, and where the thumb may land — and
+only the third wanted to be finer, so the pointer got its own grid.
+Ticks were the same confusion one level up: a mark can be a *detent* (a
+place you want back, like zero decibels) or a *gradation* (one reading of
+a scale, like half volume), and only the first should catch a drag.
 
 ## Next
 
-**Progress**, out of Attachments and with the indeterminate state it does
-not need. Then **Banner** — the thing a page says about itself, as
-opposed to a toast, which is what happened — and **Tabs**.
+**Tabs.** The last navigation primitive that is a component rather than
+an architecture — CommandPalette is really a question about a registry,
+and Phase 11 is three dependency decisions. Tabs is neither: it is
+bounded, it is used by every app, and its one real decision (automatic
+versus manual activation) has a documented answer on both sides.
