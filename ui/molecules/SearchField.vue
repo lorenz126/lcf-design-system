@@ -13,6 +13,12 @@ import { Search, X } from 'lucide-vue-next'
  * `clearable` to Input to reach this would have made one component
  * answer two jobs and get both slightly wrong.
  *
+ * The glyph sits at the END, and the clear button REPLACES it rather
+ * than crowding in beside it. Two glyphs at the same edge is one too
+ * many, and the trade is the right way round: an empty field needs to
+ * say what it is, a field with a query in it says that already and needs
+ * a way out instead.
+ *
  * The clear button is a real button, so it is reachable without a mouse
  * — and Escape clears too, because that is what everyone tries first.
  * Both go through the same `clear()`.
@@ -58,7 +64,6 @@ defineExpose({ focus: () => field.value?.focus() })
 
 <template>
   <div class="u-sf" :class="[`u-s-${size}`, { 'u-sf-block': block, 'u-sf-off': disabled }]">
-    <UiIcon :is="Search" size="sm" class="u-sf-glyph" />
     <input
       :id="id ?? `sf-${uid}`"
       ref="field"
@@ -77,6 +82,7 @@ defineExpose({ focus: () => field.value?.focus() })
       aria-label="Clear search"
       @click="clear"
     ><UiIcon :is="X" size="sm" /></button>
+    <UiIcon v-else :is="Search" size="sm" class="u-sf-glyph" />
   </div>
 </template>
 
@@ -104,9 +110,12 @@ defineExpose({ focus: () => field.value?.focus() })
 }
 .u-sf-off { opacity: .5; }
 
-.u-s-sm { --h: var(--control-sm); --fs: var(--fs-small); }
+/* The pill grows with `size`; the text barely does. Chrome is read at
+   one size — a search box set in body copy towers over the navigation
+   beside it, which is a difference that means nothing. */
+.u-s-sm { --h: var(--control-sm); --fs: var(--fs-caption); }
 .u-s-md { --h: var(--control-md); --fs: var(--fs-small); }
-.u-s-lg { --h: var(--control-lg); --fs: var(--fs-body); }
+.u-s-lg { --h: var(--control-lg); --fs: var(--fs-small); }
 
 .u-sf-glyph { flex: none; color: var(--fg-subtle); }
 
@@ -134,7 +143,7 @@ defineExpose({ focus: () => field.value?.focus() })
   place-items: center;
   width: 18px;
   height: 18px;
-  margin-inline-end: calc(var(--s-2) * -1);
+  margin-inline-end: -3px;
   padding: 0;
   border: 0;
   border-radius: var(--r-full);

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NuxtLink } from '#components'
 import type { MenuItem } from '../../../ui/molecules/Menu.vue'
 import type { SidebarItem } from '../../../ui/organisms/Sidebar.vue'
 import { Moon, Shapes, Sun } from 'lucide-vue-next'
@@ -90,7 +91,7 @@ const items = computed<SidebarItem[]>(() => {
         :items="items"
         :current="route.path"
         :expand-all="!!q.trim()"
-        link="NuxtLink"
+        :link="NuxtLink"
         label="Framework"
         empty-text="Nothing matches that."
       />

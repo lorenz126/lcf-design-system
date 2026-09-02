@@ -56,11 +56,18 @@ const props = withDefaults(defineProps<{
   current?: string | number
   /**
    * What internal links render as. A plain <a> reloads the document,
-   * which throws away the application it is navigating. Pass NuxtLink or
-   * RouterLink to keep it client-side — the component stays framework
+   * which throws away the application it is navigating, so pass NuxtLink
+   * or RouterLink to keep it client-side — the component stays framework
    * agnostic and the app says which router it has.
+   *
+   * THE COMPONENT, NOT ITS NAME. A string is only resolved against the
+   * runtime component registry, and Nuxt's auto-import is a build-time
+   * transform: `link="NuxtLink"` renders a literal <nuxtlink> element
+   * with a `to` attribute, which looks right, highlights right, and
+   * cannot be clicked. There is no runtime warning for it either, so the
+   * type is what has to catch it. Import from `#components`.
    */
-  link?: string | Component
+  link?: Component | 'a'
   /** Accessible name, for when a page has more than one nav landmark. */
   label?: string
   /**
