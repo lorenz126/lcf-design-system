@@ -70,7 +70,7 @@ const current = computed(() => messages.find(m => m.id === selected.value))
           <template #topbar="{ toggle }">
             <UiTopBar title="Mailbox" :logo="Inbox" @toggle="toggle">
               <template #search>
-                <UiInput size="sm" block type="search" placeholder="Search mail" />
+                <UiSearchField size="md" block placeholder="Search mail" label="Search mail" />
               </template>
               <template #actions>
                 <UiButton variant="plain" tone="neutral" size="sm" icon-only

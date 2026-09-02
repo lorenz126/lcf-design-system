@@ -1,6 +1,7 @@
 <script setup lang="ts">
 useHead({ title: 'Inputs — Design Framework' })
 const a = ref(''); const b = ref('lorenz@dewa-id.com'); const c = ref('nope')
+const find = ref('')
 const sizes = ['sm', 'md', 'lg'] as const
 </script>
 
@@ -59,6 +60,29 @@ const sizes = ['sm', 'md', 'lg'] as const
         </div>
       </form>
     </section>
+
+    <section>
+      <div class="sec-label">SearchField</div>
+      <div class="col">
+        <UiSearchField v-model="find" size="lg" placeholder="Search components" />
+        <UiSearchField v-model="find" size="md" placeholder="Search mail" />
+        <UiSearchField size="sm" placeholder="Filter" />
+        <UiSearchField size="md" placeholder="Unavailable" disabled />
+      </div>
+      <p class="t-caption hint">
+        Not a flag on Input, because it is not the same thing. Input is a
+        <em>labelled form field</em>: it sits in a form, carries a label, help text
+        and an error, and its border says “this is an editable box” next to text that
+        is not. A search field lives in chrome, needs no label because the glyph is
+        one, and is marked out by its ground rather than by an outline.
+      </p>
+      <p class="t-caption hint">
+        Type something and press <strong>Escape</strong>. The clear button is a real
+        button so it is reachable without a mouse, and both routes go through the same
+        <code>clear()</code> — which also puts focus back in the field, since clearing
+        and then losing the box is how you end up typing into the page.
+      </p>
+    </section>
   </div>
 </template>
 
@@ -70,6 +94,7 @@ code { font-family: var(--font-mono); font-size: 11px; }
 section { margin-bottom: 64px; }
 .row { display: flex; flex-wrap: wrap; gap: var(--s-6); align-items: flex-start; margin-bottom: var(--s-6); }
 .hint { color: var(--ink-3); margin: 14px 0 0; max-width: 68ch; line-height: 1.6; }
+.col { display: flex; flex-direction: column; gap: var(--s-5); align-items: flex-start; max-width: 380px; }
 .form { display: flex; flex-direction: column; gap: var(--s-6); max-width: 360px; }
 .actions { display: flex; gap: var(--s-4); margin-top: var(--s-3); }
 </style>

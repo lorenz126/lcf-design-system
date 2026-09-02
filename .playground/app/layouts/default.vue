@@ -48,12 +48,12 @@ const items = computed<SidebarItem[]>(() => {
     <template #topbar="{ toggle }">
       <UiTopBar title="Design Framework" :logo="Shapes" href="/" @toggle="toggle">
         <template #search>
-          <UiInput
+          <UiSearchField
             v-model="q"
-            type="search"
-            size="sm"
+            size="lg"
             block
             placeholder="Search components"
+            label="Search components"
           />
         </template>
 

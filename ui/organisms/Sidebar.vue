@@ -289,27 +289,21 @@ function activate(i: SidebarItem) {
 }
 .u-sb-off { color: var(--fg-subtle); cursor: not-allowed; }
 
-/* Current: the accent tint, a bar on the leading edge — and FULL-STRENGTH
-   text, not accent text.
-   Accent-on-accent-tint measures 4.04:1 in dark mode on a raised panel,
-   under AA: the tint recipe is calibrated against the page, and a sidebar
-   is not the page. It is also the wrong idea. The row already says
-   "current" twice, with the tint and the bar; colouring the words as well
-   is a third repetition bought with legibility, and the row you are
-   standing on should carry the strongest text in the list, not the
-   weakest. */
-.u-sb-on {
-  background: var(--accent-subtle);
+/* Current: a soft neutral ground and heavier text. Nothing coloured.
+   An accent tint with an edge bar was tried and it shouts — a page that
+   documents four components lights four rows, and four blue slabs in a
+   column read as an error rather than as an answer. Weight carries it
+   instead: the same shape as every other row, filled a step further and
+   set a step heavier, which stays legible when several rows match at
+   once. Accent-on-accent-tint also measured 4.04:1 in dark mode on a
+   raised panel, under AA — the tint recipe is calibrated against the
+   page, and a sidebar is not the page. */
+/* Two classes, not one: .u-sb-kid sets a lighter weight further down the
+   file, and at equal specificity the later rule wins. */
+.u-sb-row.u-sb-on {
+  background: var(--fill);
   color: var(--fg);
-}
-.u-sb-on::before {
-  content: '';
-  position: absolute;
-  inset-block: 20%;
-  inset-inline-start: 0;
-  width: 3px;
-  border-radius: var(--r-full);
-  background: var(--accent);
+  font-weight: var(--w-semibold);
 }
 
 .u-sb-lead {
@@ -319,7 +313,7 @@ function activate(i: SidebarItem) {
   width: var(--icon-md);
   color: var(--fg-subtle);
 }
-.u-sb-on .u-sb-lead { color: var(--accent); }
+.u-sb-row.u-sb-on .u-sb-lead { color: var(--fg); }
 .u-sb-label {
   flex: 1;
   min-width: 0;
@@ -342,13 +336,16 @@ function activate(i: SidebarItem) {
 .u-sb-kids { margin-inline-start: calc(var(--icon-md) + var(--s-4)); }
 .u-sb-kid { font-weight: var(--w-regular); }
 
+/* Sentence case. Uppercasing a heading is a typographic shout that
+   costs the word shapes readers navigate by, and small caps at 11px are
+   the worst of both. Size and colour separate a heading from a row
+   perfectly well. */
 .u-sb-heading {
-  margin: var(--s-5) 0 var(--s-2);
+  margin: var(--s-6) 0 var(--s-2);
   padding-inline: var(--s-4);
   color: var(--fg-subtle);
-  font: var(--w-semibold) var(--fs-micro)/1 var(--font-sans);
-  letter-spacing: .04em;
-  text-transform: uppercase;
+  font: var(--w-semibold) var(--fs-caption)/1 var(--font-sans);
+  letter-spacing: var(--tr-caption);
 }
 .u-sb-rule {
   height: var(--border-width);

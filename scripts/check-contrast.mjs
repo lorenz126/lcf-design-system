@@ -237,21 +237,27 @@ function expectations() {
       why: 'counts and limits in a column header; never body copy'
     },
     { what: 'danger on sunken', fg: '--danger-text', bg: '--bg-sunken', min: AA },
+    // A filled search field: its placeholder at rest, and on the deeper
+    // ground it takes on hover and focus.
+    {
+      what: 'placeholder on fill',
+      fg: '--fg-subtle',
+      bg: '--fill-quiet',
+      min: UI,
+      why: 'placeholder text; the value typed over it is --fg'
+    },
+    {
+      what: 'placeholder on fill, deep',
+      fg: '--fg-subtle',
+      bg: '--fill',
+      min: UI,
+      why: 'placeholder text; the value typed over it is --fg'
+    },
+    { what: 'search value', fg: '--fg', bg: '--fill', min: AA },
+    // The row a sidebar marks as current: a neutral ground, on a panel.
+    { what: 'nav current', fg: '--fg', bg: '--fill', on: '--bg-raised', min: AA },
     // The current row in a sidebar: accent text on the accent tint, on a
     // raised panel. The most important line in the navigation.
-    // The current row in a sidebar: the accent tint on a raised panel.
-    // Full-strength text, because accent-on-accent-tint measures 4.04:1
-    // in dark mode — see the note in Sidebar.vue.
-    { what: 'nav current', fg: '--fg', bg: '--accent-subtle', on: '--bg-raised', min: AA },
-    // Its icon and its edge bar are graphics, so the UI floor.
-    {
-      what: 'nav current mark',
-      fg: '--accent',
-      bg: '--accent-subtle',
-      on: '--bg-raised',
-      min: UI,
-      why: 'the icon and the edge bar, not text'
-    },
     // A destructive menu row, highlighted: red text on the neutral fill,
     // on a raised panel. The worst case in both themes, since the fill
     // moves the ground TOWARDS the text in each.
