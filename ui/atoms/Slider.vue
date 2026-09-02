@@ -167,8 +167,12 @@ const marks = computed(() =>
 }
 .u-s-sm .u-sl-wrap { --sl-rail: 6px;  --sl-tw: 20px; --sl-th: 16px; }
 .u-s-lg .u-sl-wrap { --sl-rail: 12px; --sl-tw: 32px; --sl-th: 24px; }
-/* Room beside the rail for the marks, only when there are any. */
-.u-sl-ticked { padding-block-end: 12px; }
+/* SYMMETRIC room, and that is the point. Padding only on the side the
+   marks are on moves the box's centre away from the rail's, and the row
+   is centred on the box — so the icons at either end sat six pixels
+   below the line they belong to. Padding both sides costs a little
+   height and keeps the rail where the centring expects it. */
+.u-sl-ticked { padding-block: 12px; }
 
 .u-sl-track {
   appearance: none;
@@ -189,7 +193,7 @@ const marks = computed(() =>
 /* Upright. writing-mode does this properly now; appearance:
    slider-vertical is deprecated and was never in more than one engine. */
 .u-sl-vertical .u-sl-wrap { flex: none; height: 140px; padding-block-end: 0; }
-.u-sl-vertical .u-sl-ticked { padding-block-end: 0; padding-inline-end: 12px; }
+.u-sl-vertical .u-sl-ticked { padding-block: 0; padding-inline: 12px; }
 .u-sl-vertical .u-sl-track {
   writing-mode: vertical-lr;
   direction: rtl;
@@ -260,12 +264,12 @@ const marks = computed(() =>
 
 /* ---- the marks ---- */
 
-/* Anchored to the RAIL, not to the box: six pixels under its edge
-   whatever the size, rather than a gap that grows with the thumb. */
+/* Anchored to the far edge of the padding that was reserved for them,
+   so the gap under the handle is the same at every size. */
 .u-sl-ticks {
   position: absolute;
   inset-inline: 0;
-  inset-block-start: calc(var(--sl-th) + 4px);
+  inset-block-end: 4px;
   height: 4px;
   pointer-events: none;
 }
@@ -282,7 +286,7 @@ const marks = computed(() =>
 
 .u-sl-vertical .u-sl-ticks {
   inset-block: 0;
-  inset-inline: calc(var(--sl-th) + 4px) auto;
+  inset-inline: auto 4px;
   width: 4px;
   height: auto;
 }

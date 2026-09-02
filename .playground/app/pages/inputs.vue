@@ -115,12 +115,14 @@ const sizes = ['sm', 'md', 'lg'] as const
       <div class="row sliders">
         <UiSlider v-model="volume" label="Volume" :ticks="[12.5, 25, 50]" show-value block>
           <template #leading><UiIcon :is="Volume1" size="sm" /></template>
-          <template #trailing><UiIcon :is="Volume2" size="sm" /></template>
+          <template #trailing><UiIcon :is="Volume2" size="lg" /></template>
         </UiSlider>
 
+        <!-- The size difference IS the meaning here: a small sun and a
+             large one say dim and bright without a word between them. -->
         <UiSlider v-model="volume" label="Brightness" size="lg" block>
-          <template #leading><UiIcon :is="SunDim" size="sm" /></template>
-          <template #trailing><UiIcon :is="Sun" size="sm" /></template>
+          <template #leading><UiIcon :is="Sun" size="sm" /></template>
+          <template #trailing><UiIcon :is="Sun" :size="26" /></template>
         </UiSlider>
         <UiSlider
           v-model="bass"
