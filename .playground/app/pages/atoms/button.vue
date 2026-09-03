@@ -22,7 +22,7 @@ const loading = ref(false)
       </p>
       <p class="t-caption warn">
         Solid is white text always, so the background moves instead: each tone is the
-        brightest version of its hue that still carries white at 4.5:1. Apple’s own
+        brightest version of its hue that still carries white at 4.5:1. The source
         tones do not clear it (blue 4.02, red 3.55, yellow 1.51), so these sit a step
         deeper. Blue, purple and red stay recognisable; yellow and orange cannot —
         at the lightness white needs, they are brown.

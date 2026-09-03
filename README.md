@@ -1,6 +1,7 @@
-# flechtenmacher-font
+# LCF Design System
 
-Typography foundation for a personal design framework. SF Pro, systematised.
+A personal design system as a Nuxt layer: a type ramp in eleven steps, two-tier
+colour tokens graded against AA, and forty-nine components in atomic tiers.
 
 ## What's here
 
@@ -41,11 +42,18 @@ no Nuxt dependency, usable from any stack.
 Not on npm. Install from the repository at a tag:
 
 ```
-pnpm add -D github:lorenz126/flechtenmacher-font#v0.2.0 lucide-vue-next
+pnpm add -D github:lorenz126/lcf-design-system#v0.3.0 lucide-vue-next
 ```
 
 The tag is the version promise — `CHANGELOG.md` says what each one
 changed, and `AGENTS.md` says what counts as breaking.
+
+## Licence
+
+None granted. The repository is public so it can be read and referenced;
+`package.json` says `UNLICENSED`, and there is no `LICENSE` file, which
+means all rights are reserved. Reading and citing is fine; reusing the
+code in your own project is not, unless a licence is added here later.
 
 ### What it costs
 
@@ -82,7 +90,7 @@ passes locally.
 
 ```ts
 // nuxt.config.ts
-export default defineNuxtConfig({ extends: ['@lf/design'] })
+export default defineNuxtConfig({ extends: ['@lcf/design'] })
 ```
 
 That brings the tokens, the `Ui*` components and the pre-paint theme script.
@@ -98,10 +106,14 @@ principle.
 
 ## Fonts
 
-No font files are shipped. `-apple-system` resolves to real SF Pro on Apple
-devices, with Inter as the cross-platform fallback. Note that Apple's SF
-license covers development for Apple platforms, not general webfont
-redistribution — self-hosting SF for a public site falls outside it.
+No font files are shipped. The stack is `system-ui` and the `ui-*` keywords —
+CSS standard names for whatever face the platform draws its own interface in
+— with named fallbacks for engines that do not resolve them. So the ramp
+renders in the native UI face on every OS, and nothing is bundled or licensed.
+
+The tracking formula in `tokens/type.css` was fitted to that face's optical
+curve on the platform it was measured on. A self-hosted webfont would need it
+re-measured across all eleven steps, not reused.
 
 ## Developing it
 
@@ -209,5 +221,5 @@ already cost somebody an afternoon.
 
 For an agent working in an **application that uses** the layer, the
 document is `CONSUMING.md` — it ships with the package, so it is at
-`node_modules/@lf/design/CONSUMING.md` in that app. Paste it into the
+`node_modules/@lcf/design/CONSUMING.md` in that app. Paste it into the
 app's own `AGENTS.md`, or hand it over as the first message.

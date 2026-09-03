@@ -43,7 +43,7 @@ done
 
 say "a page that uses the awkward ones"
 cat > nuxt.config.ts <<'TS'
-export default defineNuxtConfig({ extends: ['@lf/design'] })
+export default defineNuxtConfig({ extends: ['@lcf/design'] })
 TS
 mkdir -p app
 cat > app/app.vue <<'VUE'

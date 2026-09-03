@@ -34,7 +34,7 @@ export const semantic: TokenGroup[] = [
   },
   {
     group: 'Palette · solid',
-    scope: 'Apple system tones. Fills, dots, bars, icons — not graded.',
+    scope: 'System tones. Fills, dots, bars, icons — not graded.',
     tokens: ['--yellow', '--green', '--blue', '--purple', '--red', '--orange']
   },
   {
@@ -78,7 +78,7 @@ export const primitives: TokenGroup[] = [
     ]
   },
   {
-    group: 'Apple system hues',
+    group: 'System hues',
     tokens: ['--yellow', '--green', '--blue', '--purple', '--red', '--orange']
   }
 ]

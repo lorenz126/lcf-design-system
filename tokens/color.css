@@ -11,8 +11,8 @@
    That indirection is what lets you re-theme, add dark mode, or fix a
    contrast failure without touching a single component.
 
-   The six hues are Apple's system tones, with separate light and dark
-   values as Apple publishes them.
+   The six hues are system tones, with separate light and dark values,
+   each graded against AA in both themes.
 
    ⚠ The NEUTRAL ramp is still a placeholder — pure neutral (equal R/G/B),
    deliberately untuned, since most palettes want a temperature.
@@ -36,13 +36,12 @@
   --gray-950:  #0a0a0a;
   --gray-1000: #000000;
 
-  /* ---------- Apple system hues ----------
-     Values are Apple's published systemColor tones. Each hue is stored as
-     raw CHANNELS so a fill can be derived from it at low alpha rather than
-     hand-picked.
+  /* ---------- System hues ----------
+     Six named tones, light and dark. Each hue is stored as raw CHANNELS so
+     a fill can be derived from it at low alpha rather than hand-picked.
 
      Every hue carries a second, darker "-text" channel. This is not
-     decoration: Apple's tones are tuned to sit on a light ground as FILLS,
+     decoration: the source tones are tuned to sit on a light ground as FILLS,
      and most of them fail contrast as text. systemYellow on white is about
      1.2:1 — invisible. The -text variants are darkened until they clear AA. */
 
@@ -178,10 +177,10 @@
   /* ---------- Solid ----------
      White text, always. That is a fixed rule, so the BACKGROUND is what
      has to move: each tone is the brightest version of its own hue that
-     still carries white at 4.5:1, found by holding Apple's hue and chroma
+     still carries white at 4.5:1, found by holding the source hue and chroma
      in OKLCH and lowering lightness until it clears.
 
-     Apple's own tones do not clear it — blue 4.02, red 3.55, yellow 1.51 —
+     The source tones do not clear it — blue 4.02, red 3.55, yellow 1.51 —
      so these sit a step deeper. Blue, purple and red land close enough to
      read as the same colour. Yellow and orange do not: at the lightness
      white needs, they are unavoidably brown. That is the cost of the
@@ -208,7 +207,7 @@
 
   /* ---------- Categorical chart series ----------
      A SEPARATE palette from the UI hues, and not a preference — measured.
-     The six Apple tones fail as a categorical set: yellow leaves the
+     The six UI tones fail as a categorical set: yellow leaves the
      lightness band, three sit under 3:1 against the surface, and
      yellow↔orange land at ΔE 6.5 for NORMAL vision (floor 15), because at
      the lightness a light surface needs, both collapse toward brown.
@@ -270,7 +269,7 @@
   --fill:        rgb(255 255 255 / .09);
   --fill-strong: rgb(255 255 255 / .15);
 
-  /* Apple publishes separate dark tones — brighter and slightly desaturated.
+  /* The dark tones are separate — brighter and slightly desaturated.
      On a dark ground the tone itself is legible as text, so -text collapses
      back onto the tone. Fill alpha rises: a tint reads weaker against dark. */
   --yellow-rgb: 255 214  10;

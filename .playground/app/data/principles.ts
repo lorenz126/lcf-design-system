@@ -96,7 +96,7 @@ export const principles: PrincipleGroup[] = [
       },
       {
         rule: 'Never let a categorical palette outrun what measures apart.',
-        why: 'Three chart series is a ceiling that was measured, not chosen. All six Apple tones fail as a categorical set — yellow against orange sits at ΔE 6.5 for normal vision where the floor is 15, and under protanopia the hue collapses and only lightness is left. The chart palette is staggered in lightness and hue and stops at three. A fourth series is small multiples, not a fourth colour.'
+        why: 'Three chart series is a ceiling that was measured, not chosen. All six UI tones fail as a categorical set — yellow against orange sits at ΔE 6.5 for normal vision where the floor is 15, and under protanopia the hue collapses and only lightness is left. The chart palette is staggered in lightness and hue and stops at three. A fourth series is small multiples, not a fourth colour.'
       },
       {
         rule: 'Never let a component reach past the semantic tier.',

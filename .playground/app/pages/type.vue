@@ -91,7 +91,7 @@ onMounted(() => {
       <div class="sec-label">Reading test</div>
       <p class="t-lead measure first">A type scale is not a list of font sizes. It is a set of decisions about hierarchy that you make once, so you never have to make them again.</p>
       <p class="t-body measure dim">The steps here are hand-tuned rather than generated from a modular ratio. Pure ratios produce values like 12.8px and 20.5px, which land off the pixel grid and render soft. Every size in this ramp is a whole number, and the gaps widen as the scale climbs — small jumps where UI text needs fine gradation, large jumps where display type needs real contrast.</p>
-      <p class="t-small measure dim">Secondary text sits at 13px with zero tracking — the point where SF needs neither tightening nor opening.</p>
+      <p class="t-small measure dim">Secondary text sits at 13px with zero tracking — the point on the ramp where the face needs neither tightening nor opening.</p>
     </section>
 
     <section>

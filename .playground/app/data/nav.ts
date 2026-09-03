@@ -115,7 +115,7 @@ export const sidebar: SidebarItem[] = [
   })),
   {
     label: 'Repository',
-    to: 'https://github.com/lorenz126/flechtenmacher-font',
+    to: 'https://github.com/lorenz126/lcf-design-system',
     icon: Github,
     external: true,
     divider: true,

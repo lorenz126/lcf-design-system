@@ -10,8 +10,44 @@ tag. Before a tag, `pnpm verify:consumer`.
 
 ## Unreleased
 
+## 0.3.0 — 2026-09-03
+
+The layer is the **LCF Design System** now, and the repository is public.
+Nothing in a component changed: no name, no prop, no slot, no event, no
+token name, no behaviour. What changed is what the package is called and
+where it lives — which is breaking all the same, because every consumer
+imports it by name.
+
+### Breaking
+
+- **The package is `@lcf/design`**, was `@lf/design`. In a consumer,
+  change `extends: ['@lf/design']` to `extends: ['@lcf/design']`, and
+  any import from the package path.
+- **The repository is `lorenz126/lcf-design-system`**, was
+  `flechtenmacher-font`. GitHub redirects the old URL, so an existing
+  `github:lorenz126/flechtenmacher-font#v0.2.0` keeps resolving — but
+  the dependency spec for this version is
+  `github:lorenz126/lcf-design-system#v0.3.0`.
+- The `Ui` component prefix is **unchanged** on purpose. It is in every
+  consumer template, and renaming it would be a breaking change with no
+  gain.
+
 ### Changed
 
+- **The font stack uses standard keywords.** `system-ui`, `ui-rounded`,
+  `ui-monospace` and `ui-serif`, with named fallbacks, instead of vendor
+  family names. The keywords resolve to the platform's own interface
+  face on every OS, so on the platforms the old stack targeted the same
+  face renders as before; on others, the platform's native face instead
+  of the previous generic fallback. The tracking formula is untouched —
+  it was fitted to that face's optical curve and still applies to it.
+- **The colour tokens carry no vendor attribution.** Comments describe
+  what the tones are graded against; **every value is unchanged.** The
+  hues remain what they were, so this is a change of description, not of
+  colour, and the contrast guard is green because nothing it measures
+  moved.
+- The README and the workshop prose describe what the layer does rather
+  than what it was modelled on.
 - **The hue fills are opaque.** `--blue-fill` and the other five are the
   same 14% (17% dark) wash they were, flattened onto the page with
   `color-mix` instead of left translucent. On the page nothing changes;

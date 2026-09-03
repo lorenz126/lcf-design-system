@@ -1,16 +1,17 @@
 /* ============================================================
-   TYPOGRAPHY — SF Pro
+   TYPOGRAPHY
    ------------------------------------------------------------
-   Three ideas drive this file:
+   A type ramp in eleven steps, each coupling size, line-height,
+   weight and tracking as one bundle. Three ideas drive it:
 
    1. A type step is NOT a font-size. It is a coupled bundle of
-      size + line-height + weight + tracking. These are not
-      independently choosable in SF, so they travel together.
+      size + line-height + weight + tracking. Pick one and the
+      other three are decided, so they travel together.
 
-   2. Tracking is the detail that separates "using SF" from
-      "using SF well". SF needs POSITIVE tracking below ~13px
-      and increasingly NEGATIVE tracking as it grows. Left at
-      zero, large text looks loose and amateur.
+   2. Tracking is the detail that separates a ramp from a list of
+      sizes. The system UI face needs POSITIVE tracking below
+      ~13px and increasingly NEGATIVE tracking as it grows. Left
+      at zero, large text looks loose and amateur.
 
    3. Line-height RATIO tightens as size grows. 1.5 at body is
       comfortable; 1.5 at 72px is a broken headline.
@@ -18,17 +19,19 @@
 
 :root {
   /* ---- Families ----
-     No font files shipped. -apple-system resolves to real SF Pro
-     on Apple devices. Inter is the closest cross-platform fallback. */
-  --font-sans:    -apple-system, BlinkMacSystemFont, "SF Pro Text",
-                  Inter, "Helvetica Neue", system-ui, sans-serif;
-  --font-rounded: ui-rounded, "SF Pro Rounded", var(--font-sans);
-  --font-mono:    ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
-  --font-serif:   ui-serif, "New York", Georgia, serif;
+     No font files shipped. `system-ui` and the `ui-*` keywords are
+     CSS standard names for whatever the platform draws its own
+     interface in — the native face on every OS, without naming
+     one. The named fallbacks after them are for engines that do
+     not resolve the keyword. */
+  --font-sans:    system-ui, "Segoe UI", Roboto, Inter, "Helvetica Neue", sans-serif;
+  --font-rounded: ui-rounded, var(--font-sans);
+  --font-mono:    ui-monospace, Menlo, Consolas, monospace;
+  --font-serif:   ui-serif, Georgia, serif;
 
   /* ---- Weights ----
-     SF ships 9 weights. Four are actually useful in UI; more than
-     that and hierarchy stops reading as intentional. */
+     Four, out of the nine a variable UI face usually offers; more
+     than that and hierarchy stops reading as intentional. */
   --w-regular:  400;   /* body copy */
   --w-medium:   500;   /* UI labels, buttons, subtle emphasis */
   --w-semibold: 600;   /* headings — the workhorse */
@@ -48,7 +51,7 @@
   --fs-body:       15px; --lh-body:       22px; --tr-body:       -0.006em;
   --fs-lead:       17px; --lh-lead:       26px; --tr-lead:       -0.011em;
 
-  /* --- Heading range (SF switches Text→Display at 20px) --- */
+  /* --- Heading range (optical sizing switches text→display around 20px) --- */
   --fs-title-sm:   20px; --lh-title-sm:   26px; --tr-title-sm:   -0.013em;
   --fs-title:      24px; --lh-title:      30px; --tr-title:      -0.016em;
   --fs-title-lg:   32px; --lh-title-lg:   38px; --tr-title-lg:   -0.021em;
@@ -78,8 +81,10 @@
 
 /* ============================================================
    TRACKING FORMULA
-   For one-off sizes outside the ramp. Fitted to SF's curve:
+   For one-off sizes outside the ramp. Fitted to the system UI
+   face's optical curve on the platform it was measured on:
    positive below ~13px, asymptotic to about -0.035em when large.
+   A self-hosted face would need this re-measured, not reused.
    Usage:  <h1 style="--fs: 44">  class="t-auto"
    ============================================================ */
 .t-auto {
@@ -95,12 +100,12 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Lets SF pick Text vs Display optical sizing automatically */
+  /* Lets a face with optical sizes pick text vs display on its own */
   font-optical-sizing: auto;
 }
 
 /* Numbers that must line up in columns — tables, prices, timers.
-   SF's default figures are proportional and will jitter. */
+   Most UI faces default to proportional figures, which jitter. */
 .nums-tabular { font-variant-numeric: tabular-nums; }
 
 /* Reading measure. 65-75 characters is the legible range. */

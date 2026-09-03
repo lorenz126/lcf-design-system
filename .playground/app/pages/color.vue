@@ -80,10 +80,10 @@ onBeforeUnmount(() => observer?.disconnect())
         single component.
       </p>
       <p class="t-caption warn">
-        The six hues are Apple’s system tones, light and dark values as published.
-        Each carries a darkened <code>-text</code> variant, because Apple tunes those
-        tones to work as fills — most of them fail as text on a light ground
-        (systemYellow on white is about 1.2:1). The neutral ramp is still a
+        The six hues are system tones, with separate light and dark values.
+        Each carries a darkened <code>-text</code> variant, because the source
+        tones are tuned to work as fills — most of them fail as text on a light
+        ground (the yellow on white is about 1.2:1). The neutral ramp is still a
         placeholder.
       </p>
     </div>

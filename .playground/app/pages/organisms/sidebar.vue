@@ -26,7 +26,7 @@ const mail: SidebarItem[] = [
   },
   {
     label: 'Documentation',
-    to: 'https://github.com/lorenz126/flechtenmacher-font',
+    to: 'https://github.com/lorenz126/lcf-design-system',
     icon: BookOpen,
     external: true,
     divider: true,

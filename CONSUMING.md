@@ -1,4 +1,4 @@
-# Using @lf/design
+# Using @lcf/design — the LCF Design System
 
 For the agent working in an application that consumes this layer. Paste
 this into that app's `AGENTS.md` or `CLAUDE.md`, or hand it over as the
@@ -28,7 +28,7 @@ upstream.
 ## Where the documentation is
 
 **The doc comment at the top of each component file** —
-`node_modules/@lf/design/ui/<tier>/<Name>.vue`. Read it before using a
+`node_modules/@lcf/design/ui/<tier>/<Name>.vue`. Read it before using a
 component for the first time. It does not describe the props; it says
 what was decided, what it costs, and what the component *refuses* to be.
 That last part is the one you need: Slider says it will never grow a
@@ -38,7 +38,7 @@ not for routes.
 ## Installing
 
 ```
-pnpm add -D github:lorenz126/flechtenmacher-font#v0.2.0 lucide-vue-next
+pnpm add -D github:lorenz126/lcf-design-system#v0.3.0 lucide-vue-next
 ```
 
 `lucide-vue-next` is declared twice on purpose. The layer depends on it,
@@ -53,7 +53,7 @@ Skipping it works under pnpm's hoisting and fails under npm. Then:
 
 ```ts
 // nuxt.config.ts
-export default defineNuxtConfig({ extends: ['@lf/design'] })
+export default defineNuxtConfig({ extends: ['@lcf/design'] })
 ```
 
 That brings the tokens, the components, `styles/base.css`, the
@@ -144,5 +144,5 @@ wrong, measure the ratio before judging it.
 ## Versions
 
 The tag is the promise. Before bumping it, read *Breaking* in
-`node_modules/@lf/design/CHANGELOG.md` — within `0.x` a breaking change
+`node_modules/@lcf/design/CHANGELOG.md` — within `0.x` a breaking change
 bumps the minor.
