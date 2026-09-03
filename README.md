@@ -206,3 +206,8 @@ installs 7 today and vue-tsc dies on it with an unhelpful stack. Ask for
 `AGENTS.md` has the part that is not obvious from the code: what each
 check protects, where a new component's files go, and the traps that have
 already cost somebody an afternoon.
+
+For an agent working in an **application that uses** the layer, the
+document is `CONSUMING.md` — it ships with the package, so it is at
+`node_modules/@lf/design/CONSUMING.md` in that app. Paste it into the
+app's own `AGENTS.md`, or hand it over as the first message.

@@ -49,7 +49,8 @@
     "plugins",
     "composables",
     "nuxt.config.ts",
-    "README.md"
+    "README.md",
+    "CONSUMING.md"
   ],
   "exports": {
     ".": "./nuxt.config.ts",

@@ -53,7 +53,10 @@ for (const f of readdirSync(join(root, 'plugins'))) wanted.push(`plugins/${f}`)
    a consumer typechecking DatePicker hits the same missing anchorName we
    did, and shipping the .d.ts is what stops them writing it again. */
 for (const f of readdirSync(join(root, 'types'))) wanted.push(`types/${f}`)
-wanted.push('nuxt.config.ts', 'package.json')
+/* Both agent-facing documents ship. CONSUMING.md is read from inside
+   node_modules by the agent working in the app that installed this, so
+   it is part of the surface, not of the repository. */
+wanted.push('nuxt.config.ts', 'package.json', 'README.md', 'CONSUMING.md')
 
 /* Placeholders for directories that are no longer empty, editor leftovers,
    anything a consumer installs and never reads. */
