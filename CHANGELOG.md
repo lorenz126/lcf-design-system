@@ -39,8 +39,15 @@ imports it by name.
   family names. The keywords resolve to the platform's own interface
   face on every OS, so on the platforms the old stack targeted the same
   face renders as before; on others, the platform's native face instead
-  of the previous generic fallback. The tracking formula is untouched —
-  it was fitted to that face's optical curve and still applies to it.
+  of the previous generic fallback. Measured in Chrome on macOS: sans,
+  mono and serif resolve to pixel-identical faces. **`--font-rounded`
+  does not** — `ui-rounded` is honoured by Safari only, so in other
+  engines it now falls through to `system-ui` where the vendor name used
+  to resolve. Nothing in the layer or the workshop references that
+  token, so no rendered pixel changed; it is a defined-but-unused token
+  whose resolution narrowed, recorded here because the sentence above
+  would otherwise overclaim. The tracking formula is untouched — it was
+  fitted to that face's optical curve and still applies to it.
 - **The colour tokens carry no vendor attribution.** Comments describe
   what the tones are graded against; **every value is unchanged.** The
   hues remain what they were, so this is a change of description, not of
