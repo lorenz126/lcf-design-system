@@ -61,7 +61,7 @@ const props = withDefaults(defineProps<{
   items: TreeNode[]
   /** Names the tree. Required when nothing visible does. */
   label?: string
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'md' | 'lg'
   /** Shown, focusable, and refused — the same argument as a disabled tab. */
   emptyText?: string
 }>(), { size: 'md', emptyText: 'Nothing here.' })
@@ -263,6 +263,10 @@ function onKey(e: KeyboardEvent, row: Row) {
 .u-tv { width: 100%; }
 .u-s-sm { --tv-h: var(--control-sm); --tv-fs: var(--fs-caption); }
 .u-s-md { --tv-h: var(--control-md); --tv-fs: var(--fs-small); }
+/* The third step every other sized component already has. A tree used as
+   a view's whole navigation is read at arm's length, not scanned like a
+   dense file list — and 26px rows sitting flush give it no air. */
+.u-s-lg { --tv-h: var(--control-lg); --tv-fs: var(--fs-body); }
 
 .u-tv-row {
   display: flex;

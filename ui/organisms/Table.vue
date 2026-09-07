@@ -74,12 +74,30 @@ const props = withDefaults(defineProps<{
    * number you give, and the scroll container has been waiting for it.
    */
   minWidth?: string
+  /** The caller orders `rows`; the header only reports what was clicked. */
+  manualSort?: boolean
   /** Names the header box. Every checkbox needs one; this one has no
    *  row to take it from. */
   selectAllLabel?: string
 }>(), { rowKey: 'id', emptyText: 'No rows.', variant: 'rows', selectAllLabel: 'Select all rows' })
 
 const selected = defineModel<(string | number)[]>('selected', { default: () => [] })
+
+/**
+ * WHICH COLUMN IS SORTED, as a model rather than a secret.
+ *
+ * It was private state, and that made one shape of table impossible: rows
+ * that belong to each other. A parent with its children under it is one
+ * order, not a set of independent rows — sorting the flat array pulls the
+ * children away from the parent they were listed under, and the caller
+ * cannot prevent it because it never learns that a header was clicked.
+ *
+ * So the state comes out. `manualSort` says the caller does the ordering:
+ * the header still shows the arrow and still toggles, and `rows` is
+ * rendered exactly as handed over. Without it nothing changes — the table
+ * sorts as it always did, and the model is simply readable.
+ */
+const sort = defineModel<{ key: string, dir: 'asc' | 'desc' } | null>('sort', { default: null })
 
 const uid = useId()
 /**
@@ -98,11 +116,11 @@ const uid = useId()
  */
 const nameId = (i: number) => `${uid}-r${i}`
 
-const sortKey = ref<string | null>(null)
-const sortDir = ref<'asc' | 'desc'>('asc')
+const sortKey = computed(() => sort.value?.key ?? null)
+const sortDir = computed(() => sort.value?.dir ?? 'asc')
 
 const sorted = computed(() => {
-  if (!sortKey.value) return props.rows
+  if (props.manualSort || !sortKey.value) return props.rows
   const k = sortKey.value
   const dir = sortDir.value === 'asc' ? 1 : -1
   // Copy first: sorting props.rows in place would mutate the caller's array.
@@ -118,8 +136,9 @@ const sorted = computed(() => {
 
 function sortBy(col: Column) {
   if (!col.sortable) return
-  if (sortKey.value === col.key) sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
-  else { sortKey.value = col.key; sortDir.value = 'asc' }
+  sort.value = sortKey.value === col.key
+    ? { key: col.key, dir: sortDir.value === 'asc' ? 'desc' : 'asc' }
+    : { key: col.key, dir: 'asc' }
 }
 
 const keyOf = (row: Row, i: number) => row[props.rowKey] ?? i

@@ -10,6 +10,30 @@ tag. Before a tag, `pnpm verify:consumer`.
 
 ## Unreleased
 
+## 0.3.2 — 2026-09-07
+
+### Added
+
+- **Dialog takes `bare`.** It drops the panel's own card — ground,
+  border, radius, shadow and body padding — and keeps the focus trap,
+  Escape, the inert background, the top layer, the backdrop and the
+  enter/leave transition. For a dialog whose content is itself several
+  cards side by side, which otherwise renders a card holding cards.
+  Optional and off by default, so nothing existing changes. Asked for by
+  a consumer whose task dialog became three panes.
+- **Table's sort is a `v-model`, and `manualSort` hands the ordering
+  back.** Which column is sorted was private state, and that made rows
+  that belong to each other impossible: sorting the flat array pulls a
+  parent's children away from it, and the caller never learned a header
+  was clicked. With `manualSort` the header still shows and toggles the
+  arrow while `rows` renders exactly as handed over. Nothing changes
+  without it — the table sorts as before, the state is merely readable.
+  Asked for by a consumer whose task table grew expandable subtasks.
+- **TreeView takes `size: 'lg'`.** The third step the sized components
+  already have — `--control-lg` rows at `--fs-body`, following the same
+  sm/md/lg ladder as Button, Tabs and Field. A tree carrying a whole
+  view's navigation had nothing above 26px rows sitting flush.
+
 ## 0.3.1 — 2026-09-04
 
 ### Added

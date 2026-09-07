@@ -9,12 +9,25 @@
  *
  * `dismissible: false` is for a dialog that must be answered rather than
  * escaped. Use it sparingly: it takes away the exit users expect.
+ *
+ * `bare` drops the panel's own card — the ground, the border, the radius and
+ * the shadow — and keeps everything a modal is actually for: the focus trap,
+ * Escape, the inert background, the top layer, the backdrop and the
+ * enter/leave transition. It exists because a dialog whose content is itself
+ * several cards side by side otherwise renders a card holding cards, and the
+ * only other way to reach it is restyling this component from outside.
+ *
+ * It is not a licence to draw a second dialog. `bare` gives you no surface,
+ * so the content must bring its own — a Card, or a panel the app owns. Body
+ * padding goes with it; the content places itself.
  */
 const props = withDefaults(defineProps<{
   title?: string
   /** Escape and backdrop click close it. */
   dismissible?: boolean
   width?: string
+  /** No panel card. The content brings its own surface. */
+  bare?: boolean
 }>(), { dismissible: true, width: '440px' })
 
 const open = defineModel<boolean>('open', { default: false })
@@ -59,7 +72,7 @@ function onClick(e: MouseEvent) {
     @cancel="onCancel"
     @click="onClick"
   >
-    <div class="u-dlg-panel">
+    <div class="u-dlg-panel" :class="{ 'is-bare': bare }">
       <header v-if="title || $slots.header" class="u-dlg-head">
         <slot name="header">
           <h2 :id="titleId" class="u-dlg-title">{{ title }}</h2>
@@ -127,6 +140,18 @@ function onClick(e: MouseEvent) {
 }
 .u-dlg[open] .u-dlg-panel { opacity: 1; scale: 1; }
 @starting-style { .u-dlg[open] .u-dlg-panel { opacity: 0; scale: .96; } }
+
+/* Everything the card was, and nothing else. The transition above stays:
+   it belongs to the dialog appearing, not to the surface it appears on. */
+.u-dlg-panel.is-bare {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.u-dlg-panel.is-bare > .u-dlg-head { padding: 0; }
+.u-dlg-panel.is-bare > .u-dlg-body { padding: 0; }
+.u-dlg-panel.is-bare > .u-dlg-foot { padding: 0; }
 
 .u-dlg-head { padding: var(--s-7) var(--s-7) 0; }
 .u-dlg-title {
