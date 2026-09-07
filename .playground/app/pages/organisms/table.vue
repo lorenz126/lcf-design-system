@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import { Activity, CircleDot, Layers, Server, Timer } from 'lucide-vue-next'
 useHead({ title: 'Table — Design Framework' })
 const rowsPicked = ref<(string | number)[]>(['b'])
 const gridPicked = ref<(string | number)[]>([])
 const fmt = (n: number) => n.toLocaleString('en-US')
 
+/* Icons in the header only — the cells stay text. */
 const columns = [
-  { key: 'name', label: 'Service', sortable: true },
-  { key: 'env', label: 'Environment' },
-  { key: 'requests', label: 'Requests', numeric: true, sortable: true },
-  { key: 'p95', label: 'p95', numeric: true, sortable: true },
-  { key: 'status', label: 'Status' }
+  { key: 'name', label: 'Service', sortable: true, icon: Server },
+  { key: 'env', label: 'Environment', icon: Layers },
+  { key: 'requests', label: 'Requests', numeric: true, sortable: true, icon: Activity },
+  { key: 'p95', label: 'p95', numeric: true, sortable: true, icon: Timer },
+  { key: 'status', label: 'Status', icon: CircleDot }
 ]
 const rows = [
   { id: 'a', name: 'api-gateway', env: 'production', requests: 1284900, p95: 41.8, status: 'green' },

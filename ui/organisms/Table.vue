@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="Row extends Record<string, any>">
 import { ChevronUp, ChevronDown } from 'lucide-vue-next'
+import type { Component } from 'vue'
 
 /**
  * Table — a real <table>, driven by column definitions.
@@ -25,6 +26,12 @@ import { ChevronUp, ChevronDown } from 'lucide-vue-next'
  * Grid keeps its rules far fainter than the row variant's. At that
  * density a border every few pixels at normal strength turns the table
  * into a cage; the lines only need to be enough to follow, not to see.
+ *
+ * A column may carry an icon. It goes in the header and only there: a
+ * glyph repeated down every cell is a column of noise, and the header is
+ * where the eye goes to learn what a column is. The label stays beside
+ * it — an icon alone is a guess, and a sorted header still needs its
+ * text for the sort button to have a name.
  */
 export interface Column<Row = any> {
   key: string
@@ -34,6 +41,10 @@ export interface Column<Row = any> {
   align?: 'start' | 'center' | 'end'
   width?: string
   sortable?: boolean
+  /** A glyph before the label — the column's kind at a glance, the way a
+   *  CRM marks its mail column with an envelope. Header only; the cells
+   *  stay text. */
+  icon?: Component
 }
 
 /*
@@ -151,6 +162,7 @@ function alignOf(col: Column) {
             :aria-sort="sortKey === col.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined"
           >
             <button v-if="col.sortable" class="u-tbl-sort" @click="sortBy(col)">
+              <UiIcon v-if="col.icon" :is="col.icon" size="sm" class="u-tbl-mark" />
               {{ col.label }}
               <UiIcon
                 v-if="sortKey === col.key"
@@ -158,7 +170,10 @@ function alignOf(col: Column) {
                 size="sm"
               />
             </button>
-            <template v-else>{{ col.label }}</template>
+            <span v-else class="u-tbl-head">
+              <UiIcon v-if="col.icon" :is="col.icon" size="sm" class="u-tbl-mark" />
+              {{ col.label }}
+            </span>
           </th>
         </tr>
       </thead>
@@ -273,12 +288,17 @@ tbody tr:last-child td { border-bottom: 0; }
 /* Selection has to stay readable over the hover tint. */
 .u-tbl-grid tbody tr.u-tbl-on:hover { background: var(--accent-subtle); }
 
+/* The same box for a plain header and a sort button, so a column with an
+   icon lines up with one without whether or not it sorts. */
+.u-tbl-head,
 .u-tbl-sort {
   display: inline-flex; align-items: center; gap: var(--s-2);
   border: 0; background: transparent; padding: 0; margin: 0;
   font: inherit; color: inherit; cursor: pointer;
 }
 .u-tbl-sort:hover { color: var(--fg); }
+/* One step quieter than the label: the glyph is a hint, the word is the name. */
+.u-tbl-mark { color: var(--fg-subtle); flex: none; }
 .u-tbl-sort:focus-visible {
   outline: var(--focus-width) solid var(--focus-color);
   outline-offset: 2px; border-radius: var(--r-xs);

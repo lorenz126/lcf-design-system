@@ -10,6 +10,15 @@ tag. Before a tag, `pnpm verify:consumer`.
 
 ## Unreleased
 
+## 0.3.1 — 2026-09-04
+
+### Added
+
+- **Table columns take an `icon`.** A component (a lucide glyph) rendered
+  before the label in the header — and only there; the cells stay text.
+  Optional, so nothing existing changes. Asked for by a consumer whose
+  master-data table wanted to read like a CRM's.
+
 ## 0.3.0 — 2026-09-03
 
 The layer is the **LCF Design System** now, and the repository is public.
