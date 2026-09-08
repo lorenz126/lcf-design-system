@@ -144,4 +144,101 @@ describe('Menu', () => {
     // Exactly one item carries `divider`.
     expect(w.findAll('[role="separator"], hr')).toHaveLength(1)
   })
+
+  /* ---------- a row that is a level ---------- */
+
+  const nested: MenuItem[] = [
+    { id: 'text', label: 'Text' },
+    {
+      id: 'systems',
+      label: 'Integrations',
+      children: [{ id: 'gmail', label: 'Gmail' }, { id: 'slack', label: 'Slack' }]
+    },
+    { id: 'details', label: 'Details' }
+  ]
+  const nest = () =>
+    mount(Menu, {
+      props: { items: nested },
+      slots: { trigger: (s: { props: Record<string, unknown> }) => h('button', s.props, 'Open') },
+      attachTo: document.body
+    })
+
+  it('walks into a group instead of choosing it', async () => {
+    const w = nest()
+    await key(trigger(w), 'ArrowDown')
+    await list(w).findAll('[role="menuitem"]')[1]!.trigger('click')
+    await new Promise(r => setTimeout(r, 0))
+
+    // The gate emits nothing and the menu stays open — it is a way in,
+    // not a command.
+    expect(w.emitted('select')).toBeUndefined()
+    expect(list(w).exists()).toBe(true)
+
+    // The way back is named after the gate, and focus is on the first child.
+    const labels = list(w).findAll('[role="menuitem"]').map(r => r.text())
+    expect(labels).toEqual(['Integrations', 'Gmail', 'Slack'])
+    expect(here()).toBe('Gmail')
+  })
+
+  it('emits for the leaf, not for the level it came from', async () => {
+    const w = nest()
+    await key(trigger(w), 'ArrowDown')
+    await list(w).findAll('[role="menuitem"]')[1]!.trigger('click')
+    await new Promise(r => setTimeout(r, 0))
+    await list(w).findAll('[role="menuitem"]')[2]!.trigger('click')
+
+    expect(w.emitted('select')).toHaveLength(1)
+    expect((w.emitted('select')![0]![0] as MenuItem).id).toBe('slack')
+  })
+
+  it('ArrowRight walks in, ArrowLeft walks back onto the gate', async () => {
+    const w = nest()
+    await key(trigger(w), 'ArrowDown')
+    await key(list(w), 'ArrowDown')
+    expect(here()).toBe('Integrations')
+    await key(list(w), 'ArrowRight')
+    expect(here()).toBe('Gmail')
+    await key(list(w), 'ArrowLeft')
+    // Back where the walk started, not at the top of the list.
+    expect(here()).toBe('Integrations')
+  })
+
+  it('the first Escape is the way out of the group, not out of the menu', async () => {
+    const w = nest()
+    await key(trigger(w), 'ArrowDown')
+    await key(list(w), 'ArrowDown')
+    await key(list(w), 'ArrowRight')
+
+    const e = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    list(w).element.dispatchEvent(e)
+    await new Promise(r => setTimeout(r, 0))
+    // Stopped, so the popover's own dismissal never sees it.
+    expect(e.defaultPrevented).toBe(true)
+    expect(list(w).exists()).toBe(true)
+    expect(list(w).findAll('[role="menuitem"]').map(r => r.text()))
+      .toEqual(['Text', 'Integrations', 'Details'])
+  })
+
+  it('reopens at the top, and never remembers where it stood', async () => {
+    const w = nest()
+    await key(trigger(w), 'ArrowDown')
+    await list(w).findAll('[role="menuitem"]')[1]!.trigger('click')
+    await new Promise(r => setTimeout(r, 0))
+    await list(w).findAll('[role="menuitem"]')[1]!.trigger('click')   // Gmail: closes
+
+    await key(trigger(w), 'ArrowDown')
+    expect(list(w).findAll('[role="menuitem"]').map(r => r.text()))
+      .toEqual(['Text', 'Integrations', 'Details'])
+  })
+
+  it('an empty children array is a plain command', async () => {
+    const w = mount(Menu, {
+      props: { items: [{ id: 'x', label: 'Nothing under it', children: [] }] },
+      slots: { trigger: (s: { props: Record<string, unknown> }) => h('button', s.props, 'Open') },
+      attachTo: document.body
+    })
+    await key(w.find('[aria-haspopup="menu"]'), 'ArrowDown')
+    await w.find('[role="menu"]').find('[role="menuitem"]').trigger('click')
+    expect(w.emitted('select')).toHaveLength(1)
+  })
 })

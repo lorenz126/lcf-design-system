@@ -10,6 +10,24 @@ tag. Before a tag, `pnpm verify:consumer`.
 
 ## Unreleased
 
+## 0.3.3 — 2026-09-08
+
+### Added
+
+- **A menu row may carry `children`.** Selecting it walks the panel into
+  that level instead of emitting; `select` still fires only for the leaf
+  that is finally chosen. ArrowRight walks in, ArrowLeft and the first
+  Escape walk back out, and a row at the top names the way back.
+
+  Not a flyout: a second anchored panel buys seeing both levels at once
+  and pays with collision handling on the crowded side, the
+  diagonal-travel problem, and no answer at all at 390px. The drill-down
+  reuses the panel that is already placed, so roving focus, typeahead,
+  Home/End and the dividers keep working unchanged.
+
+  Asked for by a consumer whose insert menu had grown to twenty rows,
+  most of them one kind of thing.
+
 ## 0.3.2 — 2026-09-07
 
 ### Added
