@@ -219,12 +219,29 @@ if (import.meta.dev) {
 .u-v-floating:hover:not(:disabled):not([aria-disabled="true"]) {
   background: color-mix(in srgb, var(--btn-bg) 88%, var(--btn-fg));
 }
+/* THE QUIET VARIANTS HOVER WITH A BORDER, NOT A GROUND.
+
+   These three used to deepen their background by mixing it 40% TOWARD
+   --btn-ink — the exact colour that has to be read on it. A hover that
+   moves the ground toward the foreground always costs contrast, and
+   these variants have none to spend: a tinted accent button measures
+   4.51:1 at rest, which is AA with nothing left over. Mixed 40% toward
+   its own label it lands at 2.50:1, so the hover state was the least
+   legible state in the system — on the one variant a pointer is
+   guaranteed to be sitting on.
+
+   Nothing caught it because a contrast table lists resting pairs. A
+   state that only exists under the pointer is exactly where an unmeasured
+   recipe survives longest.
+
+   The border is free. It is already declared at `transparent`, so
+   colouring it moves no layout, and --btn-onpage clears 4.5:1 against
+   the page where a boundary only needs 3. The ground does not move at
+   all, which means the label reads the same before, during and after. */
 .u-v-tinted:hover:not(:disabled):not([aria-disabled="true"]),
-.u-v-plain:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: color-mix(in srgb, var(--btn-tint) 60%, var(--btn-ink));
-}
+.u-v-plain:hover:not(:disabled):not([aria-disabled="true"]),
 .u-v-outline:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: var(--btn-tint); border-color: var(--btn-ink);
+  border-color: var(--btn-onpage);
 }
 
 .u-btn:disabled, .u-btn[aria-disabled="true"] {
