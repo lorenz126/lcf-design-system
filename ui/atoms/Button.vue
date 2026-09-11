@@ -209,8 +209,18 @@ if (import.meta.dev) {
   opacity: .35;
   pointer-events: none;
 }
+/* Glass hovers on the RIM and the shadow, for the reason the quiet
+   variants hover on their border — and here the ground was losing twice.
+   Mixing --glass-bg 30% toward --btn-onpage moved it toward the label
+   (5.42:1 down to 3.35:1 over a white backdrop) AND raised its alpha
+   from .74 to .82, so the pane it is supposed to be a pane OVER stopped
+   showing through. A glass button that gets more opaque under the
+   pointer is not hovering, it is curdling.
+   The rim is where real glass shows a touch anyway, and lifting the
+   shadow is the same physical move --v-floating already makes. */
 .u-v-glass:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: color-mix(in srgb, var(--glass-bg) 70%, var(--btn-onpage));
+  border-color: var(--btn-onpage);
+  box-shadow: var(--shadow-3);
 }
 
 /* Hover shifts toward the foreground so it works on light and dark from
