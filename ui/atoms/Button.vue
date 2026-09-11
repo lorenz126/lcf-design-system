@@ -112,7 +112,15 @@ if (import.meta.dev) {
 
 .u-btn {
   --h: var(--control-md);
-  --pad: var(--s-5);
+  /* PADDING IS A CONTROL TOKEN WITH A SPACING FALLBACK.
+     It used to read --s-5 directly, which is a raw spacing step and has
+     no relationship to --control-md. That holds only while the height
+     never moves: raise the control scale for a denser or a roomier
+     product and every button keeps 12px inside it, so the proportion
+     drifts and the label ends up pinned to the edges of a tall box.
+     The fallback is the value it always had, so a consumer that defines
+     nothing renders exactly as before. */
+  --pad: var(--control-pad-md, var(--s-5));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -145,9 +153,9 @@ if (import.meta.dev) {
   outline-offset: 1px;
 }
 
-.u-s-sm { --h: var(--control-sm); --pad: var(--s-4); font-size: var(--fs-small); }
-.u-s-md { --h: var(--control-md); --pad: var(--s-5); }
-.u-s-lg { --h: var(--control-lg); --pad: var(--s-6); font-size: var(--fs-lead); }
+.u-s-sm { --h: var(--control-sm); --pad: var(--control-pad-sm, var(--s-4)); font-size: var(--fs-small); }
+.u-s-md { --h: var(--control-md); --pad: var(--control-pad-md, var(--s-5)); }
+.u-s-lg { --h: var(--control-lg); --pad: var(--control-pad-lg, var(--s-6)); font-size: var(--fs-lead); }
 .u-block { display: flex; width: 100%; }
 
 /* Square: the inline padding collapses to match the block padding, so the
