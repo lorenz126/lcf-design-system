@@ -73,6 +73,82 @@ function choose(o: ToggleOption) {
     : [...list, o.value]
 }
 
+/* ---------- the travelling selection ---------- */
+
+/**
+ * ONE FILL THAT MOVES, rather than a fill that goes out here and comes on
+ * there. In `single` there is exactly one selection by definition, so it
+ * can be one element behind the options instead of a background on
+ * whichever button happens to be chosen — and an element can travel.
+ *
+ * NOT FOR `multiple`, and not for `toolbar`. Several things on at once
+ * cannot be one moving thing, and a toolbar's options are separate
+ * buttons with air between them: there is no track for a thumb to run
+ * along. Both keep the per-button fill, which is why those rules are
+ * still in the stylesheet.
+ *
+ * MEASURED, NOT COMPUTED. The options are labels of different widths, so
+ * there is no arithmetic that gets from "the second one" to a position —
+ * only the layout knows. `offsetLeft` is against the track because the
+ * track is the positioned ancestor.
+ */
+const thumb = ref<{ x: number; w: number } | null>(null)
+
+/**
+ * False until the thumb has been put in the right place once.
+ *
+ * Without it the first paint animates: the thumb starts at the track's
+ * left edge with no width and slides out to the selection, on every page
+ * load, which reads as the control introducing itself. The transition is
+ * attached by this class, so the first placement is instant and every
+ * one after it travels.
+ */
+const live = ref(false)
+
+const travels = computed(() => props.type === 'single' && props.variant !== 'toolbar')
+
+function measure() {
+  const el = root.value
+  if (!el || !travels.value) {
+    thumb.value = null
+    return
+  }
+  const on = el.querySelector<HTMLElement>('.u-tg-on')
+  /* Nothing chosen yet — an empty `value`, or one that is not in the
+     options. The thumb is simply absent rather than parked at zero. */
+  if (!on) {
+    thumb.value = null
+    return
+  }
+  thumb.value = { x: on.offsetLeft, w: on.offsetWidth }
+}
+
+let observer: ResizeObserver | undefined
+
+onMounted(() => {
+  measure()
+  /* A FRAME LATER, not immediately: `live` must not be set in the same
+     paint that first positions the thumb, or the browser has nothing to
+     transition FROM and animates from the initial style anyway. */
+  requestAnimationFrame(() => { live.value = true })
+
+  /* The track changes width when the font loads, when the window
+     resizes, and when a label is translated. All of those move the
+     selection without anything in this component being told. */
+  if (typeof ResizeObserver !== 'undefined' && root.value) {
+    observer = new ResizeObserver(() => measure())
+    observer.observe(root.value)
+  }
+})
+
+onBeforeUnmount(() => observer?.disconnect())
+
+watch(
+  () => [model.value, props.options, props.variant, props.size, props.iconOnly],
+  () => nextTick(measure),
+  { deep: true },
+)
+
 /* ---------- moving ---------- */
 
 const enabled = computed(() => props.options.filter(o => !o.disabled))
@@ -137,11 +213,25 @@ function onKey(e: KeyboardEvent, o: ToggleOption) {
     <div
       ref="root"
       class="u-tg"
-      :class="[`u-tg-${variant}`, `u-s-${size}`, { 'u-tg-block': block, 'u-tg-off': disabled }]"
+      :class="[
+        `u-tg-${variant}`,
+        `u-s-${size}`,
+        { 'u-tg-block': block, 'u-tg-off': disabled, 'u-tg-thumbed': thumb !== null },
+      ]"
       :role="type === 'single' ? 'radiogroup' : 'group'"
       :aria-label="label"
       :aria-disabled="disabled || undefined"
     >
+      <!-- Decorative: the state it shows is already on every button as
+           `aria-checked`. Announcing it again would be the same fact twice. -->
+      <span
+        v-if="thumb"
+        class="u-tg-thumb"
+        :class="{ 'u-tg-thumb-live': live }"
+        :style="{ transform: `translateX(${thumb.x}px)`, width: `${thumb.w}px` }"
+        aria-hidden="true"
+      />
+
       <button
         v-for="o in options"
         :key="o.value"
@@ -204,6 +294,38 @@ function onKey(e: KeyboardEvent, o: ToggleOption) {
    system: a neutral ground and heavier text, never a colour. */
 .u-tg-on { color: var(--fg); font-weight: var(--w-semibold); }
 
+/* The travelling selection.
+
+   THE OPTIONS SIT ABOVE IT, which is the only reason this works: the
+   thumb is a filled block behind the row, and without a stacking order
+   it would paint over the label it is meant to be under. `z-index` on
+   the option rather than a negative one on the thumb, so the thumb stays
+   inside the track's own stacking context and cannot slide behind the
+   page.
+
+   WIDTH IS ANIMATED AND THAT IS DELIBERATE. Labels are different widths
+   — `ChatGPT` and `API`, `Aldersverifikation` and `eID-login` — so a
+   thumb that only translates would be the wrong size for most of its
+   journey. Width is a layout property and animating it is usually a
+   mistake; here the element is absolutely positioned, so it reflows
+   nothing but itself.
+
+   The durations come from `tokens/motion.css`, which already collapses
+   every one of them to 1ms under `prefers-reduced-motion`. There is no
+   separate guard here because there does not need to be one. */
+.u-tg-segmented, .u-tg-pill { position: relative; }
+.u-tg-segmented .u-tg-opt, .u-tg-pill .u-tg-opt { position: relative; z-index: 1; }
+
+.u-tg-thumb {
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+}
+.u-tg-thumb-live {
+  transition: transform var(--dur-base) var(--ease-out),
+              width var(--dur-base) var(--ease-out);
+}
+
 /* Segmented: one sunken track with the selection raised out of it. */
 .u-tg-segmented {
   gap: 2px;
@@ -213,6 +335,17 @@ function onKey(e: KeyboardEvent, o: ToggleOption) {
 }
 .u-tg-segmented .u-tg-opt { border-radius: calc(var(--r-control) - 2px); }
 .u-tg-segmented .u-tg-on {
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-1);
+}
+/* With a thumb the raised ground IS the thumb, and leaving it on the
+   button too would paint a second one that jumps while the first
+   travels. The per-button rule stays above for `multiple`, where there
+   is no thumb because there can be more than one selection. */
+.u-tg-segmented.u-tg-thumbed .u-tg-on { background: transparent; box-shadow: none; }
+.u-tg-segmented .u-tg-thumb {
+  inset-block: 2px;
+  border-radius: calc(var(--r-control) - 2px);
   background: var(--bg-raised);
   box-shadow: var(--shadow-1);
 }
@@ -239,6 +372,12 @@ function onKey(e: KeyboardEvent, o: ToggleOption) {
 }
 .u-tg-pill .u-tg-opt { border-radius: var(--r-full); }
 .u-tg-pill .u-tg-on { background: var(--fill-quiet); }
+.u-tg-pill.u-tg-thumbed .u-tg-on { background: transparent; }
+.u-tg-pill .u-tg-thumb {
+  inset-block: 3px;
+  border-radius: var(--r-full);
+  background: var(--fill-quiet);
+}
 
 /* Toolbar: separate buttons, nothing under them. */
 .u-tg-toolbar { gap: var(--s-2); }
