@@ -85,7 +85,15 @@ if (import.meta.dev) {
    NAMESPACED on purpose: --bg and --fg are global tokens, and redefining
    them here shadowed the real ones — neutral/plain resolved to white on
    white. Local custom properties must never reuse a token name. */
-.u-btn[data-tone="accent"],
+/* ACCENT IS THE ROLE, NOT A HUE. This used to share a rule with blue,
+   which was invisible for as long as --accent WAS blue: the primary
+   button read the blue tokens directly and happened to be right. It is
+   only a bug once a consumer re-themes the accent — then every other
+   component follows --accent and the primary button alone does not.
+   --fg-on-accent rather than --solid-fg for the same reason: the token
+   that names the text on an accent fill is the one this ground takes. */
+.u-btn[data-tone="accent"] { --btn-bg: var(--accent);           --btn-fg: var(--fg-on-accent);
+                           --btn-tint: var(--accent-subtle); --btn-onpage: var(--accent-text);   --btn-ink: var(--accent-text); }
 .u-btn[data-tone="blue"]   { --btn-bg: var(--blue-solid-bg);   --btn-fg: var(--solid-fg);
                            --btn-tint: var(--blue-tint-bg); --btn-onpage: var(--blue-text);     --btn-ink: var(--blue-tint-fg); }
 .u-btn[data-tone="yellow"] { --btn-bg: var(--yellow-solid-bg); --btn-fg: var(--solid-fg);
