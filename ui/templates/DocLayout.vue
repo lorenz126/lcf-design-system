@@ -38,12 +38,24 @@ withDefaults(defineProps<{
 .u-doc-end .u-doc-aside   { grid-column: 2; grid-row: 1; }
 .u-doc-start .u-doc-aside { grid-column: 1; grid-row: 1; }
 
+/* EVERY SELECTOR IN HERE CARRIES THE SIDE CLASS, and that is not
+   tidiness — it is the only reason the block works. The placement rules
+   above are two classes deep (`.u-doc-end .u-doc-aside`); a one-class
+   selector in here loses to them even inside a media query, because a
+   media query adds no specificity. Written the short way, the aside kept
+   `grid-column: 2` below the breakpoint, grid opened an implicit second
+   track for it, and the article was squeezed into whatever was left — 43px
+   at 375px, one word per line. `scoped` does not save it either: the
+   data attribute lands on both selectors equally. */
 @media (max-width: 860px) {
   .u-doc, .u-doc-end, .u-doc-start { grid-template-columns: minmax(0, 1fr); }
-  .u-doc-body, .u-doc-aside { grid-column: 1; }
+
+  .u-doc-end .u-doc-body,  .u-doc-start .u-doc-body,
+  .u-doc-end .u-doc-aside, .u-doc-start .u-doc-aside { grid-column: 1; }
+
   /* Above the article once stacked — a contents list is only useful
      before the thing it indexes. */
-  .u-doc-aside { grid-row: 1; position: static; }
-  .u-doc-body { grid-row: 2; }
+  .u-doc-end .u-doc-aside, .u-doc-start .u-doc-aside { grid-row: 1; position: static; }
+  .u-doc-end .u-doc-body,  .u-doc-start .u-doc-body  { grid-row: 2; }
 }
 </style>
