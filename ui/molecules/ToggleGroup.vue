@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<{
   options: ToggleOption[]
   /** The semantic choice. See above — not a styling flag. */
   type?: 'single' | 'multiple'
-  variant?: 'segmented' | 'toolbar'
+  variant?: 'segmented' | 'pill' | 'toolbar'
   size?: 'sm' | 'md' | 'lg'
   /** Shows only the icon. The label stays, for anything that reads. */
   iconOnly?: boolean
@@ -216,6 +216,29 @@ function onKey(e: KeyboardEvent, o: ToggleOption) {
   background: var(--bg-raised);
   box-shadow: var(--shadow-1);
 }
+
+/* Pill: an OUTLINED track rather than a sunken one, fully round.
+
+   The same control as `segmented` and a different claim about the surface
+   it is on. `segmented` sinks a well into the page and raises the choice
+   out of it, which is right in an application: the control is a piece of
+   furniture on a dense screen, and the well is what separates it from
+   everything around it. On a marketing page there is nothing around it —
+   acres of white — and a grey slab in the middle of that reads as a
+   component that wandered in from the product.
+
+   So the track is a hairline and the ground is the page's, the selection
+   is the quietest fill in the system, and there is no shadow: on an empty
+   page an outline is enough to say "these are the options", and the fill
+   is enough to say "this one". */
+.u-tg-pill {
+  gap: 0;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+}
+.u-tg-pill .u-tg-opt { border-radius: var(--r-full); }
+.u-tg-pill .u-tg-on { background: var(--fill-quiet); }
 
 /* Toolbar: separate buttons, nothing under them. */
 .u-tg-toolbar { gap: var(--s-2); }
