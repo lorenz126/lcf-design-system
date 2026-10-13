@@ -1,0 +1,88 @@
+/* ============================================================
+   @lcf/design/tailwind — the tokens as Tailwind 4 utilities.
+
+     @import "tailwindcss";
+     @import "@lcf/design/css";
+     @import "@lcf/design/tailwind";
+
+   OPTIONAL. The components do not use Tailwind and do not need it; this
+   is for an app that writes its own markup in utilities and wants them
+   to mean the same colours, sizes and type steps as the components.
+   No @source line is needed: there are no class names inside the
+   components for Tailwind to find.
+
+   `inline` so a utility emits var(--token) rather than a copied value —
+   the token stays the single source, and a dark scope or an app accent
+   reaches utilities exactly as it reaches components.
+   ============================================================ */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-default: var(--fg);
+  --color-secondary: var(--fg-muted);
+  --color-tertiary: var(--fg-subtle);
+  --color-surface: var(--bg);
+  --color-surface-raised: var(--bg-raised);
+  --color-surface-sunken: var(--bg-sunken);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fill: var(--fill);
+  --color-fill-quiet: var(--fill-quiet);
+  --color-fill-strong: var(--fill-strong);
+
+  --color-primary: var(--primary-text);
+  --color-primary-solid: var(--primary-solid);
+  --color-primary-soft: var(--primary-soft);
+  --color-info: var(--info-text);
+  --color-info-solid: var(--info-solid);
+  --color-info-soft: var(--info-soft);
+  --color-success: var(--success-text);
+  --color-success-solid: var(--success-solid);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning-text);
+  --color-warning-solid: var(--warning-solid);
+  --color-warning-soft: var(--warning-soft);
+  --color-caution: var(--caution-text);
+  --color-caution-solid: var(--caution-solid);
+  --color-caution-soft: var(--caution-soft);
+  --color-danger: var(--danger-text);
+  --color-danger-solid: var(--danger-solid);
+  --color-danger-soft: var(--danger-soft);
+  --color-discovery: var(--discovery-text);
+  --color-discovery-solid: var(--discovery-solid);
+  --color-discovery-soft: var(--discovery-soft);
+
+  /* Fonts and shadows are NOT mapped: their Tailwind names are the
+     token names already (--font-sans) or would be (--shadow-1), and
+     `--font-sans: var(--font-sans)` is a cycle, which the browser
+     resolves to nothing. font-sans, font-mono and font-serif work as
+     they are, because lcf.tokens comes after Tailwind's theme layer. */
+
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+
+  /* The breakpoints useBreakpoint() answers to — one list, two readers. */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 860px;
+  --breakpoint-lg: 1100px;
+  --breakpoint-xl: 1440px;
+}
+
+/* The type ramp as utilities: one class, the whole bundle. */
+@utility text-micro    { font: var(--w-medium) var(--fs-micro)/var(--lh-micro) var(--font-sans); letter-spacing: var(--tr-micro); }
+@utility text-caption  { font: var(--w-regular) var(--fs-caption)/var(--lh-caption) var(--font-sans); letter-spacing: var(--tr-caption); }
+@utility text-small    { font: var(--w-regular) var(--fs-small)/var(--lh-small) var(--font-sans); letter-spacing: var(--tr-small); }
+@utility text-body     { font: var(--w-regular) var(--fs-body)/var(--lh-body) var(--font-sans); letter-spacing: var(--tr-body); }
+@utility text-lead     { font: var(--w-regular) var(--fs-lead)/var(--lh-lead) var(--font-sans); letter-spacing: var(--tr-lead); }
+@utility heading-sm    { font: var(--w-semibold) var(--fs-title-sm)/var(--lh-title-sm) var(--font-sans); letter-spacing: var(--tr-title-sm); }
+@utility heading-md    { font: var(--w-semibold) var(--fs-title)/var(--lh-title) var(--font-sans); letter-spacing: var(--tr-title); }
+@utility heading-lg    { font: var(--w-semibold) var(--fs-title-lg)/var(--lh-title-lg) var(--font-sans); letter-spacing: var(--tr-title-lg); }
+@utility heading-xl    { font: var(--w-bold) var(--fs-display-sm)/var(--lh-display-sm) var(--font-sans); letter-spacing: var(--tr-display-sm); }
+@utility tabular       { font-variant-numeric: tabular-nums; }

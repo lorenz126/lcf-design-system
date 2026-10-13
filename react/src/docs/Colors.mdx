@@ -1,0 +1,61 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Foundations/Colors" />
+
+# Colors
+
+Three tiers, and components may read only the last two.
+
+1. **Primitives** — a neutral ramp and six hues, each with a separate
+   light and dark value and a darker `-text` variant graded for AA.
+2. **Roles** — `--fg`, `--fg-muted`, `--fg-subtle`, `--bg`,
+   `--bg-raised`, `--bg-sunken`, `--fill-quiet`, `--fill`,
+   `--fill-strong`, `--border`, `--border-strong`, `--accent`,
+   `--accent-text`, `--accent-solid`.
+3. **Intents** — what a component is told. Eight colours, six roles
+   each.
+
+| color | means | hue |
+|---|---|---|
+| `primary` | the app's own colour | `--accent` |
+| `secondary` | neutral | — |
+| `info` | worth knowing | blue |
+| `success` | done, won, valid | green |
+| `warning` | needs attention soon | orange |
+| `caution` | unresolved, check before use | yellow |
+| `danger` | failed, lost, destructive | red |
+| `discovery` | new, suggested | purple |
+
+| role | used for | floor |
+|---|---|---|
+| `--<c>-solid` / `--<c>-on-solid` | solid controls | 4.5:1 |
+| `--<c>-soft` / `--<c>-on-soft` | tinted controls, badges | 4.5:1 (warning, caution 3:1) |
+| `--<c>-text` | the colour as text | 4.5:1 (warning, caution 3:1) |
+| `--<c>-border` | outlines | 3:1 |
+
+`warning` and `caution` are held to 3:1 by decision: at AA-legible
+lightness, orange and yellow turn brown. Fine for a two-word status;
+not for a sentence.
+
+## Giving statuses a fixed meaning
+
+A status picks a meaning, and the meaning picks the hue. Write the map
+once in the app:
+
+```ts
+const OFFER: Record<OfferStatus, Color> = {
+  draft: 'secondary', approved: 'primary', sent: 'info', won: 'success', lost: 'danger'
+}
+const LICENCE: Record<Licence, Color> = {
+  free: 'success', attribution: 'info', internal: 'secondary', unresolved: 'caution'
+}
+```
+
+Then the colour of "lost" is the same in the list, the board and the
+report, because none of them chose a hue.
+
+## Measured, not assumed
+
+`pnpm test:contrast` resolves every pair in both themes from the CSS
+itself — 322 pairs — and fails on any below its floor. Every relaxed
+pair carries its reason in the output.

@@ -1,0 +1,36 @@
+.lcf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--r-full);
+  white-space: nowrap;
+  height: 20px;
+  padding-inline: var(--s-4);
+  font: var(--w-medium) var(--fs-caption)/1 var(--font-sans);
+  letter-spacing: var(--tr-caption);
+}
+.lcf-badge[data-size="sm"] {
+  height: 16px;
+  padding-inline: var(--s-3);
+  font: var(--w-medium) var(--fs-micro)/1 var(--font-sans);
+  letter-spacing: var(--tr-micro);
+}
+
+.lcf-badge[data-variant="soft"]    { background: var(--c-soft); color: var(--c-on-soft); }
+.lcf-badge[data-variant="solid"]   { background: var(--c-solid); color: var(--c-on-solid); }
+.lcf-badge[data-variant="outline"] { background: transparent; color: var(--c-text); border-color: var(--c-border); }
+
+/* A neutral soft badge reads muted, not full-strength: a status, not a
+   heading. --fg-muted on --fill is measured as "tab count". */
+.lcf-badge[data-color="secondary"][data-variant="soft"] { color: var(--fg-muted); }
+
+.lcf-badge-dot {
+  width: 6px; height: 6px; flex: none;
+  border-radius: var(--r-full);
+  /* The badge's own text colour, never the raw hue: on a solid badge
+     the hue IS the ground, so a hue-coloured dot vanishes. */
+  background: currentColor;
+}
+.lcf-badge[data-size="sm"] .lcf-badge-dot { width: 5px; height: 5px; }
+.lcf-badge svg { width: 12px; height: 12px; stroke-width: 2; flex: none; }

@@ -1,0 +1,64 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Overview/Locale and format" />
+
+# Locale and format
+
+The app sets the locale **once**, on `LcfProvider`. Everything below
+follows: the sentences components say on their own, numbers, money,
+units and dates.
+
+## Texts
+
+Every sentence a component says without being told — "Loading", "No
+matches.", "Dismiss" — is a key in a message table. English and German
+ship; any key can be overridden, and a language the layer does not ship
+is supplied whole:
+
+```tsx
+<LcfProvider locale="fr-CH" messages={{ loading: 'Chargement', dismiss: 'Masquer', /* … */ }}>
+```
+
+Missing keys fall back to English, never to a blank. `check-strings`
+fails the build when a component writes visible text that bypasses the
+table.
+
+## Numbers
+
+`useFormat()` gives every component — and the app — one formatter:
+
+```ts
+const f = useFormat()
+f.number(10410, { minimumFractionDigits: 2 })  // de-CH: 10'410.00   de-AT: 10.410,00
+f.money(10410, 'CHF')                            // de-CH: CHF 10'410.00
+f.unit(12.5, 'm2')                               // de-CH: 12.5 m²
+f.date('2026-10-13')                             // de-CH: 13.10.2026
+f.parseNumber("10'410.50")                       // 10410.5
+```
+
+**Why not `toLocaleString()`.** It answers with whatever ICU the runtime
+carries, and ICU versions disagree: de-CH groups with `’` (U+2019) in
+current data and `'` in older, and the same ICU groups a de-AT number
+with a no-break space but a de-AT currency amount with a dot. A server
+render and a client hydrate can then print one price two ways. So the
+separators are **pinned** for the markets where it matters:
+
+| locale | group | decimal |
+|---|---|---|
+| de-CH, fr-CH, it-CH | `'` | `.` |
+| de-AT | `.` | `,` |
+
+Everything else is what `Intl` says. An app with its own rule passes
+`separators`, or replaces any function through `format`:
+
+```tsx
+<LcfProvider locale="de-CH" separators={{ group: '’' }} />
+```
+
+## Reading numbers back
+
+`parseNumber` takes what a person types. Spaces and apostrophes are
+always grouping. The locale's decimal separator is always the decimal.
+The other of `.` and `,` is grouping when exactly three digits follow
+it (`12.500` in de-AT is twelve thousand five hundred) and a decimal
+otherwise (`12.5` typed into a German form is twelve and a half).

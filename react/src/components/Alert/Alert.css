@@ -1,0 +1,59 @@
+.lcf-alert {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  padding: var(--s-5) var(--s-6);
+  border-radius: var(--r-md);
+  /* Border, not shadow: this sits IN the layout rather than on it. */
+  border: var(--border-width) solid var(--border);
+  color: var(--fg);
+}
+.lcf-alert[data-variant="soft"] { background: var(--c-soft); border-color: var(--c-soft); }
+.lcf-alert[data-variant="soft"][data-color="secondary"] { background: var(--fill-quiet); border-color: var(--border); }
+.lcf-alert[data-variant="outline"] { background: transparent; border-color: var(--c-border); }
+.lcf-alert[data-variant="outline"][data-color="secondary"] { border-color: var(--border-strong); }
+
+.lcf-alert-mark { flex: none; display: grid; margin-block-start: 1px; color: var(--c-text); }
+.lcf-alert[data-color="secondary"] .lcf-alert-mark { color: var(--fg-subtle); }
+.lcf-alert-mark svg { width: var(--icon-sm); height: var(--icon-sm); stroke-width: var(--icon-stroke); }
+
+.lcf-alert-text { flex: 1 1 16rem; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lcf-alert-title {
+  margin: 0;
+  font: var(--w-semibold) var(--fs-small)/1.4 var(--font-sans);
+  letter-spacing: var(--tr-small);
+}
+.lcf-alert-body {
+  color: var(--fg-muted);
+  font: var(--w-regular) var(--fs-small)/1.5 var(--font-sans);
+  letter-spacing: var(--tr-small);
+}
+.lcf-alert-body :where(p, ul, ol) { margin: 0; }
+.lcf-alert-body :where(ul, ol) { padding-inline-start: 1.2em; }
+.lcf-alert-body a { color: var(--accent-text); }
+/* With a title, the body steps back; alone, it is the message. */
+.lcf-alert-text:not(:has(.lcf-alert-title)) .lcf-alert-body { color: var(--fg); }
+
+.lcf-alert-actions { flex: none; align-self: center; display: flex; gap: var(--s-4); }
+
+.lcf-alert-x {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 1px -4px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+.lcf-alert-x svg { width: var(--icon-sm); height: var(--icon-sm); }
+.lcf-alert-x:hover { background: var(--fill); color: var(--fg); }
+.lcf-alert-x:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 1px;
+}

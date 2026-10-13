@@ -1,0 +1,38 @@
+/* ============================================================
+   INTENT → LOCAL ROLES
+   ------------------------------------------------------------
+   Every component that takes `color` renders `data-color="<c>"`, and
+   this file turns that into five local properties. A component's own
+   CSS reads ONLY these — never a hue, never an intent token by name —
+   so adding a colour is one block here and no component changes.
+
+   Local names are prefixed --c-, and must never reuse a token name: a
+   component that redefined --bg locally once shadowed the real one and
+   rendered white on white.
+   ============================================================ */
+[data-color] {
+  --c-solid:    var(--secondary-solid);
+  --c-on-solid: var(--secondary-on-solid);
+  --c-soft:     var(--secondary-soft);
+  --c-on-soft:  var(--secondary-on-soft);
+  --c-text:     var(--secondary-text);
+  --c-border:   var(--secondary-border);
+}
+[data-color="primary"]   { --c-solid: var(--primary-solid);   --c-on-solid: var(--primary-on-solid);   --c-soft: var(--primary-soft);   --c-on-soft: var(--primary-on-soft);   --c-text: var(--primary-text);   --c-border: var(--primary-border); }
+[data-color="info"]      { --c-solid: var(--info-solid);      --c-on-solid: var(--info-on-solid);      --c-soft: var(--info-soft);      --c-on-soft: var(--info-on-soft);      --c-text: var(--info-text);      --c-border: var(--info-border); }
+[data-color="success"]   { --c-solid: var(--success-solid);   --c-on-solid: var(--success-on-solid);   --c-soft: var(--success-soft);   --c-on-soft: var(--success-on-soft);   --c-text: var(--success-text);   --c-border: var(--success-border); }
+[data-color="warning"]   { --c-solid: var(--warning-solid);   --c-on-solid: var(--warning-on-solid);   --c-soft: var(--warning-soft);   --c-on-soft: var(--warning-on-soft);   --c-text: var(--warning-text);   --c-border: var(--warning-border); }
+[data-color="caution"]   { --c-solid: var(--caution-solid);   --c-on-solid: var(--caution-on-solid);   --c-soft: var(--caution-soft);   --c-on-soft: var(--caution-on-soft);   --c-text: var(--caution-text);   --c-border: var(--caution-border); }
+[data-color="danger"]    { --c-solid: var(--danger-solid);    --c-on-solid: var(--danger-on-solid);    --c-soft: var(--danger-soft);    --c-on-soft: var(--danger-on-soft);    --c-text: var(--danger-text);    --c-border: var(--danger-border); }
+[data-color="discovery"] { --c-solid: var(--discovery-solid); --c-on-solid: var(--discovery-on-solid); --c-soft: var(--discovery-soft); --c-on-soft: var(--discovery-on-soft); --c-text: var(--discovery-text); --c-border: var(--discovery-border); }
+
+/* Visually hidden, still read. */
+.lcf-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

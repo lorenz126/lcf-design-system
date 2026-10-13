@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Overview/Introduction" />
+
+# LCF Design System
+
+React components, colour and type tokens, and a locale layer for the
+internal tools of joloco, kustik and art orchestration.
+
+- **Tokens** — colour in three tiers (primitives, roles, intents), a
+  coupled type ramp, spacing, radii, motion. Plain CSS custom properties.
+- **Components** — one vocabulary across all of them: `color` says what
+  it means, `variant` how loud, `size` one of three.
+- **Locale** — one `LcfProvider` at the root sets the language, the
+  number format and the link component. Every text a component says on
+  its own comes from a message table the app can override.
+- **Guards** — a contrast check over every colour pair in both themes
+  (and over an app's own accent), a sweep of every story in a real
+  browser in light, dark and reduced motion, and a check that no
+  component ships visible text outside the message table.
+
+## What each component refuses
+
+Every component's source begins with a comment that says what was
+decided, what it cost, and what the component **refuses to be**. That
+last part is the one that matters when it does not fit: a component
+stretched past its edge by a prop is two components in one file. Propose
+a new one instead.
+
+## Coming from the Nuxt layer
+
+`@lcf/design` up to `0.3.x` is a Nuxt layer, and those tags stay
+installable and fixable. From `0.4.0` it is this React library. The
+tokens, the measured colours and the decisions carried over; the prop
+vocabulary changed — `tone` is now `color`, and colours are named for
+what they mean (`success`, `danger`), not their hue (`green`, `red`).

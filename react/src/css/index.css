@@ -1,0 +1,29 @@
+/* ============================================================
+   @lcf/design/css — the one stylesheet an app imports.
+
+     import '@lcf/design/css'
+
+   Order is the contract: tokens declare, base applies, intent maps a
+   `data-color` onto local roles, components read those roles. Each
+   component's CSS is plain CSS in its own folder; nothing here needs a
+   build step or a class scanner, so it works the same under Vite,
+   Next, or a <link> tag.
+
+   Everything sits in @layer lcf, so an app's own unlayered CSS wins
+   over it without a specificity fight — and Tailwind's layers, if the
+   app uses Tailwind, stack where Tailwind puts them.
+   ============================================================ */
+@layer lcf.tokens, lcf.base, lcf.components;
+
+@import "../tokens/type.css" layer(lcf.tokens);
+@import "../tokens/color.css" layer(lcf.tokens);
+@import "../tokens/geometry.css" layer(lcf.tokens);
+@import "../tokens/elevation.css" layer(lcf.tokens);
+@import "../tokens/motion.css" layer(lcf.tokens);
+@import "./base.css" layer(lcf.base);
+@import "./intent.css" layer(lcf.components);
+
+@import "../components/Alert/Alert.css" layer(lcf.components);
+@import "../components/Badge/Badge.css" layer(lcf.components);
+@import "../components/Button/Button.css" layer(lcf.components);
+@import "../components/Spinner/Spinner.css" layer(lcf.components);

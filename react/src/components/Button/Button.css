@@ -1,0 +1,110 @@
+.lcf-button {
+  --h: var(--control-md);
+  /* Padding is a control token with a spacing fallback, so a product
+     that raises the control scale keeps the label off the edges. */
+  --pad: var(--control-pad-md, var(--s-5));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  height: var(--h);
+  padding-inline: var(--pad);
+  border: var(--border-width) solid transparent;
+  /* Capped at 40% of the height so a button can never reach a capsule,
+     whatever --r-control is set to or however short the control gets. */
+  border-radius: min(var(--r-control), calc(var(--h) * 0.4));
+  font: var(--w-medium) var(--fs-body)/1 var(--font-sans);
+  letter-spacing: var(--tr-body);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--dur-fast) var(--ease-out),
+              border-color     var(--dur-fast) var(--ease-out),
+              color            var(--dur-fast) var(--ease-out),
+              box-shadow       var(--dur-fast) var(--ease-out),
+              transform        var(--dur-instant) var(--ease-out);
+}
+.lcf-button svg { width: var(--icon-md); height: var(--icon-md); stroke-width: var(--icon-stroke); flex: none; }
+
+.lcf-button:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 1px;
+}
+
+.lcf-button[data-size="sm"] { --h: var(--control-sm); --pad: var(--control-pad-sm, var(--s-4)); font-size: var(--fs-small); }
+.lcf-button[data-size="sm"] svg { width: var(--icon-sm); height: var(--icon-sm); }
+.lcf-button[data-size="lg"] { --h: var(--control-lg); --pad: var(--control-pad-lg, var(--s-6)); font-size: var(--fs-lead); }
+.lcf-button[data-size="lg"] svg { width: var(--icon-lg); height: var(--icon-lg); }
+.lcf-button[data-block] { display: flex; width: 100%; }
+.lcf-button[data-uniform] { padding-inline: 0; aspect-ratio: 1; }
+
+/* ---- variants: each reads only the --c-* roles from intent.css ---- */
+.lcf-button[data-variant="solid"]   { background: var(--c-solid); color: var(--c-on-solid); }
+.lcf-button[data-variant="soft"]    { background: var(--c-soft); color: var(--c-on-soft); }
+.lcf-button[data-variant="outline"] { background: transparent; color: var(--c-text); border-color: var(--border-strong); }
+.lcf-button[data-variant="ghost"]   { background: transparent; color: var(--c-text); }
+.lcf-button[data-variant="ghost"]:not([data-uniform]) { padding-inline: var(--s-3); }
+
+/* Floating — solid, lifted. The light is in front, so depth reads as
+   SCALE rather than vertical travel. */
+.lcf-button[data-variant="floating"] {
+  background: var(--c-solid);
+  color: var(--c-on-solid);
+  box-shadow: var(--shadow-3);
+}
+
+/* Glass — tint, blur, rim, and a top highlight. */
+.lcf-button[data-variant="glass"] {
+  position: relative;
+  background: var(--glass-bg);
+  color: var(--c-text);
+  border-color: var(--glass-border);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+.lcf-button[data-variant="glass"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 50%;
+  border-radius: inherit;
+  background: linear-gradient(var(--glass-highlight), transparent);
+  opacity: .35;
+  pointer-events: none;
+}
+
+/* ---- states ---- */
+.lcf-button:active:not(:disabled, [aria-disabled="true"]) { transform: scale(.975); }
+
+/* Solid hovers toward its own text, from one declaration for both themes. */
+.lcf-button:is([data-variant="solid"], [data-variant="floating"]):hover:not(:disabled, [aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--c-solid) 88%, var(--c-on-solid));
+}
+.lcf-button[data-variant="floating"]:hover:not(:disabled, [aria-disabled="true"]) { box-shadow: var(--shadow-4); transform: scale(1.015); }
+.lcf-button[data-variant="floating"]:active:not(:disabled, [aria-disabled="true"]) { box-shadow: var(--shadow-1); transform: scale(.985); }
+
+/* The quiet variants hover on the border, never the ground — see the
+   component's doc comment for the 4.51 → 2.50 that taught this. */
+.lcf-button:is([data-variant="soft"], [data-variant="outline"], [data-variant="ghost"]):hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--c-text);
+}
+.lcf-button[data-variant="glass"]:hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--c-text);
+  box-shadow: var(--shadow-3);
+}
+
+/* Selected: a toggle that is on. The neutral "here" — a ground and a
+   heavier weight — rather than the colour, which already means "press". */
+.lcf-button[aria-pressed="true"]:not([data-variant="solid"]) {
+  background: var(--fill-strong);
+  color: var(--fg);
+}
+
+.lcf-button:disabled, .lcf-button[aria-disabled="true"] {
+  opacity: .4;
+  cursor: not-allowed;
+  transform: none;
+}
+.lcf-button[aria-busy="true"] { cursor: progress; opacity: 1; }

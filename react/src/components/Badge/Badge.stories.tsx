@@ -1,0 +1,60 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { ShieldQuestion } from 'lucide-react'
+import { Badge } from './Badge'
+import { COLORS, type Color } from '../types'
+
+const meta = {
+  title: 'Components/Badge',
+  component: Badge,
+  args: { children: 'Sent', color: 'info' }
+} satisfies Meta<typeof Badge>
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Base: Story = {}
+
+export const Colors: Story = {
+  render: () => (
+    <div className="ws-grid" style={{ ['--cols' as string]: 3 }}>
+      <span />
+      {(['soft', 'solid', 'outline'] as const).map(v => <span key={v} className="ws-label">{v}</span>)}
+      {COLORS.map(c => (
+        <div key={c} style={{ display: 'contents' }}>
+          <span className="ws-label">{c}</span>
+          {(['soft', 'solid', 'outline'] as const).map(v => <Badge key={v} color={c} variant={v}>{c}</Badge>)}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/**
+ * How an app gives its statuses a fixed meaning: one map, written once,
+ * and every list, board and report reads it.
+ */
+const OFFER_STATUS: Record<string, { label: string; color: Color }> = {
+  draft: { label: 'Draft', color: 'secondary' },
+  approved: { label: 'Approved', color: 'primary' },
+  sent: { label: 'Sent', color: 'info' },
+  won: { label: 'Won', color: 'success' },
+  lost: { label: 'Lost', color: 'danger' }
+}
+
+export const StatusMap: Story = {
+  render: () => (
+    <div className="ws-row">
+      {Object.entries(OFFER_STATUS).map(([k, s]) => <Badge key={k} color={s.color} dot>{s.label}</Badge>)}
+    </div>
+  )
+}
+
+export const Sizes: Story = {
+  render: args => (
+    <div className="ws-row">
+      <Badge {...args} size="sm">Small</Badge>
+      <Badge {...args} size="md">Medium</Badge>
+    </div>
+  )
+}
+
+export const WithIcon: Story = { args: { color: 'caution', icon: <ShieldQuestion />, children: 'Licence unresolved' } }

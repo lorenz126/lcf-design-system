@@ -1,0 +1,98 @@
+/* ============================================================
+   GEOMETRY — spacing, radii, control sizing
+   First pass. Enough to build controls with; not yet a full
+   layout system.
+   ============================================================ */
+
+:root {
+  /* 4px grid */
+  --s-1:  2px;  --s-2:  4px;  --s-3:  6px;  --s-4:  8px;
+  --s-5: 12px;  --s-6: 16px;  --s-7: 20px;  --s-8: 24px;
+  --s-9: 32px;  --s-10: 40px; --s-11: 48px; --s-12: 64px;
+
+  /* Control heights. Three sizes cover every real need; a fourth starts
+     producing controls nobody can tell apart.
+     These are tight on purpose — the label should sit close to the edge
+     rather than floating in a tall box. Vertical padding is what is left
+     over: 4.5px at sm, 5.5px at md, 7.5px at lg.
+     All three now fall below the 44px touch-target guidance, so a
+     touch-first surface needs the hit area extended past the visual box
+     rather than the control made taller. */
+  --control-sm: 22px;
+  --control-md: 26px;
+  --control-lg: 32px;
+
+  /* Fields start as aliases of the control scale. Whether one scale can
+     serve both a button and a text field is an open question — a button
+     holds a centred label, a field holds a caret and an I-beam target. */
+  --field-sm: var(--control-sm);
+  --field-md: var(--control-md);
+  --field-lg: var(--control-lg);
+
+  /* Radii. --r-control is deliberately its own token rather than an
+     alias: changing button roundness is the single fastest way to
+     re-pitch a product's personality, and it should be one edit. */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-full: 999px;
+  /* Rounded well past the 8px default. Controls clamp this to 40% of
+     their own height, so it acts as a ceiling rather than a fixed value:
+     lg takes the full 12px, md and sm scale down. A button never reaches
+     a capsule — see the border-radius rule in ui/Button.vue. */
+  --r-control: var(--r-lg);
+
+  --border-width: 1px;
+
+  /* Icon sizes, tied to the type scale rather than a separate ramp. An
+     icon reads heavier than text at the same nominal size, so each step
+     sits slightly ABOVE its text size to look equal beside it:
+       13px text -> 14px icon, 15px -> 16px, 17px -> 20px. */
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 20px;
+  /* Lucide draws on a 24px grid at stroke 2. Scaled down to 16px that
+     reads heavy next to 15px text, so the stroke thins with the icon. */
+  --icon-stroke: 1.75;
+
+  /* Breakpoints.
+     These are documentation, not machinery: a custom property cannot be
+     used inside a media query condition — `@media (min-width: var(--bp-md))`
+     simply does not work — so every media query repeats the literal.
+     Keeping the values here means there is still one place that says what
+     they are, and a grep target when they change.
+
+       sm  640px   phone landscape
+       md  860px   tablet / narrow window   <- where sidebars collapse
+       lg 1100px   laptop
+       xl 1440px   desktop
+  */
+  --bp-sm: 640px;
+  --bp-md: 860px;
+  --bp-lg: 1100px;
+  --bp-xl: 1440px;
+
+  /* Stacking order, named by role. A scale that exists before the first
+     overlay is what prevents the z-index: 9999 arms race later. */
+  --z-base:     0;
+  --z-raised:   10;
+  --z-sticky:   20;
+  --z-dropdown: 30;
+  --z-overlay:  40;
+  --z-toast:    50;
+
+  /* Focus ring — one definition, every control. */
+  /* Solid, not translucent. The accent at 45% alpha measured 2.54:1 on
+     white and 1.21:1 on the dark page — below the 3:1 WCAG asks of a
+     focus indicator, and invisible in dark mode. Solid clears it in both
+     (4.02 and 5.43), so the width comes down to compensate for the extra
+     weight.
+
+     One colour for every control, including destructive ones. A focus
+     ring answers "where am I", not "what kind of thing is this"; making
+     it change colour per tone costs recognisability and buys nothing. */
+  --focus-width: 2px;
+  --focus-color: var(--accent);
+}

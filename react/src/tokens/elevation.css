@@ -1,0 +1,46 @@
+/* ============================================================
+   ELEVATION — shadow and glass
+   ============================================================ */
+
+:root {
+  /* The light sits directly in front of the surface, not above it. So
+     every shadow is centred — no y-offset — and reads as a halo the
+     element casts evenly in all directions.
+
+     Two layers per level: a tight ring that defines the edge, and a wide
+     halo that carries the distance. With no offset, roughly half of each
+     shadow hides behind the element, so the blur radii run larger than a
+     directional scale would need for the same visual weight. */
+  --shadow-1: 0 0  2px rgb(0 0 0 / .10), 0 0  6px rgb(0 0 0 / .06);
+  --shadow-2: 0 0  3px rgb(0 0 0 / .11), 0 0 12px rgb(0 0 0 / .08);
+  --shadow-3: 0 0  5px rgb(0 0 0 / .12), 0 0 24px rgb(0 0 0 / .11);
+  --shadow-4: 0 0  8px rgb(0 0 0 / .14), 0 0 44px rgb(0 0 0 / .16);
+
+  /* Glass. The tint alpha is not decoration — it is the only thing
+     keeping label text legible over an unknown backdrop. Lower it and
+     contrast becomes whatever happens to be behind the button. */
+  --glass-bg:        rgb(255 255 255 / .74);
+  --glass-border:    rgb(255 255 255 / .70);
+  --glass-highlight: rgb(255 255 255 / .65);
+  --glass-blur:      14px;
+  --glass-saturate:  180%;
+}
+
+[data-theme="dark"] {
+  /* Shadows must go darker AND wider on a dark ground: the same opacity
+     that reads as a shadow on white is invisible on near-black. */
+  --shadow-1: 0 0  3px rgb(0 0 0 / .45), 0 0  8px rgb(0 0 0 / .30);
+  --shadow-2: 0 0  4px rgb(0 0 0 / .50), 0 0 16px rgb(0 0 0 / .38);
+  --shadow-3: 0 0  6px rgb(0 0 0 / .55), 0 0 30px rgb(0 0 0 / .48);
+  --shadow-4: 0 0 10px rgb(0 0 0 / .60), 0 0 54px rgb(0 0 0 / .58);
+
+  --glass-bg:        rgb(255 255 255 / .16);
+  --glass-border:    rgb(255 255 255 / .18);
+  --glass-highlight: rgb(255 255 255 / .22);
+}
+
+/* Glass is a transparency effect by definition; there is nothing to
+   degrade to but an opaque surface. */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass-bg: var(--bg-raised); --glass-blur: 0px; }
+}

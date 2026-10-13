@@ -1,0 +1,93 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Overview/Installation" />
+
+# Installation
+
+React 18 or 19. Tailwind is optional.
+
+## 1. Install
+
+```bash
+pnpm add "github:lorenz126/lcf-design-system#v0.4.0&path:/react"
+```
+
+The package is built on install (`prepare`), because a git dependency
+arrives as source.
+
+## 2. Styles, once, first
+
+```ts
+// main.tsx — before anything that renders a component
+import '@lcf/design/css'
+```
+
+Everything sits in `@layer lcf`, so the app's own CSS wins without a
+specificity fight.
+
+With Tailwind 4, the tokens are available as utilities too
+(`bg-surface-raised`, `text-secondary`, `text-danger`, `heading-md`):
+
+```css
+@import "tailwindcss";
+@import "@lcf/design/css";
+@import "@lcf/design/tailwind";
+```
+
+## 3. Theme before first paint
+
+```html
+<!-- index.html, in <head> -->
+<script>/* paste themeScript from @lcf/design/theme */</script>
+```
+
+Or in a React SSR head: `<script dangerouslySetInnerHTML={{ __html: themeScript }} />`.
+It reads `localStorage.theme` and falls back to the OS. The same script
+works for a static build with no server: it runs in `<head>` before the
+body exists, whatever produced the HTML.
+
+## 4. The provider
+
+```tsx
+import { LcfProvider } from '@lcf/design/components/LcfProvider'
+import { Link } from 'react-router'
+
+<LcfProvider locale="de-CH" linkComponent={Link}>
+  <App />
+</LcfProvider>
+```
+
+## 5. Import components by path
+
+```tsx
+import { Button } from '@lcf/design/components/Button'
+import { Badge } from '@lcf/design/components/Badge'
+```
+
+One path per component, so a page that uses a button pulls a button.
+
+## Your own colour
+
+An app sets three tokens and nothing else:
+
+```css
+/* src/theme.css, after @lcf/design/css */
+:root, [data-theme="light"] {
+  --accent: #e4002b;        /* rings, borders, marks — 3:1 */
+  --accent-text: #c00024;   /* the colour as text — 4.5:1 */
+  --accent-solid: #d10028;  /* ground for white text — 4.5:1 */
+}
+[data-theme="dark"] {
+  --accent: #ff4d6a;
+  --accent-text: #ff6b83;
+}
+```
+
+Then check them, in the app's CI:
+
+```bash
+npx lcf-check-contrast src/theme.css
+```
+
+Every `primary` in every component follows, and the check measures all
+of it against the app's values.

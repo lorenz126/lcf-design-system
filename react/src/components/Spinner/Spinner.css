@@ -1,0 +1,24 @@
+.lcf-spinner {
+  --sp: 14px;
+  flex: none;
+  display: inline-block;
+  width: var(--sp);
+  height: var(--sp);
+  /* currentColor, so it belongs to whatever it is placed in rather than
+     carrying a colour of its own into a red button. */
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--r-full);
+  animation: lcf-spinner-turn .6s linear infinite;
+}
+.lcf-spinner[data-size="sm"] { --sp: 12px; }
+.lcf-spinner[data-size="lg"] { --sp: 20px; }
+.lcf-spinner[data-size="inherit"] { --sp: 1em; }
+
+@keyframes lcf-spinner-turn { to { transform: rotate(360deg); } }
+
+/* Exempt from base.css's reduced-motion collapse by data-motion, and
+   slowed here instead. */
+@media (prefers-reduced-motion: reduce) {
+  .lcf-spinner { animation-duration: 2s; }
+}

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, react]
   pull_request:
 
 jobs:
@@ -74,4 +74,50 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Every page, in a browser
+        run: pnpm test:e2e
+
+  # The React library in react/ — its own install, its own checks. The
+  # Nuxt job above keeps guarding the 0.3.x line at the root.
+  react:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: react
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: react/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Contrast
+        run: pnpm test:contrast
+
+      - name: Stories, stylesheet and public path for every component
+        run: pnpm test:stories
+
+      - name: No visible text outside the message table
+        run: pnpm test:strings
+
+      - name: Behaviour
+        run: pnpm test:unit
+
+      - name: Types
+        run: pnpm test:types
+
+      - name: Build
+        run: pnpm build
+
+      - name: Browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Every story, in a browser, three passes
         run: pnpm test:e2e

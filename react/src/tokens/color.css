@@ -1,0 +1,381 @@
+/* ============================================================
+   COLOUR
+   ------------------------------------------------------------
+   Two tiers, and the separation is the whole point:
+
+     TIER 1 — primitives.  Literal values. --gray-700, --blue-600.
+              Components must NEVER reference these directly.
+     TIER 2 — semantic.    Roles. --fg-muted, --bg-raised, --accent.
+              This is the only tier components are allowed to use.
+
+   That indirection is what lets you re-theme, add dark mode, or fix a
+   contrast failure without touching a single component.
+
+   The six hues are system tones, with separate light and dark values,
+   each graded against AA in both themes.
+
+   ⚠ The NEUTRAL ramp is still a placeholder — pure neutral (equal R/G/B),
+   deliberately untuned, since most palettes want a temperature.
+   ============================================================ */
+
+:root, [data-theme="light"] {
+  /* ---------- TIER 1 · primitives ----------
+     Declared on [data-theme="light"] as well as :root so that a light
+     island inside a dark page gets the light hue CHANNELS back — without
+     it the island would inherit the dark ones from its ancestor. */
+
+  /* Neutral ramp — placeholder, no temperature */
+  --gray-0:    #ffffff;
+  --gray-50:   #fafafa;
+  --gray-100:  #f5f5f5;
+  --gray-200:  #e5e5e5;
+  --gray-300:  #d4d4d4;
+  --gray-400:  #a3a3a3;
+  --gray-500:  #737373;
+  --gray-600:  #525252;
+  --gray-700:  #404040;
+  --gray-800:  #262626;
+  --gray-900:  #171717;
+  --gray-950:  #0a0a0a;
+  --gray-1000: #000000;
+
+  /* ---------- System hues ----------
+     Six named tones, light and dark. Each hue is stored as raw CHANNELS so
+     a fill can be derived from it at low alpha rather than hand-picked.
+
+     Every hue carries a second, darker "-text" channel. This is not
+     decoration: the source tones are tuned to sit on a light ground as FILLS,
+     and most of them fail contrast as text. systemYellow on white is about
+     1.2:1 — invisible. The -text variants are darkened until they clear AA. */
+
+  --yellow-rgb: 255 204 0;      /* systemYellow */
+  --green-rgb:   52 199 89;     /* systemGreen  */
+  --blue-rgb:     0 122 255;    /* systemBlue   */
+  --purple-rgb: 175  82 222;    /* systemPurple */
+  --red-rgb:    255  59  48;    /* systemRed    */
+  --orange-rgb: 255 149   0;    /* systemOrange */
+
+  /* Text-safe darkenings, light ground.
+     Yellow and orange are deliberately NOT text-safe: they sit at
+     OKLCH L 0.64 rather than the ~0.57 that would clear 4.5:1, because
+     at that lightness they lose their chroma and read as brown. Raised
+     for colour at a measured cost — roughly 3.3:1 on their own tint,
+     above the 3:1 floor for large text and UI components but below AA
+     for body text. Do not use these two as small text on the page. */
+  --yellow-text-rgb: 178 132   0;
+  --green-text-rgb:   26 127  55;
+  --blue-text-rgb:     0  85 204;
+  --purple-text-rgb: 130  49 168;
+  --red-text-rgb:    193  18  31;
+  --orange-text-rgb: 221 100   0;
+}
+
+/* ---------- TIER 2 · semantic · LIGHT ----------
+   On EVERY theme root, not only the light one. A custom property whose
+   value is a var() is computed where it is declared and then inherited
+   as a finished colour; declared on :root alone, --blue-fill would be
+   worked out once from the light channels and a nested
+   [data-theme="dark"] would inherit that light result. Matching
+   [data-theme] makes each scope work its fills out from its own
+   channels. The dark block below still wins for dark: same specificity,
+   later in the file. */
+:root, [data-theme] {
+  color-scheme: light;
+
+  --fg:            var(--gray-900);   /* primary text */
+  --fg-muted:      var(--gray-600);   /* secondary text */
+  --fg-subtle:     var(--gray-500);   /* metadata, placeholders */
+  --fg-on-accent:  var(--gray-0);     /* text on accent fills */
+
+  --bg:            var(--gray-0);     /* page */
+  --bg-raised:     var(--gray-50);    /* cards, panels */
+  --bg-sunken:     var(--gray-100);   /* wells, inset areas */
+
+  --border:        var(--gray-200);   /* default hairline */
+  --border-strong: var(--gray-300);   /* emphasised division */
+
+  /* Neutral fills — for controls that need a ground without carrying a
+     hue. Alpha, not opaque, so they composite correctly over any
+     surface rather than only over --bg. */
+  /* Fainter than --border, for rules that repeat every few pixels. At
+     dense-grid spacing a normal border reads as a cage. */
+  --rule-faint:  rgb(0 0 0 / .05);
+  --fill-quiet:  rgb(0 0 0 / .04);
+  --fill:        rgb(0 0 0 / .07);
+  --fill-strong: rgb(0 0 0 / .12);
+
+  /* ---------- Palette ----------
+     Three roles per hue:
+       --x        the solid tone   (fills, dots, bars, icons)
+       --x-text   legible on --bg  (labels, status text)
+       --x-fill   the tone at low alpha (badge grounds) */
+  --fill-alpha: 0.14;
+  /* Yellow and orange tint paler than the rest. Their own text colour has
+     to sit ON this ground, and a light hue over a light tint has the
+     least contrast to give — every point of alpha costs legibility. */
+  --fill-alpha-light-hue: 0.09;
+
+  --yellow:      rgb(var(--yellow-rgb));
+  --yellow-text: rgb(var(--yellow-text-rgb));
+  /*
+   * A FILL THAT IS READ AGAINST IS OPAQUE.
+   *
+   * These used to be `rgb(hue / var(--fill-alpha))`: a translucent wash
+   * calibrated against the page, so that on the page a badge cleared AA.
+   * On a card it did not — --bg-raised is a step off the page, and a
+   * badge on the CURRENT ROW of a sidebar sits on --fill on --bg-raised,
+   * two washes deep. The page sweep measured that badge at 2.87:1 while
+   * every pair in check-contrast passed, because check-contrast measured
+   * against the page. Stacking the grounds there found fifteen failures
+   * across both themes — every hue, one recipe.
+   *
+   * So each fill is now the same wash FLATTENED ONTO THE PAGE with
+   * color-mix: the identical colour where it was designed, and now the
+   * identical colour everywhere else. The cost is that a badge on a dark
+   * card no longer takes the card's tone by a few percent. That property
+   * was the defect.
+   *
+   * --fill (neutral) stays translucent on purpose. It is a highlight
+   * over content, nothing is set in it, and it is the ground the others
+   * were failing on.
+   */
+  --yellow-fill: color-mix(in srgb, rgb(var(--yellow-rgb)) calc(var(--fill-alpha-light-hue) * 100%), var(--bg));
+  --green:       rgb(var(--green-rgb));
+  --green-text:  rgb(var(--green-text-rgb));
+  --green-fill:  color-mix(in srgb, rgb(var(--green-rgb)) calc(var(--fill-alpha) * 100%), var(--bg));
+  --blue:        rgb(var(--blue-rgb));
+  --blue-text:   rgb(var(--blue-text-rgb));
+  --blue-fill:   color-mix(in srgb, rgb(var(--blue-rgb)) calc(var(--fill-alpha) * 100%), var(--bg));
+  --purple:      rgb(var(--purple-rgb));
+  --purple-text: rgb(var(--purple-text-rgb));
+  --purple-fill: color-mix(in srgb, rgb(var(--purple-rgb)) calc(var(--fill-alpha) * 100%), var(--bg));
+  --red:         rgb(var(--red-rgb));
+  --red-text:    rgb(var(--red-text-rgb));
+  --red-fill:    color-mix(in srgb, rgb(var(--red-rgb)) calc(var(--fill-alpha) * 100%), var(--bg));
+  --orange:      rgb(var(--orange-rgb));
+  --orange-text: rgb(var(--orange-text-rgb));
+  --orange-fill: color-mix(in srgb, rgb(var(--orange-rgb)) calc(var(--fill-alpha-light-hue) * 100%), var(--bg));
+
+  /* ---------- Badges ----------
+     Two recipes, chosen by the hue's own lightness — not by preference.
+
+     Yellow and orange are light hues. To clear 4.5:1 as text on a pale
+     tint they must be darkened so far that they lose their chroma and
+     turn muddy; measured, yellow's maximum chroma at that lightness is
+     0.1175 against 0.177 for the pure tone. Dark yellow is brown, and no
+     colour space escapes that.
+
+     One recipe for all six regardless: tint ground, the hue's own text.
+     A badge row where two of six invert reads as a mistake, not a rule,
+     and consistency of the pattern wins over the last few points of
+     contrast. Yellow and orange land just under AA as a result — see the
+     measured note in Badge.vue. Their tint is pulled paler to claw back
+     what it can. */
+  --yellow-badge-bg: var(--yellow-fill);
+  --yellow-badge-fg: var(--yellow-text);
+  --orange-badge-bg: var(--orange-fill);
+  --orange-badge-fg: var(--orange-text);
+
+  --green-badge-bg:  var(--green-fill);
+  --green-badge-fg:  var(--green-text);
+  --blue-badge-bg:   var(--blue-fill);
+  --blue-badge-fg:   var(--blue-text);
+  --purple-badge-bg: var(--purple-fill);
+  --purple-badge-fg: var(--purple-text);
+  --red-badge-bg:    var(--red-fill);
+  --red-badge-fg:    var(--red-text);
+
+  /* ---------- Solid ----------
+     White text, always. That is a fixed rule, so the BACKGROUND is what
+     has to move: each tone is the brightest version of its own hue that
+     still carries white at 4.5:1, found by holding the source hue and chroma
+     in OKLCH and lowering lightness until it clears.
+
+     The source tones do not clear it — blue 4.02, red 3.55, yellow 1.51 —
+     so these sit a step deeper. Blue, purple and red land close enough to
+     read as the same colour. Yellow and orange do not: at the lightness
+     white needs, they are unavoidably brown. That is the cost of the
+     white-text rule, not a tuning failure. */
+  --yellow-solid-bg: #8f7100;   /* 4.64:1 with white */
+  --orange-solid-bg: #ae6200;   /* 4.62 */
+  --green-solid-bg:  #00872b;   /* 4.67 */
+  --blue-solid-bg:   #0070ef;   /* 4.60 */
+  --purple-solid-bg: #a649d5;   /* 4.63 */
+  --red-solid-bg:    #e71916;   /* 4.62 */
+  --solid-fg: #fff;
+
+  /* ---------- Tinted ----------
+     Coloured text on the hue's own faint tint, always. Yellow and orange
+     land at 4.25:1 and 4.23:1 — just under AA — because a light hue on a
+     light tint has nowhere to go. Kept deliberately: the rule is one
+     recipe for every tone. */
+  --blue-tint-bg:   var(--blue-fill);    --blue-tint-fg:   var(--blue-text);
+  --green-tint-bg:  var(--green-fill);   --green-tint-fg:  var(--green-text);
+  --purple-tint-bg: var(--purple-fill);  --purple-tint-fg: var(--purple-text);
+  --red-tint-bg:    var(--red-fill);     --red-tint-fg:    var(--red-text);
+  --yellow-tint-bg: var(--yellow-fill);  --yellow-tint-fg: var(--yellow-text);
+  --orange-tint-bg: var(--orange-fill);  --orange-tint-fg: var(--orange-text);
+
+  /* ---------- Categorical chart series ----------
+     A SEPARATE palette from the UI hues, and not a preference — measured.
+     The six UI tones fail as a categorical set: yellow leaves the
+     lightness band, three sit under 3:1 against the surface, and
+     yellow↔orange land at ΔE 6.5 for NORMAL vision (floor 15), because at
+     the lightness a light surface needs, both collapse toward brown.
+
+     These three are staggered in LIGHTNESS as well as hue. Protanopia
+     collapses hue and leaves lightness, so three tones of equal lightness
+     — which is what carrying white text demands — are indistinguishable
+     to it however different their hues.
+
+     Validated all-pairs, light and dark: lightness band, chroma floor,
+     CVD separation, normal-vision floor and surface contrast all pass.
+     THREE is the ceiling. A fourth series does not get a new colour; it
+     gets small multiples. */
+  --chart-1: #0053c7;
+  --chart-2: #c47a00;
+  --chart-3: #00641f;
+
+  /* ---------- Roles mapped onto the palette ---------- */
+  /* THE THREE AN APP OVERRIDES to carry its own colour — and only these
+     three. Everything else that says "primary" derives from them.
+       --accent        the brand tone: borders, focus ring, marks (3:1)
+       --accent-text   the tone as legible text on the page (4.5:1)
+       --accent-solid  a ground white text sits on (4.5:1 with white)
+     They are three because one colour cannot be all three: #007aff is a
+     fine ring and 4.02:1 under white text. Check an app's own values with
+     `lcf-check-contrast app-theme.css`. */
+  --accent:        var(--blue);
+  --accent-text:   var(--blue-text);
+  --accent-solid:  var(--blue-solid-bg);
+  --accent-subtle: color-mix(in srgb, var(--accent) calc(var(--fill-alpha) * 100%), var(--bg));
+  /* Shifts toward the foreground, so it darkens on light and lightens
+     on dark without needing a per-theme value. */
+  --accent-hover:  color-mix(in srgb, var(--blue) 78%, var(--fg));
+
+}
+
+/* ---------- TIER 2 · semantic · DARK ----------
+   Note these are NOT mechanical inversions. --bg lifts off pure black
+   and the accent lightens, because a mid-tone accent that passes
+   contrast on white will fail on a dark ground. */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --fg:            var(--gray-50);
+  --fg-muted:      var(--gray-400);
+  --fg-subtle:     var(--gray-500);
+  --fg-on-accent:  var(--gray-0);
+
+  --bg:            var(--gray-950);
+  --bg-raised:     var(--gray-900);
+  --bg-sunken:     var(--gray-1000);
+
+  --border:        var(--gray-800);
+  --border-strong: var(--gray-700);
+
+  --chart-1: #4a90e8;
+  --chart-2: #a8730f;
+  --chart-3: #3faa64;
+
+  --rule-faint:  rgb(255 255 255 / .07);
+  --fill-quiet:  rgb(255 255 255 / .05);
+  --fill:        rgb(255 255 255 / .09);
+  --fill-strong: rgb(255 255 255 / .15);
+
+  /* The dark tones are separate — brighter and slightly desaturated.
+     On a dark ground the tone itself is legible as text, so -text collapses
+     back onto the tone. Fill alpha rises: a tint reads weaker against dark. */
+  --yellow-rgb: 255 214  10;
+  --green-rgb:   48 209  88;
+  --blue-rgb:    10 132 255;
+  --purple-rgb: 191  90 242;
+  --red-rgb:    255  69  58;
+  --orange-rgb: 255 159  10;
+
+  --yellow-text-rgb: var(--yellow-rgb);
+  --green-text-rgb:  var(--green-rgb);
+  --blue-text-rgb:   var(--blue-rgb);
+  --purple-text-rgb: var(--purple-rgb);
+  --red-text-rgb:    var(--red-rgb);
+  --orange-text-rgb: var(--orange-rgb);
+
+  --fill-alpha: 0.17;
+  /* No split needed here — on a dark ground the bright tones have ample
+     contrast against their own tint (yellow measures 9.9:1). */
+  --fill-alpha-light-hue: 0.17;
+
+  /* On a dark ground every tone is legible as text, so all six hues use
+     the tint recipe — the light-hue inversion is a light-mode problem. */
+  --yellow-badge-bg: var(--yellow-fill);
+  --yellow-badge-fg: var(--yellow-text);
+  --orange-badge-bg: var(--orange-fill);
+  --orange-badge-fg: var(--orange-text);
+
+  /* On dark, every tone stays bright and takes deep text — white would
+     fail on all six here too. */
+  /* Solid tones are page-independent — white on a tone contrasts the same
+     whatever is behind the button — so the light values carry over. Tint
+     recipes come from --*-fill, which already flips per theme. */
+}
+
+/* ============================================================
+   TIER 3 · INTENT
+   ------------------------------------------------------------
+   What a component is TOLD: `color="success"`, not `tone="green"`.
+   Eight colours named for what they mean, each resolving to six roles
+   that every component reads the same way:
+
+     --<c>-solid     ground of a solid control
+     --<c>-on-solid  text on it                         4.5:1
+     --<c>-soft      opaque tint, for soft controls and badges
+     --<c>-on-soft   text on the tint                   4.5:1 *
+     --<c>-text      the colour as text on the page     4.5:1 *
+     --<c>-border    an outline in the colour           3:1
+
+   * warning and caution are yellow and orange, and held to 3:1 for the
+     reason the hues always were: at AA lightness they read as brown.
+
+   No new colour here. Every value is a recipe from the tiers above,
+   already measured; this tier only renames them by meaning, so that a
+   status ("verloren", "ungeklärt") picks a meaning and the meaning picks
+   the hue. Re-declared on every theme root, for the reason TIER 2 is.
+
+   primary is the APP's colour — whatever --accent is set to. secondary
+   is neutral. The six hues map one to one:
+     info → blue · success → green · warning → orange
+     caution → yellow · danger → red · discovery → purple
+   ============================================================ */
+:root, [data-theme] {
+  --primary-solid: var(--accent-solid);   --primary-on-solid: var(--fg-on-accent);
+  --primary-soft:  var(--accent-subtle);  --primary-on-soft:  var(--accent-text);
+  --primary-text:  var(--accent-text);    --primary-border:   var(--accent);
+
+  --secondary-solid: var(--fg);           --secondary-on-solid: var(--bg);
+  --secondary-soft:  var(--fill);         --secondary-on-soft:  var(--fg);
+  --secondary-text:  var(--fg);           --secondary-border:   var(--border-strong);
+
+  --info-solid: var(--blue-solid-bg);     --info-on-solid: var(--solid-fg);
+  --info-soft:  var(--blue-tint-bg);      --info-on-soft:  var(--blue-tint-fg);
+  --info-text:  var(--blue-text);         --info-border:   var(--blue-text);
+
+  --success-solid: var(--green-solid-bg); --success-on-solid: var(--solid-fg);
+  --success-soft:  var(--green-tint-bg);  --success-on-soft:  var(--green-tint-fg);
+  --success-text:  var(--green-text);     --success-border:   var(--green-text);
+
+  --warning-solid: var(--orange-solid-bg); --warning-on-solid: var(--solid-fg);
+  --warning-soft:  var(--orange-tint-bg);  --warning-on-soft:  var(--orange-tint-fg);
+  --warning-text:  var(--orange-text);     --warning-border:   var(--orange-text);
+
+  --caution-solid: var(--yellow-solid-bg); --caution-on-solid: var(--solid-fg);
+  --caution-soft:  var(--yellow-tint-bg);  --caution-on-soft:  var(--yellow-tint-fg);
+  --caution-text:  var(--yellow-text);     --caution-border:   var(--yellow-text);
+
+  --danger-solid: var(--red-solid-bg);    --danger-on-solid: var(--solid-fg);
+  --danger-soft:  var(--red-tint-bg);     --danger-on-soft:  var(--red-tint-fg);
+  --danger-text:  var(--red-text);        --danger-border:   var(--red-text);
+
+  --discovery-solid: var(--purple-solid-bg); --discovery-on-solid: var(--solid-fg);
+  --discovery-soft:  var(--purple-tint-bg);  --discovery-on-soft:  var(--purple-tint-fg);
+  --discovery-text:  var(--purple-text);     --discovery-border:   var(--purple-text);
+}

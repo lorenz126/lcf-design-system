@@ -15,3 +15,7 @@ demo/.output/
 # Playwright
 test-results/
 playwright-report/
+
+# React library
+storybook-static/
+react/.verify-probe.mjs
