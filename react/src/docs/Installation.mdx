@@ -13,7 +13,9 @@ pnpm add "github:lorenz126/lcf-design-system#v0.4.0&path:/react"
 ```
 
 The package is built on install (`prepare`), because a git dependency
-arrives as source.
+arrives as source. **pnpm** — `&path:/react` installs a subdirectory of
+the repository, and npm has no syntax for that. Verified: the library
+installs, builds and imports from a git URL with this path.
 
 ## 2. Styles, once, first
 
