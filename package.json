@@ -2,7 +2,7 @@
   "name": "@lcf/design",
   "version": "0.3.3",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/lorenz126/lcf-design-system.git"

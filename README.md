@@ -50,10 +50,12 @@ changed, and `AGENTS.md` says what counts as breaking.
 
 ## Licence
 
-None granted. The repository is public so it can be read and referenced;
-`package.json` says `UNLICENSED`, and there is no `LICENSE` file, which
-means all rights are reserved. Reading and citing is fine; reusing the
-code in your own project is not, unless a licence is added here later.
+MIT — see [`LICENSE`](LICENSE). Use it, change it, ship it; keep the
+notice. `"private": true` in `package.json` only stops an accidental
+`npm publish`; it says nothing about who may use the code.
+
+Contributions go through a pull request — see
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ### What it costs
 

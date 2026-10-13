@@ -10,6 +10,17 @@ tag. Before a tag, `pnpm verify:consumer`.
 
 ## Unreleased
 
+### Changed
+
+- **The layer is MIT-licensed.** `LICENSE` added, `package.json` says
+  `MIT`, the README says what that means. Every tag before this one
+  carried no licence; from here on the code may be used, changed and
+  redistributed with the notice kept. Not breaking — it grants, it takes
+  nothing away.
+- `CONTRIBUTING.md` and `.github/CODEOWNERS`: how a change from outside
+  gets in — a branch, a pull request, CI green, one approval from the
+  owner.
+
 ## 0.3.3 — 2026-09-08
 
 ### Added
