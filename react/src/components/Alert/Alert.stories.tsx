@@ -7,6 +7,7 @@ import { COLORS } from '../types'
 const meta = {
   title: 'Components/Alert',
   component: Alert,
+  parameters: { componentSubtitle: 'What the page says about itself — a condition, not an event.' },
   args: {
     color: 'caution',
     title: 'Price for Acoboard is open',

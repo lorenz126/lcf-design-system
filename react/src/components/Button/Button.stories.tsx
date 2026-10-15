@@ -6,6 +6,7 @@ import { COLORS } from '../types'
 const meta = {
   title: 'Components/Button',
   component: Button,
+  parameters: { componentSubtitle: 'Actions, from the one you want pressed to the ones you do not.' },
   args: { children: 'Save offer', color: 'primary', variant: 'solid', size: 'md' }
 } satisfies Meta<typeof Button>
 export default meta

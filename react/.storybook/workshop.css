@@ -18,3 +18,59 @@
   .ws-grid { grid-template-columns: repeat(2, max-content); }
   .ws-grid .ws-label { grid-column: 1 / -1; }
 }
+
+/* ---- The docs pages, in the system's own type and colours ----
+   Storybook styles its docs with its own theme object; these rules hand
+   the page to the tokens instead, so the docs follow the theme switch
+   into dark exactly as the components do. */
+.sbdocs-wrapper, .sbdocs-content {
+  background: var(--bg) !important;
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+.sbdocs-wrapper { padding-block: var(--s-10) !important; }
+.sbdocs-content { max-width: 880px !important; }
+.sbdocs-title { font: var(--w-bold) var(--fs-title-lg)/var(--lh-title-lg) var(--font-sans) !important; letter-spacing: var(--tr-title-lg) !important; color: var(--fg) !important; }
+.sbdocs-subtitle { font: var(--w-regular) var(--fs-lead)/var(--lh-lead) var(--font-sans) !important; color: var(--fg-muted) !important; margin-block-end: var(--s-8) !important; }
+.sbdocs-h2 { font: var(--w-semibold) var(--fs-title)/var(--lh-title) var(--font-sans) !important; letter-spacing: var(--tr-title) !important; color: var(--fg) !important; border: 0 !important; margin-block-start: var(--s-11) !important; }
+.sbdocs-h3 { font: var(--w-semibold) var(--fs-title-sm)/var(--lh-title-sm) var(--font-sans) !important; color: var(--fg) !important; margin-block-start: var(--s-9) !important; }
+.sbdocs-p, .sbdocs-li, .sbdocs-td, .sbdocs-th { font: var(--w-regular) var(--fs-body)/var(--lh-body) var(--font-sans) !important; color: var(--fg) !important; }
+.sbdocs a { color: var(--accent-text) !important; }
+.sbdocs-preview { border-radius: var(--r-lg) !important; border-color: var(--border) !important; box-shadow: none !important; background: var(--bg) !important; }
+.docblock-argstable, .docblock-argstable * { font-family: var(--font-sans) !important; }
+.sbdocs code:not(pre code) { font-family: var(--font-mono); font-size: .9em; background: var(--fill) !important; border: 0 !important; color: var(--fg) !important; }
+/* The design notes read as notes: quieter, narrower. */
+.lcf-design-notes .sbdocs-p, .lcf-design-notes p, .lcf-design-notes li { color: var(--fg-muted) !important; max-width: 68ch; }
+
+/* Block headings (Usage, Reference, Examples, each story) are bare h2/h3
+   with a generated class, not .sbdocs-h2 — measured: they kept
+   Storybook's #171717 on the dark page. Matched by structure instead. */
+.sbdocs-content :is(h2, h3):not(.sbdocs-subtitle) { color: var(--fg) !important; border: 0 !important; font-family: var(--font-sans) !important; }
+.sbdocs-content h2:not(.sbdocs-subtitle) { font: var(--w-semibold) var(--fs-title)/var(--lh-title) var(--font-sans) !important; letter-spacing: var(--tr-title) !important; margin-block-start: var(--s-11) !important; }
+.sbdocs-content h3 { font: var(--w-semibold) var(--fs-title-sm)/var(--lh-title-sm) var(--font-sans) !important; margin-block-start: var(--s-9) !important; }
+
+/* The props table and code: on the system's grounds, in both themes. */
+.docblock-argstable :is(thead, tbody, tr, th, td) { background: transparent !important; color: var(--fg) !important; border-color: var(--border) !important; }
+.docblock-argstable tbody { box-shadow: 0 0 0 1px var(--border) !important; border-radius: var(--r-lg) !important; }
+.docblock-argstable th { color: var(--fg-muted) !important; font-weight: var(--w-medium) !important; }
+.docblock-argstable td :is(span, div, p) { color: inherit; }
+.docblock-argstable td code, .docblock-argstable td span[class] { background: var(--fill) !important; border-color: transparent !important; color: var(--fg) !important; }
+.docblock-source { background: var(--bg-raised) !important; border-color: var(--border) !important; box-shadow: none !important; border-radius: var(--r-lg) !important; }
+/* The highlighter's palette is tuned for a light ground; on dark it is
+   one colour rather than six that fail. */
+[data-theme="dark"] .docblock-source :is(code, span) { color: var(--fg) !important; }
+.docblock-source button { background: var(--fill) !important; color: var(--fg) !important; border-color: var(--border) !important; }
+
+/* On this page: neutral, and "here" is heavier text, not the accent. */
+.toc-wrapper, .toc-wrapper :is(h2, a, li) { color: var(--fg-muted) !important; font-family: var(--font-sans) !important; }
+.toc-wrapper .is-active-link { color: var(--fg) !important; font-weight: var(--w-semibold) !important; }
+.toc-wrapper .toc-list-item.is-active-li::before, .toc-wrapper .toc-link::before { background: var(--fg) !important; }
+
+/* Three grounds Storybook paints white with generated classes only —
+   found by asking the dark page which elements still had a #fff
+   background: the copy button's tray, the canvas toolbar, and the
+   on-this-page title (#171717 on the dark page). */
+.docblock-source > div:has(> button) { background: transparent !important; }
+.sbdocs-preview > div:first-child { background: var(--bg-raised) !important; border-color: var(--border) !important; color: var(--fg-muted) !important; }
+.sbdocs-preview > div:first-child button { color: var(--fg-muted) !important; }
+.sbdocs-toc--custom h2 { color: var(--fg-subtle) !important; font: var(--w-semibold) var(--fs-caption)/var(--lh-caption) var(--font-sans) !important; text-transform: uppercase; letter-spacing: .04em !important; }

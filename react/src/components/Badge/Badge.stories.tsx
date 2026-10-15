@@ -6,6 +6,7 @@ import { COLORS, type Color } from '../types'
 const meta = {
   title: 'Components/Badge',
   component: Badge,
+  parameters: { componentSubtitle: 'A status marker. A status picks a meaning; the meaning picks the colour.' },
   args: { children: 'Sent', color: 'info' }
 } satisfies Meta<typeof Badge>
 export default meta

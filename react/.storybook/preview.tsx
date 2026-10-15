@@ -3,6 +3,8 @@ import { useEffect } from 'react'
 import '../src/css/index.css'
 import './workshop.css'
 import { LcfProvider } from '../src/i18n/context'
+import { DocsPage } from './DocsPage'
+import { theme as docsTheme } from './theme'
 
 /**
  * Two toolbar switches, because the two questions every component has to
@@ -38,6 +40,12 @@ const preview: Preview = {
   ],
   parameters: {
     layout: 'padded',
+    docs: {
+      page: DocsPage,
+      theme: docsTheme,
+      toc: { headingSelector: 'h2, h3', ignoreSelector: '.sbdocs-subtitle', title: 'On this page' },
+      codePanel: true
+    },
     controls: { expanded: true, sort: 'requiredFirst' },
     options: {
       storySort: { order: ['Overview', ['Introduction', 'Installation', 'Locale and format'], 'Foundations', 'Components'] }

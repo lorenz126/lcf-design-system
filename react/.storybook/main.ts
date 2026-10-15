@@ -11,6 +11,10 @@ const config: StorybookConfig = {
   stories: ['../src/docs/*.mdx', '../src/**/*.stories.tsx'],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y'],
   framework: { name: '@storybook/react-vite', options: {} },
+  // A documentation site, not a workbench: no onboarding checklist, no
+  // "what's new" notices, no telemetry from visitors' builds.
+  core: { disableTelemetry: true, disableWhatsNewNotifications: true },
+  features: { sidebarOnboardingChecklist: false, menuOnboardingChecklist: false },
   typescript: {
     reactDocgen: 'react-docgen-typescript',
     reactDocgenTypescriptOptions: {
