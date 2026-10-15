@@ -38,9 +38,7 @@ export interface ButtonProps extends Omit<ComponentPropsWithRef<'button'>, 'colo
  *   content rather than in the layout — a sticky bar, an overlay.
  * - `glass` — translucent over a backdrop. Its contrast is whatever is
  *   behind it, so it is for photographs and maps, never a page.
- *
- * (This comment is the docs page's description, rendered as Markdown —
- * so lists are Markdown lists, not aligned columns.)
+
  *
  * NEVER A CAPSULE. The radius is capped at 40% of the height, whatever
  * --r-control says, so that a capsule keeps meaning "a label, not a thing
