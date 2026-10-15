@@ -86,3 +86,21 @@ Each component begins with a doc comment that says what was decided,
 what it cost, and what the component **refuses** to be. Storybook shows
 it as the component's description, so it is the first thing a consumer
 reads. A commit message says what was found and how.
+
+## The documentation site
+
+https://lcf-design-system.vercel.app — the Storybook, built by Vercel on
+every push to `react` (production) and to any branch that has a
+`react/` directory (preview). The settings live in the Vercel project,
+not in a file, because the project root is the repository root:
+
+| setting | value |
+|---|---|
+| install | `pnpm --dir react install --frozen-lockfile` |
+| build | `pnpm --dir react build-storybook` |
+| output | `react/storybook-static` |
+| ignored build step | `test ! -d react` — skips `main` while it is the Nuxt layer |
+| production branch | `react` |
+
+When `react/` reaches `main`, switch the production branch to `main`
+and nothing else changes.

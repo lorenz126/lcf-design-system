@@ -9,8 +9,12 @@ React 18 or 19. Tailwind is optional.
 ## 1. Install
 
 ```bash
-pnpm add "github:lorenz126/lcf-design-system#v0.4.0&path:/react"
+pnpm add "github:lorenz126/lcf-design-system#react&path:/react"
 ```
+
+`#react` follows the branch while 0.4.0 is being built — every install
+takes whatever is newest. Once 0.4.0 is tagged, pin the tag instead
+(`#v0.4.0&path:/react`) and upgrade on purpose.
 
 The package is built on install (`prepare`), because a git dependency
 arrives as source. **pnpm** — `&path:/react` installs a subdirectory of
