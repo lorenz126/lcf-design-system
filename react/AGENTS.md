@@ -85,7 +85,9 @@ changes what renders. Adding is not breaking. Record it in
 Each component begins with a doc comment that says what was decided,
 what it cost, and what the component **refuses** to be. Storybook shows
 it as the component's description, so it is the first thing a consumer
-reads. A commit message says what was found and how.
+reads — and it is rendered as **Markdown** on the public site, so a
+list is a `- ` list, never columns aligned with spaces (indented lines
+become code blocks). A commit message says what was found and how.
 
 ## The documentation site
 

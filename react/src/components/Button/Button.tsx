@@ -29,14 +29,18 @@ export interface ButtonProps extends Omit<ComponentPropsWithRef<'button'>, 'colo
  * against.
  *
  * `color` says what it means, `variant` how loud it is:
- *   solid    one per view. The thing you want pressed. White text, always.
- *   soft     secondary actions that still carry a colour.
- *   outline  neutral secondary — a hairline and the colour as text.
- *   ghost    tertiary. Reads as a link with a hit area.
- *   floating solid, lifted off the surface: for actions that sit ON
- *            content rather than in the layout — a sticky bar, an overlay.
- *   glass    translucent over a backdrop. Its contrast is whatever is
- *            behind it, so it is for photographs and maps, never a page.
+ *
+ * - `solid` — one per view. The thing you want pressed. White text, always.
+ * - `soft` — secondary actions that still carry a colour.
+ * - `outline` — neutral secondary: a hairline and the colour as text.
+ * - `ghost` — tertiary. Reads as a link with a hit area.
+ * - `floating` — solid, lifted off the surface: for actions that sit ON
+ *   content rather than in the layout — a sticky bar, an overlay.
+ * - `glass` — translucent over a backdrop. Its contrast is whatever is
+ *   behind it, so it is for photographs and maps, never a page.
+ *
+ * (This comment is the docs page's description, rendered as Markdown —
+ * so lists are Markdown lists, not aligned columns.)
  *
  * NEVER A CAPSULE. The radius is capped at 40% of the height, whatever
  * --r-control says, so that a capsule keeps meaning "a label, not a thing
