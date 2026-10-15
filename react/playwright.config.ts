@@ -1,10 +1,11 @@
 import { defineConfig } from '@playwright/test'
 
 /**
- * One job: load every story in a real browser and read what the browser
- * says. Against the Storybook dev server, because React reports its
- * development warnings — a key missing from a list, a ref on a function
- * component — only in development, and those are what this is for.
+ * One job: load every story and every docs page in a real browser and
+ * read what the browser says. Against the Storybook dev server, because
+ * React reports its development warnings — a key missing from a list, a
+ * ref on a function component — only in development, and those are what
+ * this is for.
  *
  * THREE PASSES. Every contrast failure the Nuxt layer ever had was in
  * the dark theme, and every overflow it ever had was a longer word. So

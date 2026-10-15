@@ -32,9 +32,9 @@
    it came out as Storybook's rgba(0,0,0,.85) slab directly under the
    light Usage block. Its highlighter palette is the dark one, hard-coded
    by Preview: yellow and lilac, which on the page's code ground would be
-   unreadable. So: the Usage block's ground, a hairline from the canvas,
-   and one colour with quieter punctuation — the decision workshop.css
-   makes for code on the dark page, here in both themes.
+   unreadable. So: the Usage block's ground and a hairline from the
+   canvas here; its colours are workshop.css's code palette, which names
+   this block beside .docblock-source so the two cannot drift apart.
    Scoped to the primary: the examples' code stays closed by default and
    is workshop.css's to style. */
 .docs-primary > div[id] > div {
@@ -42,8 +42,6 @@
   border-top: var(--border-width) solid var(--border) !important;
   border-radius: 0 0 var(--r-lg) var(--r-lg) !important;
 }
-.docs-primary > div[id] :is(pre, .token) { color: var(--fg) !important; }
-.docs-primary > div[id] .token:is(.punctuation, .attr-equals) { color: var(--fg-muted) !important; }
 
 /* Its "Hide code" toggle is pressed from the start, and Storybook paints
    a pressed toggle in its light theme's #000 — measured on the dark page:

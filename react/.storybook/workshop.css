@@ -89,12 +89,17 @@
    4.44:1, measured by the docs sweep), and on the dark page it had been
    switched off by painting every token --fg. Order matters: a token can
    carry two of these classes (`tag punctuation`), and the later rule is
-   the one that holds. */
-.docblock-source :is(pre, code), .docblock-source .token { color: var(--fg) !important; }
-.docblock-source .token:is(.keyword, .tag, .atrule, .selector, .important, .builtin) { color: var(--discovery-text) !important; }
-.docblock-source .token:is(.number, .boolean, .constant, .symbol, .property, .attr-name, .class-name, .variable) { color: var(--info-text) !important; }
-.docblock-source .token:is(.string, .attr-value, .char, .regex, .url) { color: var(--success-text) !important; }
-.docblock-source .token:is(.comment, .prolog, .doctype, .cdata, .punctuation, .operator) { color: var(--fg-muted) !important; }
+   the one that holds.
+   The primary example's open code (.docs-primary > div[id], see
+   docs-page.css) is the same highlighter without the docblock-source
+   class, on the same --bg-raised, so it is named here too: it had been
+   one colour while the import line above it was highlighted, two code
+   blocks a few pixels apart in two styles. */
+:is(.docblock-source, .docs-primary > div[id]) :is(pre, code, .token) { color: var(--fg) !important; }
+:is(.docblock-source, .docs-primary > div[id]) .token:is(.keyword, .tag, .atrule, .selector, .important, .builtin) { color: var(--discovery-text) !important; }
+:is(.docblock-source, .docs-primary > div[id]) .token:is(.number, .boolean, .constant, .symbol, .property, .attr-name, .class-name, .variable) { color: var(--info-text) !important; }
+:is(.docblock-source, .docs-primary > div[id]) .token:is(.string, .attr-value, .char, .regex, .url) { color: var(--success-text) !important; }
+:is(.docblock-source, .docs-primary > div[id]) .token:is(.comment, .prolog, .doctype, .cdata, .punctuation, .operator) { color: var(--fg-muted) !important; }
 .docblock-source button { background: var(--fill) !important; color: var(--fg) !important; border-color: var(--border) !important; }
 
 /* On this page: neutral, and "here" is heavier text, not the accent. */
@@ -114,6 +119,12 @@
    whatever is not the story. */
 .sbdocs-preview > div:not(.docs-story) { background: var(--bg-raised) !important; border-color: var(--border) !important; color: var(--fg-muted) !important; }
 .sbdocs-preview > div:not(.docs-story) button { color: var(--fg-muted) !important; }
+/* The toolbar's bottom edge is an inset box-shadow in Storybook's light
+   border colour, #e5e5e5 — measured on the dark Button page: a bright
+   hairline across the primary canvas, 229 on 23. A first child that is
+   not the story is the toolbar and only the toolbar (the open code is
+   the last child). */
+.sbdocs-preview > div:first-child:not(.docs-story) { box-shadow: inset 0 calc(-1 * var(--border-width)) 0 var(--border) !important; }
 /* "Show code" / "Copy code" under each preview: Storybook's light
    textMutedColor (#525252) written into the element — 2.53:1 on the
    dark page, measured by the docs sweep. */

@@ -4,8 +4,9 @@ import type { StorybookConfig } from '@storybook/react-vite'
  * The documentation IS the workshop: one docs page per component with
  * its props table read from the TypeScript, and one story per axis —
  * colours, variants, sizes, states — the way the SDK this follows lays
- * its pages out. The page sweep (e2e/stories.spec.ts) loads every story
- * in a real browser, so a story is also a test fixture.
+ * its pages out. The browser sweep loads every story (e2e/stories.spec.ts)
+ * and every docs page (e2e/docs.spec.ts), so a story is also a test
+ * fixture.
  */
 const config: StorybookConfig = {
   stories: ['../src/docs/*.mdx', '../src/**/*.stories.tsx'],

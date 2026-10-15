@@ -9,5 +9,8 @@
     "types": ["node"]
   },
   "include": ["src"],
-  "exclude": ["src/**/*.stories.tsx", "src/**/*.test.tsx", "src/**/*.test.ts", "src/test"]
+  // src/docs is the docs site's (its MDX pages and the blocks they use),
+  // not the library's: left in, it shipped six .d.ts files under
+  // dist/docs/blocks that no public path exports.
+  "exclude": ["src/**/*.stories.tsx", "src/**/*.test.tsx", "src/**/*.test.ts", "src/test", "src/docs"]
 }
