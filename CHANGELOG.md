@@ -21,6 +21,24 @@ tag. Before a tag, `pnpm verify:consumer`.
   gets in — a branch, a pull request, CI green, one approval from the
   owner.
 
+### Fixed
+
+- **The primary button cleared AA again.** `tone="accent"` was moved
+  off the blue tokens and onto `--accent` so it follows a re-themed
+  accent, and with that the solid variant painted `--fg-on-accent`
+  straight onto the accent: white on `#007AFF`, 4.02:1 in light and
+  3.65:1 in dark. `pnpm test:e2e` failed on every page with a primary
+  button, in all three passes; `pnpm test:contrast` passed, because no
+  pair in it put text on the accent. Never released — the regression and
+  the fix are both after 0.3.3.
+
+  New semantic token **`--accent-solid-bg`**, the ground
+  `--fg-on-accent` is read on, mapped to `--blue-solid-bg` (4.60:1). The
+  button's solid and floating variants use it, so they still follow the
+  accent role; a consumer re-theming the accent sets it beside
+  `--accent`, `--accent-text` and `--accent-subtle`. Not breaking — a
+  token added. `check-contrast` now grades the pair as `accent/solid`.
+
 ## 0.3.3 — 2026-09-08
 
 ### Added

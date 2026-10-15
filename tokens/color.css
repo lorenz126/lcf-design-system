@@ -229,6 +229,14 @@
   --accent:        var(--blue);
   --accent-text:   var(--blue-text);
   --accent-subtle: var(--blue-fill);
+  /* THE GROUND --fg-on-accent IS READ ON. --accent is a border, fill and
+     focus colour graded at 3:1, and the source blue carries white at
+     4.02:1 in light and 3.65:1 in dark — the primary button painted it
+     straight and every page with one failed AA. This is the solid tone
+     of the accent hue, the same one tone="blue" takes, and it is page-
+     independent, so dark inherits it. Re-theming the accent means
+     setting this beside --accent, --accent-text and --accent-subtle. */
+  --accent-solid-bg: var(--blue-solid-bg);
   /* Shifts toward the foreground, so it darkens on light and lightens
      on dark without needing a per-theme value. */
   --accent-hover:  color-mix(in srgb, var(--blue) 78%, var(--fg));

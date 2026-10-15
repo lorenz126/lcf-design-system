@@ -20,7 +20,7 @@ export const semantic: TokenGroup[] = [
   {
     group: 'Surfaces',
     scope: 'Page, cards, wells. Not contrast-graded — these ARE the ground.',
-    tokens: ['--bg', '--bg-raised', '--bg-sunken', '--accent-subtle']
+    tokens: ['--bg', '--bg-raised', '--bg-sunken', '--accent-subtle', '--accent-solid-bg']
   },
   {
     group: 'Borders',

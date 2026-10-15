@@ -242,6 +242,10 @@ function expectations() {
       why: 'borders, fills and focus rings — not text'
     },
     { what: 'accent/text', fg: '--accent-text', bg: '--bg', min: AA },
+    // Text ON the accent: the primary button, a selected calendar day.
+    // Not --fg-on-accent on --accent — that is 4.02:1 in light and 3.65
+    // in dark, and nothing here measured it while the button painted it.
+    { what: 'accent/solid', fg: '--fg-on-accent', bg: '--accent-solid-bg', min: AA },
     { what: 'accent/hover', fg: '--accent-hover', bg: '--bg', min: AA },
     { what: 'solid/neutral', fg: '--bg', bg: '--fg', min: AA },
     // Text does not only appear on the page. A card, a well and a board
