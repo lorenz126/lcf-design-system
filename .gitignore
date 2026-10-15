@@ -19,3 +19,5 @@ playwright-report/
 # React library
 storybook-static/
 react/.verify-probe.mjs
+.vercel
+.env*
