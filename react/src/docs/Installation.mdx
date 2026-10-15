@@ -1,12 +1,14 @@
-import { Meta } from '@storybook/addon-docs/blocks'
+import { Meta, Subtitle } from '@storybook/addon-docs/blocks'
+import { Step, Steps } from './blocks'
 
 <Meta title="Overview/Installation" />
 
 # Installation
 
-React 18 or 19. Tailwind is optional.
+<Subtitle>React 18 or 19. Tailwind is optional.</Subtitle>
 
-## 1. Install
+<Steps>
+<Step title="Install">
 
 ```bash
 pnpm add "github:lorenz126/lcf-design-system#react&path:/react"
@@ -21,7 +23,8 @@ arrives as source. **pnpm** — `&path:/react` installs a subdirectory of
 the repository, and npm has no syntax for that. Verified: the library
 installs, builds and imports from a git URL with this path.
 
-## 2. Styles, once, first
+</Step>
+<Step title="Styles, once, first">
 
 ```ts
 // main.tsx — before anything that renders a component
@@ -40,19 +43,26 @@ With Tailwind 4, the tokens are available as utilities too
 @import "@lcf/design/tailwind";
 ```
 
-## 3. Theme before first paint
+</Step>
+<Step title="Theme before first paint">
 
 ```html
 <!-- index.html, in <head> -->
 <script>/* paste themeScript from @lcf/design/theme */</script>
 ```
 
-Or in a React SSR head: `<script dangerouslySetInnerHTML={{ __html: themeScript }} />`.
+Or in a React SSR head:
+
+```tsx
+<script dangerouslySetInnerHTML={{ __html: themeScript }} />
+```
+
 It reads `localStorage.theme` and falls back to the OS. The same script
 works for a static build with no server: it runs in `<head>` before the
 body exists, whatever produced the HTML.
 
-## 4. The provider
+</Step>
+<Step title="The provider">
 
 ```tsx
 import { LcfProvider } from '@lcf/design/components/LcfProvider'
@@ -63,7 +73,8 @@ import { Link } from 'react-router'
 </LcfProvider>
 ```
 
-## 5. Import components by path
+</Step>
+<Step title="Import components by path">
 
 ```tsx
 import { Button } from '@lcf/design/components/Button'
@@ -71,6 +82,9 @@ import { Badge } from '@lcf/design/components/Badge'
 ```
 
 One path per component, so a page that uses a button pulls a button.
+
+</Step>
+</Steps>
 
 ## Your own colour
 

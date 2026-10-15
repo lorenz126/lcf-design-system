@@ -1,0 +1,30 @@
+/* Tables on the docs pages. Docs furniture, never shipped. Rules, not a
+   grid of boxes: a horizontal hairline under each row, a stronger one
+   under the head — the argstable's own rhythm. */
+
+.lcf-doc-table { margin-block: var(--s-6); }
+.lcf-doc-table table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--fg);
+  font: var(--w-regular) var(--fs-body)/var(--lh-body) var(--font-sans);
+  letter-spacing: var(--tr-body);
+}
+.lcf-doc-table :is(th, td) {
+  padding: var(--s-4) var(--s-5) var(--s-4) 0;
+  text-align: start;
+  vertical-align: top;
+  /* A word too long for its column breaks rather than push the page
+     sideways at 390. break-word, not anywhere: `anywhere` also shrinks
+     every cell's min-content, and the table then squeezed "tinted
+     controls, badges" into a column one word wide with the comma on a
+     line of its own — measured at 390. */
+  overflow-wrap: break-word;
+}
+.lcf-doc-table :is(th, td):last-child { padding-inline-end: 0; }
+.lcf-doc-table th {
+  color: var(--fg-muted);
+  font-weight: var(--w-medium);
+  border-block-end: var(--border-width) solid var(--border-strong);
+}
+.lcf-doc-table td { border-block-end: var(--border-width) solid var(--border); }

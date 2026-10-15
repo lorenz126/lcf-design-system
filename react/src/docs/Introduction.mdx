@@ -1,11 +1,12 @@
-import { Meta } from '@storybook/addon-docs/blocks'
+import { Meta, Subtitle } from '@storybook/addon-docs/blocks'
+import { Boxes, Languages, Palette, SquareTerminal } from 'lucide-react'
+import { Card, CardGrid, ComponentCatalogue } from './blocks'
 
 <Meta title="Overview/Introduction" />
 
 # LCF Design System
 
-React components, colour and type tokens, and a locale layer for the
-internal tools of joloco, kustik and art orchestration.
+<Subtitle>React components, tokens and a locale layer for the internal tools of joloco, kustik and art orchestration.</Subtitle>
 
 - **Tokens** — colour in three tiers (primitives, roles, intents), a
   coupled type ramp, spacing, radii, motion. Plain CSS custom properties.
@@ -19,13 +20,31 @@ internal tools of joloco, kustik and art orchestration.
   browser in light, dark and reduced motion, and a check that no
   component ships visible text outside the message table.
 
+## Get started
+
+{/* "#components" is the id Storybook gives the "## Components" heading below: rename one, rename the other. */}
+<CardGrid>
+  <Card title="Installation" to="Overview/Installation" icon={<SquareTerminal />} description="Install from git, import the styles once, set the theme before first paint." />
+  <Card title="Locale and format" to="Overview/Locale and format" icon={<Languages />} description="One locale on the provider sets every text, number, amount and date a component prints." />
+  <Card title="Colors" to="Foundations/Colors" icon={<Palette />} description="Three tiers, eight intents, and the contrast floor each pair is held to." />
+  <Card title="Components" href="#components" icon={<Boxes />} description="Every component, with the one sentence it answers to." />
+</CardGrid>
+
+## Components
+
+Each opens its page: the examples, the props, and the design notes. The
+list is read from the stories, so a component is here the moment it has
+a page.
+
+<ComponentCatalogue />
+
 ## What each component refuses
 
 Every component's source begins with a comment that says what was
-decided, what it cost, and what the component **refuses to be**. That
-last part is the one that matters when it does not fit: a component
-stretched past its edge by a prop is two components in one file. Propose
-a new one instead.
+decided, what it cost, and what the component **refuses to be** — on its
+page, under *Design notes*. That last part is the one that matters when
+it does not fit: a component stretched past its edge by a prop is two
+components in one file. Propose a new one instead.
 
 ## Coming from the Nuxt layer
 

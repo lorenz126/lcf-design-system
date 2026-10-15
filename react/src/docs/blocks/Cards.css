@@ -1,0 +1,54 @@
+/* Link cards on the overview pages. Docs furniture, never shipped.
+   Unlayered, like workshop.css, so it sits above the library's
+   @layer lcf without needing a specificity fight. */
+
+.lcf-doc-cards {
+  display: grid;
+  /* Two columns in the 880px docs column, one at phone width: min()
+     lets a column shrink below 18rem rather than push the page sideways. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: var(--s-5);
+  margin: var(--s-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.lcf-doc-card { display: flex; min-width: 0; }
+
+.lcf-doc-card-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-6) var(--s-7);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg);
+  text-decoration: none;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+/* Hover moves the BORDER, never the ground. A ground that shifts toward
+   its own text costs contrast exactly where the pointer is — the rule
+   Button's quiet variants were taught by a 4.51 → 2.50. Against the
+   page, the hairline is 1.26:1 (light) and 1.31:1 (dark); --border-strong
+   would be 1.48 and 1.91, a change too small to see on light, so the
+   hover goes to --fg-subtle: 4.74 and 4.18. */
+.lcf-doc-card-link:hover { border-color: var(--fg-subtle); }
+.lcf-doc-card-link:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--s-1);
+}
+
+/* The link itself is painted --accent-text by workshop.css (`.sbdocs a`,
+   !important), so every part inside it sets its own colour. */
+.lcf-doc-card-icon { display: flex; margin-block-end: var(--s-3); color: var(--fg); }
+.lcf-doc-card-icon svg { width: var(--icon-lg); height: var(--icon-lg); stroke-width: var(--icon-stroke); }
+.lcf-doc-card-title {
+  color: var(--fg);
+  font: var(--w-semibold) var(--fs-body)/var(--lh-body) var(--font-sans);
+  letter-spacing: var(--tr-body);
+}
+.lcf-doc-card-text {
+  color: var(--fg-muted);
+  font: var(--w-regular) var(--fs-small)/var(--lh-small) var(--font-sans);
+  letter-spacing: var(--tr-small);
+}
