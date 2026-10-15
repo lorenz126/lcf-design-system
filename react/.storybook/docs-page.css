@@ -1,0 +1,68 @@
+/* The top of a component's docs page — the hero row and the primary
+   example — and nothing else. Loaded through DocsPage.tsx, which
+   preview.tsx imports, so it is in the preview iframe in story mode too:
+   the Showcase stories that use these classes are swept by the e2e
+   sweep exactly as the docs page shows them. */
+
+/* The hero (.docs-hero in DocsPage): the Showcase story, bare. No canvas
+   border, no toolbar, no "Show code" — it is a picture of the component,
+   not an example to copy from; that is the primary canvas right under
+   Usage. It needs no spacing of its own: the subtitle above leaves --s-8
+   and the Usage heading below brings --s-11.
+
+   The row the Showcase stories render. Wraps rather than scrolls: at 390
+   the Button row is three lines, and a row that ran off the side would be
+   the one horizontal scroll on the page. */
+.docs-showcase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-5);
+}
+/* For things that fill their line (Alert): they share the row while each
+   gets 18rem, and stack below that — side by side at 1280, one under the
+   other at 390. */
+.docs-showcase[data-fill] { align-items: flex-start; }
+.docs-showcase[data-fill] > * { flex: 1 1 18rem; min-width: 0; }
+
+/* The primary example's code, open under it on every component page.
+   Preview renders it through styled(Source), whose className replaces
+   Source's own "docblock-source" — measured: the open code carried only
+   an emotion class, so none of the page's code styling reached it, and
+   it came out as Storybook's rgba(0,0,0,.85) slab directly under the
+   light Usage block. Its highlighter palette is the dark one, hard-coded
+   by Preview: yellow and lilac, which on the page's code ground would be
+   unreadable. So: the Usage block's ground, a hairline from the canvas,
+   and one colour with quieter punctuation — the decision workshop.css
+   makes for code on the dark page, here in both themes.
+   Scoped to the primary: the examples' code stays closed by default and
+   is workshop.css's to style. */
+.docs-primary > div[id] > div {
+  background: var(--bg-raised) !important;
+  border-top: var(--border-width) solid var(--border) !important;
+  border-radius: 0 0 var(--r-lg) var(--r-lg) !important;
+}
+.docs-primary > div[id] :is(pre, .token) { color: var(--fg) !important; }
+.docs-primary > div[id] .token:is(.punctuation, .attr-equals) { color: var(--fg-muted) !important; }
+
+/* Its "Hide code" toggle is pressed from the start, and Storybook paints
+   a pressed toggle in its light theme's #000 — measured on the dark page:
+   black on --bg, nothing to see. */
+.docs-primary + .sbdocs-preview-actions button { color: var(--fg-muted) !important; }
+.docs-primary + .sbdocs-preview-actions .docblock-code-toggle--expanded {
+  color: var(--fg) !important;
+  background: var(--fill) !important;
+}
+
+/* A component beside the words that say what it is doing. Set apart from
+   the row by a second gap: at the row's own --s-5, three spinners and a
+   fourth beside its words read as four spinners and a caption. */
+.docs-showcase-pair {
+  margin-inline-start: var(--s-5);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--fg-muted);
+  font: var(--w-regular) var(--fs-small)/var(--lh-small) var(--font-sans);
+  letter-spacing: var(--tr-small);
+}

@@ -14,6 +14,28 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
+/**
+ * How an app gives its statuses a fixed meaning: one map, written once,
+ * and every list, board and report reads it.
+ */
+const OFFER_STATUS: Record<string, { label: string; color: Color }> = {
+  draft: { label: 'Draft', color: 'secondary' },
+  approved: { label: 'Approved', color: 'primary' },
+  sent: { label: 'Sent', color: 'info' },
+  won: { label: 'Won', color: 'success' },
+  lost: { label: 'Lost', color: 'danger' }
+}
+
+/** The row under the title: the offer statuses, as an app maps them. */
+export const Showcase: Story = {
+  tags: ['!autodocs'],
+  render: () => (
+    <div className="docs-showcase">
+      {Object.entries(OFFER_STATUS).map(([k, s]) => <Badge key={k} color={s.color} dot>{s.label}</Badge>)}
+    </div>
+  )
+}
+
 export const Colors: Story = {
   render: () => (
     <div className="ws-grid" style={{ ['--cols' as string]: 3 }}>
@@ -27,18 +49,6 @@ export const Colors: Story = {
       ))}
     </div>
   )
-}
-
-/**
- * How an app gives its statuses a fixed meaning: one map, written once,
- * and every list, board and report reads it.
- */
-const OFFER_STATUS: Record<string, { label: string; color: Color }> = {
-  draft: { label: 'Draft', color: 'secondary' },
-  approved: { label: 'Approved', color: 'primary' },
-  sent: { label: 'Sent', color: 'info' },
-  won: { label: 'Won', color: 'success' },
-  lost: { label: 'Lost', color: 'danger' }
 }
 
 export const StatusMap: Story = {
