@@ -21,6 +21,22 @@ tag. Before a tag, `pnpm verify:consumer`.
   gets in — a branch, a pull request, CI green, one approval from the
   owner.
 
+### Fixed
+
+- **Spinner and indeterminate Progress keep moving under reduced
+  motion.** Both said they slowed — Spinner to 2s a turn, the Progress
+  sweep to 4s — and did not stop; both stopped. `base.css` collapses
+  every animation to 0.01ms with `!important`, and their own scoped
+  durations lost to it — measured in Chromium at `1e-05s`, one
+  iteration. The collapse now skips anything marked
+  `data-motion="essential"`; Spinner's root and Progress's rail carry
+  it. An attribute rather than a counter-
+  `!important`, because in cascade layers an earlier layer's
+  `!important` wins, and a consumer may load `base.css` into one. The
+  reduced-motion browser pass now asks every spinner on its page for
+  `2s × infinite` and every indeterminate sweep for `4s × infinite`,
+  and failed on both before the fix.
+
 ## 0.3.3 — 2026-09-08
 
 ### Added

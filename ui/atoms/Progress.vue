@@ -17,7 +17,9 @@
  * argument as Spinner. Everything else in the system collapses to 1ms,
  * which is right for a transition because the end state is the point. A
  * stopped indeterminate bar is not a finished one; it is a frozen one,
- * and it says the opposite of what it is for.
+ * and it says the opposite of what it is for. `data-motion="essential"`
+ * on the rail is what lets the 4s through to its ::after: base.css's
+ * collapse is !important, and this rule is not.
  *
  * A percentage is a number, and a number with no unit is a number nobody
  * can act on. `format` supplies the words; the default supplies the
@@ -48,7 +50,7 @@ const text = computed(() => {
 
 <template>
   <div class="u-pr" :class="[`u-s-${size}`, { 'u-pr-busy': busy }]" :data-tone="tone">
-    <div class="u-pr-rail">
+    <div class="u-pr-rail" data-motion="essential">
       <progress
         class="u-pr-bar"
         :value="busy ? undefined : value"

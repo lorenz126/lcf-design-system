@@ -220,3 +220,31 @@ for (const route of routes) {
     expect(await audit(page), 'at 390').toEqual([])
   })
 }
+
+/*
+ * Spinner and Progress say they SLOW under reduced motion and do not
+ * stop — and both stopped. base.css collapses every animation to 0.01ms
+ * with !important, and their own slower durations, scoped and without
+ * !important, lost to it — measured at 1e-05s, one iteration, a ring
+ * and a sweep standing still. Nothing above can see that — a frozen
+ * spinner is not a console message, an overflow or a contrast ratio —
+ * so it is asked directly, of every one on its page, including the
+ * spinners inside buttons.
+ */
+const KEEPS_MOVING = [
+  { route: '/atoms/spinner', what: 'a spinner', selector: '.u-sp', pseudo: null, turn: '2s × infinite' },
+  { route: '/atoms/progress', what: 'an indeterminate sweep', selector: '.u-pr-busy .u-pr-rail', pseudo: '::after', turn: '4s × infinite' }
+]
+for (const { route, what, selector, pseudo, turn } of KEEPS_MOVING) {
+  test(`${what} still moves under reduced motion`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'reduced-motion', 'the preference is the point')
+    await page.goto(route, { waitUntil: 'networkidle' })
+    const got = await page.locator(selector).evaluateAll((els, pseudo) =>
+      els.map(e => {
+        const cs = getComputedStyle(e, pseudo)
+        return `${cs.animationDuration} × ${cs.animationIterationCount}`
+      }), pseudo)
+    expect(got.length, `${what} on the page`).toBeGreaterThan(0)
+    expect(new Set(got), 'duration × iterations').toEqual(new Set([turn]))
+  })
+}

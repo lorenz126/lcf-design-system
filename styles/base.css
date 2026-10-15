@@ -50,8 +50,21 @@ input, button, textarea, select { font: inherit; }
   html { scroll-behavior: smooth; }
 }
 
+/* Everything that moves arrives at once instead — EXCEPT what opts out
+   with data-motion="essential". Spinner and Progress's indeterminate
+   sweep are the case: stopped, they say the opposite of what they are
+   there to say, so they slow down on their own terms instead. Their own
+   scoped durations, without !important, used to lose to this rule
+   outright — measured at 1e-05s, one iteration.
+
+   The exemption is an attribute and not a counter-rule with !important
+   in the component, because that only works while this file is
+   unlayered. A consumer may import it into a cascade layer, and the
+   React port does: for !important an EARLIER layer wins, so a component
+   could never override base that way — only be silently overridden by
+   it. An attribute holds however the file is loaded. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  :not([data-motion="essential"]), :not([data-motion="essential"])::before, :not([data-motion="essential"])::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

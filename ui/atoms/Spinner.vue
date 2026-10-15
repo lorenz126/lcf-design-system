@@ -13,7 +13,8 @@
  * for a transition — the end state is the point. A stopped spinner is
  * not a finished spinner, it is a frozen one, and it says the opposite
  * of what it is there to say. Two seconds a turn is calm and still
- * clearly alive.
+ * clearly alive. `data-motion="essential"` is what lets the 2s through:
+ * base.css's collapse is !important, and this rule is not.
  *
  * Decorative by default, like Icon and Avatar: it usually sits beside
  * the word "Loading". `label` is for when it is on its own.
@@ -29,6 +30,7 @@ withDefaults(defineProps<{
 <template>
   <span
     class="u-sp"
+    data-motion="essential"
     :class="`u-sp-${size}`"
     :role="label ? 'status' : undefined"
     :aria-label="label"
