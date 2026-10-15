@@ -88,7 +88,9 @@ Components and app CSS may reference these and only these:
 - text: `--fg`, `--fg-muted`, `--fg-subtle`, `--fg-on-accent`
 - fills: `--fill-quiet`, `--fill`, `--fill-strong`
 - edges: `--border`, `--border-strong`, `--rule-faint`
-- accent: `--accent`, `--accent-text`, `--accent-subtle`
+- accent: `--accent`, `--accent-text`, `--accent-subtle`, and
+  `--accent-solid-bg` — the ground `--fg-on-accent` is read on. Text
+  never goes on `--accent` itself; re-theming the accent sets all four.
 - hues: `--<blue|green|yellow|orange|red|purple>-text`, `-fill`,
   `-badge-bg`, `-badge-fg`
 - space `--s-1`…`--s-12`, radii `--r-*`, type `--fs-*`/`--lh-*`/`--w-*`,

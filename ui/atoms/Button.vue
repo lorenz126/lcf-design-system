@@ -91,8 +91,12 @@ if (import.meta.dev) {
    only a bug once a consumer re-themes the accent — then every other
    component follows --accent and the primary button alone does not.
    --fg-on-accent rather than --solid-fg for the same reason: the token
-   that names the text on an accent fill is the one this ground takes. */
-.u-btn[data-tone="accent"] { --btn-bg: var(--accent);           --btn-fg: var(--fg-on-accent);
+   that names the text on an accent fill is the one this ground takes.
+   The ground is --accent-solid-bg, not --accent. --accent is graded at
+   the 3:1 UI floor, and painted straight it put white on the source
+   blue at 4.02:1 on every page with a primary button. The two are a
+   pair in check-contrast; --accent and text are not. */
+.u-btn[data-tone="accent"] { --btn-bg: var(--accent-solid-bg);  --btn-fg: var(--fg-on-accent);
                            --btn-tint: var(--accent-subtle); --btn-onpage: var(--accent-text);   --btn-ink: var(--accent-text); }
 .u-btn[data-tone="blue"]   { --btn-bg: var(--blue-solid-bg);   --btn-fg: var(--solid-fg);
                            --btn-tint: var(--blue-tint-bg); --btn-onpage: var(--blue-text);     --btn-ink: var(--blue-tint-fg); }
