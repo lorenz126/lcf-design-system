@@ -274,9 +274,11 @@ function onKey(e: KeyboardEvent) {
 .u-cal-outside { color: var(--fg-subtle); }
 
 .u-cal-today .u-cal-num { font-weight: var(--w-semibold); color: var(--accent-text); }
-.u-cal-on { background: var(--accent); color: var(--solid-fg); }
-.u-cal-on .u-cal-num { color: var(--solid-fg); }
-.u-cal-on:hover:not([aria-disabled]) { background: var(--accent); }
+/* The selected day is a number someone reads, so it sits on the accent's
+   solid ground, not on --accent: white on the source blue is 4.02:1. */
+.u-cal-on { background: var(--accent-solid-bg); color: var(--fg-on-accent); }
+.u-cal-on .u-cal-num { color: var(--fg-on-accent); }
+.u-cal-on:hover:not([aria-disabled]) { background: var(--accent-solid-bg); }
 
 .u-cal-num { grid-area: 1 / 1; }
 .u-cal-dots {

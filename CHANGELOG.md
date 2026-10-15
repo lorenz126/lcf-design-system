@@ -38,6 +38,10 @@ tag. Before a tag, `pnpm verify:consumer`.
   accent role; a consumer re-theming the accent sets it beside
   `--accent`, `--accent-text` and `--accent-subtle`. Not breaking — a
   token added. `check-contrast` now grades the pair as `accent/solid`.
+- Calendar's selected day had the same pair, white on `--accent`, since
+  it was written. The sweep never saw it because nothing is selected
+  when the page loads. It takes `--accent-solid-bg` and
+  `--fg-on-accent` now.
 
 ## 0.3.3 — 2026-09-08
 
