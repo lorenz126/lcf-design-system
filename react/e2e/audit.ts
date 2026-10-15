@@ -37,8 +37,21 @@ export function audit(page: Page) {
     }
 
     // An id is a promise of uniqueness; aria-labelledby relies on it.
+    //
+    // One exception, by name: addon-a11y's colour-vision decorator
+    // appends its filter definitions — <svg id="storybook-a11y-vision-
+    // filters" aria-hidden="true">, 0×0, seven <filter id="storybook-a11y-
+    // vision-…"> — to <body> once per rendered story. A story renders one;
+    // a docs page renders one per story, so the Button page carried ten
+    // identical copies. Nothing names anything with them: they are
+    // referenced only by url(#…) from the vision tool, which manager.ts
+    // hides. Excused as that one element and what is inside it, not as
+    // a prefix and not as "anything aria-hidden".
     const seen = new Map<string, number>()
-    for (const e of d.querySelectorAll('[id]')) seen.set(e.id, (seen.get(e.id) ?? 0) + 1)
+    for (const e of d.querySelectorAll('[id]')) {
+      if (e.closest('body > svg#storybook-a11y-vision-filters[aria-hidden="true"]')) continue
+      seen.set(e.id, (seen.get(e.id) ?? 0) + 1)
+    }
     const dup = [...seen].filter(([, n]) => n > 1).map(([id]) => id)
     if (dup.length) findings.push(`duplicate id: ${dup.slice(0, 5).join(', ')}`)
 

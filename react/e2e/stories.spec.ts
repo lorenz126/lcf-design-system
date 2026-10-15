@@ -1,7 +1,7 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join } from 'node:path'
-import { expect, test, type Page } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+import { expect, test } from '@playwright/test'
 import { audit } from './audit'
+import { SRC, kebab, listen, signal, sourceFiles, storiesTitle } from './sweep'
 
 /**
  * Every story, loaded on its own, and the five questions asked of it.
@@ -13,40 +13,10 @@ import { audit } from './audit'
  * itself.
  */
 
-const ROOT = join(import.meta.dirname, '..')
-const kebab = (s: string) =>
-  s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase()
-
-function storyFiles(dir: string): string[] {
-  return readdirSync(dir).flatMap(f => {
-    const p = join(dir, f)
-    return statSync(p).isDirectory() ? storyFiles(p) : f.endsWith('.stories.tsx') ? [p] : []
-  })
-}
-
-const stories = storyFiles(join(ROOT, 'src')).flatMap(file => {
-  const src = readFileSync(file, 'utf8')
-  const title = src.match(/title:\s*'([^']+)'/)?.[1]
-  if (!title) throw new Error(`${file}: no title in meta`)
-  return [...src.matchAll(/^export const (\w+)/gm)].map(m => `${kebab(title)}--${kebab(m[1]!)}`)
+const stories = sourceFiles(SRC, '.stories.tsx').flatMap(file => {
+  const title = storiesTitle(file)
+  return [...readFileSync(file, 'utf8').matchAll(/^export const (\w+)/gm)].map(m => `${kebab(title)}--${kebab(m[1]!)}`)
 })
-
-function listen(page: Page) {
-  const said: string[] = []
-  page.on('console', m => {
-    if (m.type() === 'warning' || m.type() === 'error') said.push(`${m.type()}: ${m.text()}`)
-  })
-  page.on('pageerror', e => said.push(`pageerror: ${e.message}`))
-  return said
-}
-
-/* Storybook's own chatter, not the component's. Each entry says what it
-   is, so a new one is added knowingly rather than by widening a regex. */
-const NOISE = [
-  /\[vite\]/, // HMR housekeeping
-  /Download the React DevTools/ // React's own, in development
-]
-const signal = (lines: string[]) => lines.filter(l => !NOISE.some(n => n.test(l)))
 
 for (const id of stories) {
   test(id, async ({ page }, info) => {
