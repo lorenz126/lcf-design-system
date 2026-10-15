@@ -19,6 +19,17 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
+/** The row under the title: one that is done, one that is in the way. */
+export const Showcase: Story = {
+  tags: ['!autodocs'],
+  render: () => (
+    <div className="docs-showcase" data-fill>
+      <Alert color="success" title="Offer saved" />
+      <Alert color="caution" title="Price for Acoboard is open" description="Set it before the offer is sent." />
+    </div>
+  )
+}
+
 export const Colors: Story = {
   render: args => (
     <div className="ws-stack">

@@ -12,6 +12,19 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
+/** The row under the title: the three sizes, and one beside the words. */
+export const Showcase: Story = {
+  tags: ['!autodocs'],
+  render: () => (
+    <div className="docs-showcase">
+      <Spinner size="sm" labelled />
+      <Spinner size="md" labelled />
+      <Spinner size="lg" labelled />
+      <span className="docs-showcase-pair"><Spinner size="sm" /> Loading offers…</span>
+    </div>
+  )
+}
+
 export const Sizes: Story = {
   render: () => (
     <div className="ws-row">

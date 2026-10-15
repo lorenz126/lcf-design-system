@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ArrowRight, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeftRight, ArrowRight, Plus, Trash2 } from 'lucide-react'
 import { Button } from './Button'
 import { COLORS } from '../types'
 
@@ -13,6 +13,26 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
+
+/**
+ * The row under the title. `!autodocs` keeps it out of Examples and off
+ * the primary canvas; DocsPage asks for it by name. The loading button is
+ * soft, not solid: solid is one per view, and this row is the first view
+ * a reader has of the system.
+ */
+export const Showcase: Story = {
+  tags: ['!autodocs'],
+  render: () => (
+    <div className="docs-showcase">
+      <Button>Save offer</Button>
+      <Button color="secondary" variant="soft">Cancel</Button>
+      <Button color="danger" variant="ghost" uniform aria-label="Delete offer"><Trash2 /></Button>
+      <Button color="secondary" variant="outline" endIcon={<ArrowRight />}>Next</Button>
+      <Button color="secondary" variant="ghost" startIcon={<ArrowLeftRight />}>Compare</Button>
+      <Button variant="soft" loading>Send offer</Button>
+    </div>
+  )
+}
 
 const VARIANTS = ['solid', 'soft', 'outline', 'ghost'] as const
 

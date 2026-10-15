@@ -11,9 +11,9 @@ pnpm test
 ```
 
 In order, failing on the first: contrast (322 pairs, both themes) ·
-stories (every component has stories, a public path and its CSS in
-`src/css/index.css`) · strings (no visible text outside the message
-table) · vitest · tsc · build · Playwright over every story in three
+stories (every component has stories with a `Showcase`, a public path
+and its CSS in `src/css/index.css`) · strings (no visible text outside
+the message table) · vitest · tsc · build · Playwright over every story in three
 passes (light/en-GB, dark/de-CH, reduced motion).
 
 Before anything is tagged: `pnpm verify:consumer` — packs the library,
@@ -31,6 +31,12 @@ src/theme/        data-theme helpers and the pre-paint script
 src/hooks/        one file per hook; each is a public path
 src/docs/         the Overview and Foundations pages
 ```
+
+Every `X.stories.tsx` starts with `Base` — the primary example, shown
+with its code open — and exports `Showcase` with `tags: ['!autodocs']`:
+the bare row under the title of the docs page, which the tag keeps out
+of Examples and off the primary canvas.
+`.storybook/DocsPage.tsx` says why it is built that way.
 
 ## The vocabulary
 

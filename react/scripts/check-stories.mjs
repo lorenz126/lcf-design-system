@@ -10,6 +10,11 @@
  *      same file, so this is also what keeps the workshop honest.
  *   3. It is a public path. `index.ts` is what scripts/build.mjs turns
  *      into `@lcf/design/components/<Name>`.
+ *   4. Its stories export a `Showcase` tagged '!autodocs' — the row under
+ *      the title of its docs page (.storybook/DocsPage.tsx). Without it
+ *      the page has no hero; without the tag the row is listed a second
+ *      time under Examples, and placed first it becomes the primary
+ *      example in place of Base.
  *
  * Derived from the tree, both directions, so a new folder is checked the
  * moment it exists and a deleted one leaves no stale import behind.
@@ -30,6 +35,15 @@ for (const n of names) {
   // A provider renders nothing to look at or style.
   if (n === 'LcfProvider') continue
   if (!has(`${n}.stories.tsx`)) problems.push(`${n}: no ${n}.stories.tsx`)
+  else {
+    const src = readFileSync(join(dir, n, `${n}.stories.tsx`), 'utf8')
+    // The Showcase's own object: from its export to the next one.
+    const showcase = src.match(/^export const Showcase\b[\s\S]*?(?=^export |(?![\s\S]))/m)?.[0]
+    if (!showcase) problems.push(`${n}: no Showcase story, so its docs page has no row under the title`)
+    else if (!/tags:\s*\[[^\]]*'!autodocs'/.test(showcase)) {
+      problems.push(`${n}: Showcase is not tagged '!autodocs' — it would be listed again under Examples`)
+    }
+  }
   if (has(`${n}.css`) && !index.includes(`../components/${n}/${n}.css`)) {
     problems.push(`${n}: ${n}.css is not imported by src/css/index.css — it would ship unstyled`)
   }
@@ -42,4 +56,4 @@ if (problems.length) {
   console.error(`\n  ${problems.length} problem(s):\n` + problems.map(p => `    ${p}`).join('\n') + '\n')
   process.exit(1)
 }
-console.log(`  ${names.length} components: stories, stylesheet and public path for each`)
+console.log(`  ${names.length} components: stories with a Showcase, stylesheet and public path for each`)
