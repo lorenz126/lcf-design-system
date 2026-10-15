@@ -11,6 +11,10 @@ import { defineConfig } from '@playwright/test'
  * the second pass is dark AND German, the way a real Swiss user's
  * screen looks; the third is reduced motion.
  */
+/* SB_PORT lets several checkouts sweep at once — two worktrees on the
+   same port would each reuse the other's server and test the wrong tree. */
+const port = Number(process.env.SB_PORT ?? 6011)
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -19,7 +23,7 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   timeout: 30_000,
   use: {
-    baseURL: 'http://localhost:6011',
+    baseURL: `http://localhost:${port}`,
     viewport: { width: 1280, height: 900 },
     trace: 'retain-on-failure'
   },
@@ -29,8 +33,8 @@ export default defineConfig({
     { name: 'reduced-motion', metadata: { globals: 'theme:light;locale:en-GB' }, use: { contextOptions: { reducedMotion: 'reduce' } } }
   ],
   webServer: {
-    command: 'pnpm exec storybook dev -p 6011 --ci --no-open',
-    url: 'http://localhost:6011/iframe.html',
+    command: `pnpm exec storybook dev -p ${port} --ci --no-open`,
+    url: `http://localhost:${port}/iframe.html`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     stdout: 'ignore',
