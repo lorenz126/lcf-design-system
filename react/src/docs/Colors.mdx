@@ -1,10 +1,11 @@
-import { Meta } from '@storybook/addon-docs/blocks'
+import { Meta, Subtitle } from '@storybook/addon-docs/blocks'
+import { Table } from './blocks'
 
 <Meta title="Foundations/Colors" />
 
 # Colors
 
-Three tiers, and components may read only the last two.
+<Subtitle>Three tiers, and components may read only the last two.</Subtitle>
 
 1. **Primitives** — a neutral ramp and six hues, each with a separate
    light and dark value and a darker `-text` variant graded for AA.
@@ -15,23 +16,29 @@ Three tiers, and components may read only the last two.
 3. **Intents** — what a component is told. Eight colours, six roles
    each.
 
-| color | means | hue |
-|---|---|---|
-| `primary` | the app's own colour | `--accent` |
-| `secondary` | neutral | — |
-| `info` | worth knowing | blue |
-| `success` | done, won, valid | green |
-| `warning` | needs attention soon | orange |
-| `caution` | unresolved, check before use | yellow |
-| `danger` | failed, lost, destructive | red |
-| `discovery` | new, suggested | purple |
+<Table>
+  <thead><tr><th>color</th><th>means</th><th>hue</th></tr></thead>
+  <tbody>
+    <tr><td>`primary`</td><td>the app's own colour</td><td>`--accent`</td></tr>
+    <tr><td>`secondary`</td><td>neutral</td><td>—</td></tr>
+    <tr><td>`info`</td><td>worth knowing</td><td>blue</td></tr>
+    <tr><td>`success`</td><td>done, won, valid</td><td>green</td></tr>
+    <tr><td>`warning`</td><td>needs attention soon</td><td>orange</td></tr>
+    <tr><td>`caution`</td><td>unresolved, check before use</td><td>yellow</td></tr>
+    <tr><td>`danger`</td><td>failed, lost, destructive</td><td>red</td></tr>
+    <tr><td>`discovery`</td><td>new, suggested</td><td>purple</td></tr>
+  </tbody>
+</Table>
 
-| role | used for | floor |
-|---|---|---|
-| `--<c>-solid` / `--<c>-on-solid` | solid controls | 4.5:1 |
-| `--<c>-soft` / `--<c>-on-soft` | tinted controls, badges | 4.5:1 (warning, caution 3:1) |
-| `--<c>-text` | the colour as text | 4.5:1 (warning, caution 3:1) |
-| `--<c>-border` | outlines | 3:1 |
+<Table>
+  <thead><tr><th>role</th><th>used for</th><th>floor</th></tr></thead>
+  <tbody>
+    <tr><td>`--<c>-solid` / `--<c>-on-solid`</td><td>solid controls</td><td>4.5:1</td></tr>
+    <tr><td>`--<c>-soft` / `--<c>-on-soft`</td><td>tinted controls, badges</td><td>4.5:1 (warning, caution 3:1)</td></tr>
+    <tr><td>`--<c>-text`</td><td>the colour as text</td><td>4.5:1 (warning, caution 3:1)</td></tr>
+    <tr><td>`--<c>-border`</td><td>outlines</td><td>3:1</td></tr>
+  </tbody>
+</Table>
 
 `warning` and `caution` are held to 3:1 by decision: at AA-legible
 lightness, orange and yellow turn brown. Fine for a two-word status;

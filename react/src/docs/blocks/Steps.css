@@ -1,0 +1,55 @@
+/* Numbered steps on the overview pages. Docs furniture, never shipped. */
+
+.lcf-steps {
+  --c-mark: var(--s-8);
+  --c-gap: var(--s-5);
+}
+
+/* Size, weight, colour and the space above come from workshop.css, as
+   for every h2 on the page; this only lays the number beside the text,
+   on its first line. */
+.lcf-step-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--c-gap);
+}
+/* The system's secondary solid — --fg ground, --bg text — so the number
+   is the loudest thing in the step and the same in both themes. */
+.lcf-step-num {
+  flex: none;
+  display: inline-block;
+  inline-size: var(--c-mark);
+  block-size: var(--c-mark);
+  border-radius: var(--r-full);
+  background: var(--fg);
+  color: var(--bg);
+  font: var(--w-semibold) var(--fs-small)/var(--c-mark) var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-align: center;
+}
+/* Read, not seen: the dot makes "1. Install" for a screen reader and for
+   "On this page", and takes no room in the disc. It stays inline, in the
+   digit's own line: the usual visually-hidden recipe positions it
+   absolutely, which made it a block of its own — measured, the box read
+   "1\n. \nInstall" and the name "1 . Install". */
+.lcf-step-dot { font-size: 0; }
+
+/* The rail runs under the disc's centre, and the body starts where the
+   heading's text does: (mark/2 − rule/2) + rule + (mark/2 + gap − rule/2)
+   = mark + gap.
+
+   Two classes, because Storybook resets the margin of every raw div in
+   the docs (`.css-… :where(div:not(.sb-unstyled …)) { margin: 0 }`) at
+   one class, injected after this file — measured: the indent computed
+   to 0px. `sb-unstyled` on the body would exempt it, and with it every
+   Markdown paragraph inside.
+
+   No padding or border on the block axis, so the children's own margins
+   (25px above a code block, 40px below, from Storybook) collapse out of
+   the body: the rail runs exactly as long as the content. */
+.lcf-steps .lcf-step-body {
+  margin-inline-start: calc(var(--c-mark) / 2 - var(--border-width) / 2);
+  padding-inline-start: calc(var(--c-mark) / 2 + var(--c-gap) - var(--border-width) / 2);
+  border-inline-start: var(--border-width) solid var(--border);
+}

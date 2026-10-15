@@ -1,12 +1,11 @@
-import { Meta } from '@storybook/addon-docs/blocks'
+import { Meta, Subtitle } from '@storybook/addon-docs/blocks'
+import { Table } from './blocks'
 
 <Meta title="Overview/Locale and format" />
 
 # Locale and format
 
-The app sets the locale **once**, on `LcfProvider`. Everything below
-follows: the sentences components say on their own, numbers, money,
-units and dates.
+<Subtitle>The app sets the locale **once**, on `LcfProvider`. Everything below follows: the sentences components say on their own, numbers, money, units and dates.</Subtitle>
 
 ## Texts
 
@@ -43,10 +42,13 @@ with a no-break space but a de-AT currency amount with a dot. A server
 render and a client hydrate can then print one price two ways. So the
 separators are **pinned** for the markets where it matters:
 
-| locale | group | decimal |
-|---|---|---|
-| de-CH, fr-CH, it-CH | `'` | `.` |
-| de-AT | `.` | `,` |
+<Table>
+  <thead><tr><th>locale</th><th>group</th><th>decimal</th></tr></thead>
+  <tbody>
+    <tr><td>de-CH, fr-CH, it-CH</td><td>`'`</td><td>`.`</td></tr>
+    <tr><td>de-AT</td><td>`.`</td><td>`,`</td></tr>
+  </tbody>
+</Table>
 
 Everything else is what `Intl` says. An app with its own rule passes
 `separators`, or replaces any function through `format`:
