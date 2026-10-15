@@ -38,9 +38,29 @@
 .sbdocs a { color: var(--accent-text) !important; }
 .sbdocs-preview { border-radius: var(--r-lg) !important; border-color: var(--border) !important; box-shadow: none !important; background: var(--bg) !important; }
 .docblock-argstable, .docblock-argstable * { font-family: var(--font-sans) !important; }
-.sbdocs code:not(pre code) { font-family: var(--font-mono); font-size: .9em; background: var(--fill) !important; border: 0 !important; color: var(--fg) !important; }
+/* Inline code wraps. Storybook sets it nowrap, and on Installation the
+   pre-paint <script dangerouslySetInnerHTML=…> line is 460px of one
+   unbreakable run: at 390 the whole page scrolled sideways by 114px. */
+.sbdocs code:not(pre code) { font-family: var(--font-mono); font-size: .9em; background: var(--fill) !important; border: 0 !important; color: var(--fg) !important; white-space: normal !important; overflow-wrap: anywhere; }
+/* Prose that is not an MDX element — each example's sentence under its
+   heading — is a bare <p> with no sbdocs-p class, and it kept
+   Storybook's #171717: 1.10:1 on the dark page, measured by the docs
+   sweep. Read as body text; stories and code (.sb-unstyled) are left to
+   themselves, and :where() keeps this from outranking the notes below. */
+.sbdocs-content :is(p, li):not(:where(.sb-unstyled *, .sbdocs-subtitle)) { font: var(--w-regular) var(--fs-body)/var(--lh-body) var(--font-sans) !important; color: var(--fg) !important; }
 /* The design notes read as notes: quieter, narrower. */
 .lcf-design-notes .sbdocs-p, .lcf-design-notes p, .lcf-design-notes li { color: var(--fg-muted) !important; max-width: 68ch; }
+/* A phone gets the system's 16px gutter, not Storybook's 40px — at 390
+   that left 310px of column for 360px of props table, and the page
+   scrolled sideways by 11px on Alert. A cell breaks a long word rather
+   than widen the table past the column (Alert's still came out 1.6px
+   wider at 358). A scroll box around the table was tried and dropped:
+   Storybook's table is 100% wide plus a 1px margin each side, so the box
+   scrolled by 2px at every width, desktop included. */
+@media (max-width: 640px) {
+  .sbdocs-wrapper { padding-inline: var(--s-6) !important; }
+  .docblock-argstable td { overflow-wrap: anywhere; }
+}
 
 /* Block headings (Usage, Reference, Examples, each story) are bare h2/h3
    with a generated class, not .sbdocs-h2 — measured: they kept
@@ -48,6 +68,10 @@
 .sbdocs-content :is(h2, h3):not(.sbdocs-subtitle) { color: var(--fg) !important; border: 0 !important; font-family: var(--font-sans) !important; }
 .sbdocs-content h2:not(.sbdocs-subtitle) { font: var(--w-semibold) var(--fs-title)/var(--lh-title) var(--font-sans) !important; letter-spacing: var(--tr-title) !important; margin-block-start: var(--s-11) !important; }
 .sbdocs-content h3 { font: var(--w-semibold) var(--fs-title-sm)/var(--lh-title-sm) var(--font-sans) !important; margin-block-start: var(--s-9) !important; }
+/* An MDX page's `# Title` is a bare h1, not .sbdocs-title: the same
+   #171717, 1.10:1 on the dark page, measured by the docs sweep. It is
+   the page's title, so it reads as one. */
+.sbdocs-content h1 { font: var(--w-bold) var(--fs-title-lg)/var(--lh-title-lg) var(--font-sans) !important; letter-spacing: var(--tr-title-lg) !important; color: var(--fg) !important; }
 
 /* The props table and code: on the system's grounds, in both themes. */
 .docblock-argstable :is(thead, tbody, tr, th, td) { background: transparent !important; color: var(--fg) !important; border-color: var(--border) !important; }
@@ -56,9 +80,21 @@
 .docblock-argstable td :is(span, div, p) { color: inherit; }
 .docblock-argstable td code, .docblock-argstable td span[class] { background: var(--fill) !important; border-color: transparent !important; color: var(--fg) !important; }
 .docblock-source { background: var(--bg-raised) !important; border-color: var(--border) !important; box-shadow: none !important; border-radius: var(--r-lg) !important; }
-/* The highlighter's palette is tuned for a light ground; on dark it is
-   one colour rather than six that fail. */
-[data-theme="dark"] .docblock-source :is(code, span) { color: var(--fg) !important; }
+/* Code, the same way in both themes: plain text --fg; keywords and tags
+   --discovery-text; names and values --info-text; strings
+   --success-text; punctuation and comments --fg-muted. Each is a token
+   check-contrast holds to AA on --bg-raised in light and in dark.
+   Storybook's highlighter is a light palette written in hex — on the
+   light page it missed AA by a hair (numbers 4.41:1, CSS property names
+   4.44:1, measured by the docs sweep), and on the dark page it had been
+   switched off by painting every token --fg. Order matters: a token can
+   carry two of these classes (`tag punctuation`), and the later rule is
+   the one that holds. */
+.docblock-source :is(pre, code), .docblock-source .token { color: var(--fg) !important; }
+.docblock-source .token:is(.keyword, .tag, .atrule, .selector, .important, .builtin) { color: var(--discovery-text) !important; }
+.docblock-source .token:is(.number, .boolean, .constant, .symbol, .property, .attr-name, .class-name, .variable) { color: var(--info-text) !important; }
+.docblock-source .token:is(.string, .attr-value, .char, .regex, .url) { color: var(--success-text) !important; }
+.docblock-source .token:is(.comment, .prolog, .doctype, .cdata, .punctuation, .operator) { color: var(--fg-muted) !important; }
 .docblock-source button { background: var(--fill) !important; color: var(--fg) !important; border-color: var(--border) !important; }
 
 /* On this page: neutral, and "here" is heavier text, not the accent. */
@@ -71,6 +107,15 @@
    background: the copy button's tray, the canvas toolbar, and the
    on-this-page title (#171717 on the dark page). */
 .docblock-source > div:has(> button) { background: transparent !important; }
-.sbdocs-preview > div:first-child { background: var(--bg-raised) !important; border-color: var(--border) !important; color: var(--fg-muted) !important; }
-.sbdocs-preview > div:first-child button { color: var(--fg-muted) !important; }
+/* The toolbar is the preview's first child only when it has one: the
+   Examples previews have none, so `> div:first-child` was the story
+   itself — every button in it repainted --fg-muted, a solid success
+   button's label at 1.67:1, measured by the docs sweep. The toolbar is
+   whatever is not the story. */
+.sbdocs-preview > div:not(.docs-story) { background: var(--bg-raised) !important; border-color: var(--border) !important; color: var(--fg-muted) !important; }
+.sbdocs-preview > div:not(.docs-story) button { color: var(--fg-muted) !important; }
+/* "Show code" / "Copy code" under each preview: Storybook's light
+   textMutedColor (#525252) written into the element — 2.53:1 on the
+   dark page, measured by the docs sweep. */
+.sbdocs-preview-actions button { color: var(--fg-muted) !important; border-color: var(--border) !important; }
 .sbdocs-toc--custom h2 { color: var(--fg-subtle) !important; font: var(--w-semibold) var(--fs-caption)/var(--lh-caption) var(--font-sans) !important; text-transform: uppercase; letter-spacing: .04em !important; }

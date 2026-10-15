@@ -4,7 +4,7 @@ import { Spinner } from './Spinner'
 const meta = {
   title: 'Components/Spinner',
   component: Spinner,
-  parameters: { componentSubtitle: 'Work is happening, and nobody knows for how long.' },
+  parameters: { docs: { subtitle: 'Work is happening, and nobody knows for how long.' } },
   args: { labelled: true }
 } satisfies Meta<typeof Spinner>
 export default meta

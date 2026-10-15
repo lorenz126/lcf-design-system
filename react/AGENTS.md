@@ -13,8 +13,14 @@ pnpm test
 In order, failing on the first: contrast (322 pairs, both themes) ·
 stories (every component has stories with a `Showcase`, a public path
 and its CSS in `src/css/index.css`) · strings (no visible text outside
-the message table) · vitest · tsc · build · Playwright over every story in three
-passes (light/en-GB, dark/de-CH, reduced motion).
+the message table) · vitest · tsc · build · Playwright in three passes
+(light/en-GB, dark/de-CH, reduced motion) over every story
+(`e2e/stories.spec.ts`) and every docs page — each MDX page and each
+component's page around its stories (`e2e/docs.spec.ts`) — at 1280 and
+390, asking each the same questions (`e2e/audit.ts`). The story pass
+never renders the page around a story; the docs pass is what sees the
+headings, the props table and the code. `SB_PORT` sets the Storybook
+port, so two checkouts can sweep at once.
 
 Before anything is tagged: `pnpm verify:consumer` — packs the library,
 installs it into an empty Vite + React + Tailwind app, typechecks,
