@@ -61,7 +61,7 @@ Use the semantic tokens only — `--fg`, `--fg-muted`, `--bg`,
 utilities. Never a hex value, never `--gray-*` or `--blue-*`.
 
 The app's own colour is three tokens — `--accent`, `--accent-text`,
-`--accent-solid` — in the app's theme file, checked in CI with
+`--accent-solid-bg` — in the app's theme file, checked in CI with
 `npx lcf-check-contrast src/theme.css`.
 
 ## What the design refuses, and you must too

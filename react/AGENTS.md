@@ -116,7 +116,7 @@ not in a file, because the project root is the repository root:
 | install | `pnpm --dir react install --frozen-lockfile` |
 | build | `pnpm --dir react build-storybook` |
 | output | `react/storybook-static` |
-| ignored build step | `test ! -d react` — skips `main` while it is the Nuxt layer |
+| ignored build step | `test ! -f react/package.json` — skips `main` while it is the Nuxt layer. Not `test ! -d react`: Vercel restores the build cache (`react/node_modules`) before this runs, so the directory exists on `main` too — measured on the 0.3.4 push, which built and failed. |
 | production branch | `react` |
 
 When `react/` reaches `main`, switch the production branch to `main`

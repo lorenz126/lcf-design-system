@@ -14,7 +14,7 @@ half.
 
 | | what | where |
 |---|---|---|
-| ✓ | Intent colours: eight meanings × six roles, nested themes, `--accent-solid` | `src/tokens/color.css`, `src/css/intent.css` |
+| ✓ | Intent colours: eight meanings × six roles, nested themes, `--accent-solid-bg` | `src/tokens/color.css`, `src/css/intent.css` |
 | ✓ | Contrast guard over every pair, and over an **app's own accent** (`lcf-check-contrast app.css`) | `scripts/check-contrast.mjs` |
 | ✓ | **J1** Language and texts centrally: `LcfProvider locale`, message table per language, app overrides | `src/i18n/messages.ts`, `context.tsx` |
 | ✓ | **J1** `check-strings`: visible text outside the table fails the build | `scripts/check-strings.mjs` |

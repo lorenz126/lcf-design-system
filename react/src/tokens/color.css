@@ -241,13 +241,13 @@
      three. Everything else that says "primary" derives from them.
        --accent        the brand tone: borders, focus ring, marks (3:1)
        --accent-text   the tone as legible text on the page (4.5:1)
-       --accent-solid  a ground white text sits on (4.5:1 with white)
+       --accent-solid-bg  a ground white text sits on (4.5:1 with white)
      They are three because one colour cannot be all three: #007aff is a
      fine ring and 4.02:1 under white text. Check an app's own values with
      `lcf-check-contrast app-theme.css`. */
   --accent:        var(--blue);
   --accent-text:   var(--blue-text);
-  --accent-solid:  var(--blue-solid-bg);
+  --accent-solid-bg:  var(--blue-solid-bg);
   --accent-subtle: color-mix(in srgb, var(--accent) calc(var(--fill-alpha) * 100%), var(--bg));
   /* Shifts toward the foreground, so it darkens on light and lightens
      on dark without needing a per-theme value. */
@@ -347,7 +347,7 @@
      caution → yellow · danger → red · discovery → purple
    ============================================================ */
 :root, [data-theme] {
-  --primary-solid: var(--accent-solid);   --primary-on-solid: var(--fg-on-accent);
+  --primary-solid: var(--accent-solid-bg);   --primary-on-solid: var(--fg-on-accent);
   --primary-soft:  var(--accent-subtle);  --primary-on-soft:  var(--accent-text);
   --primary-text:  var(--accent-text);    --primary-border:   var(--accent);
 

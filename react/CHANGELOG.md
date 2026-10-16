@@ -42,8 +42,8 @@ minor.
 - **Intent tokens** — `--<color>-solid`, `-on-solid`, `-soft`,
   `-on-soft`, `-text`, `-border` for all eight colours. Every value is a
   recipe already measured; this tier renames by meaning.
-- **`--accent-solid`** — the ground white text sits on. An app sets
-  `--accent`, `--accent-text` and `--accent-solid` and every `primary`
+- **`--accent-solid-bg`** — the ground white text sits on. An app sets
+  `--accent`, `--accent-text` and `--accent-solid-bg` and every `primary`
   follows.
 - **`lcf-check-contrast app-theme.css`** — the contrast guard, run over an
   app's own colours. 322 pairs, both themes.
@@ -69,7 +69,7 @@ minor.
 ### Changed
 
 - **A solid primary is `#0070ef`, was `#007aff`.** White on `#007aff` is
-  4.02:1, under AA; the solid ground is now `--accent-solid`, which
+  4.02:1, under AA; the solid ground is now `--accent-solid-bg`, which
   defaults to the blue already measured at 4.60:1. Rings, borders and
   marks keep `--accent`.
 - The neutral outline (`--secondary-border`, `--border-strong`) is listed

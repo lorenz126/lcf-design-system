@@ -13,7 +13,7 @@
  * loses its floor.
  *
  * AN APP'S OWN COLOURS are checked the same way. Pass its theme file —
- * the stylesheet where it sets --accent, --accent-text and --accent-solid
+ * the stylesheet where it sets --accent, --accent-text and --accent-solid-bg
  * — and it is read after the tokens, so its declarations win exactly as
  * they will in the browser:
  *
