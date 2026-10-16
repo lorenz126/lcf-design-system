@@ -32,6 +32,44 @@ export interface Messages {
   belowMin: MessageValue
   aboveMax: MessageValue
   offStep: MessageValue
+
+  /* Field: what a value is and where it came from. Each is said once,
+     as a sentence of the control's description, so each ends in a full
+     stop; the visible marks beside the label are aria-hidden. */
+  stateSuggested: MessageValue
+  stateConfirmed: MessageValue
+  suggestionWas: MessageValue
+  enterConfirms: MessageValue
+  confirmValue: MessageValue
+  backToSuggestionValue: MessageValue
+  originSentence: MessageValue
+  originCustomer: MessageValue
+  originStaff: MessageValue
+  originStaffBy: MessageValue
+  originAssumed: MessageValue
+  originMissing: MessageValue
+  originVia: MessageValue
+  viaEmail: MessageValue
+  viaForm: MessageValue
+  /* A late announcement, prefixed with the field it is about. */
+  fieldMessage: MessageValue
+
+  /* NumberField: a unit is part of the field's NAME, spoken as a word.
+     Intl has no square metre, and falls back to English without a word
+     of warning, so the words live here. Plural, because a field's name
+     is about the quantity, not one of it. */
+  valueWithUnit: MessageValue
+  unitM2: MessageValue
+  unitM3: MessageValue
+  unitM: MessageValue
+  unitMm: MessageValue
+  unitCm: MessageValue
+  unitKm: MessageValue
+  unitKg: MessageValue
+  unitH: MessageValue
+  unitPercent: MessageValue
+  unitChf: MessageValue
+  unitEur: MessageValue
 }
 
 export type MessageKey = keyof Messages
@@ -57,7 +95,37 @@ export const en: Messages = {
   notANumber: 'Enter a number.',
   belowMin: 'At least {min}.',
   aboveMax: 'At most {max}.',
-  offStep: 'In steps of {step}.'
+  offStep: 'In steps of {step}.',
+
+  stateSuggested: 'Suggestion.',
+  stateConfirmed: 'Confirmed.',
+  suggestionWas: 'Suggestion: {value}.',
+  enterConfirms: 'Enter confirms.',
+  confirmValue: 'Confirm',
+  backToSuggestionValue: 'Back to suggestion: {value}',
+  originSentence: 'Source: {origin}.',
+  originCustomer: 'Customer',
+  originStaff: 'Added',
+  originStaffBy: 'Added by {name}',
+  originAssumed: 'Assumed',
+  originMissing: 'Missing',
+  originVia: '{source} via {via}',
+  viaEmail: 'e-mail',
+  viaForm: 'web form',
+  fieldMessage: '{field}: {message}',
+
+  valueWithUnit: '{value} {unit}',
+  unitM2: 'square metres',
+  unitM3: 'cubic metres',
+  unitM: 'metres',
+  unitMm: 'millimetres',
+  unitCm: 'centimetres',
+  unitKm: 'kilometres',
+  unitKg: 'kilograms',
+  unitH: 'hours',
+  unitPercent: 'percent',
+  unitChf: 'Swiss francs',
+  unitEur: 'euros'
 }
 
 /* Swiss and German usage differ in one letter that matters here: ß.
@@ -80,10 +148,41 @@ export const de: Messages = {
   notANumber: 'Bitte eine Zahl eingeben.',
   belowMin: 'Mindestens {min}.',
   aboveMax: 'Höchstens {max}.',
-  offStep: 'In Schritten von {step}.'
+  offStep: 'In Schritten von {step}.',
+
+  stateSuggested: 'Vorschlag.',
+  stateConfirmed: 'Bestätigt.',
+  suggestionWas: 'Vorschlag: {value}.',
+  enterConfirms: 'Enter bestätigt.',
+  confirmValue: 'Bestätigen',
+  backToSuggestionValue: 'Zurück zum Vorschlag: {value}',
+  originSentence: 'Herkunft: {origin}.',
+  originCustomer: 'Kunde',
+  originStaff: 'Ergänzt',
+  originStaffBy: 'Ergänzt von {name}',
+  originAssumed: 'Angenommen',
+  originMissing: 'Fehlt',
+  originVia: '{source} per {via}',
+  viaEmail: 'E-Mail',
+  viaForm: 'Formular',
+  fieldMessage: '{field}: {message}',
+
+  valueWithUnit: '{value} {unit}',
+  unitM2: 'Quadratmeter',
+  unitM3: 'Kubikmeter',
+  unitM: 'Meter',
+  unitMm: 'Millimeter',
+  unitCm: 'Zentimeter',
+  unitKm: 'Kilometer',
+  unitKg: 'Kilogramm',
+  unitH: 'Stunden',
+  unitPercent: 'Prozent',
+  /* In Switzerland the franc needs no country; elsewhere it does. */
+  unitChf: 'Franken',
+  unitEur: 'Euro'
 }
 
-const deDE: Partial<Messages> = { close: 'Schließen' }
+const deDE: Partial<Messages> = { close: 'Schließen', unitChf: 'Schweizer Franken' }
 
 export const builtIn: Record<string, Partial<Messages>> = { en, de, 'de-DE': deDE, 'de-AT': deDE }
 
@@ -96,6 +195,33 @@ export const builtIn: Record<string, Partial<Messages>> = { en, de, 'de-DE': deD
 export function resolveMessages(locale: string, overrides?: Partial<Messages>): Messages {
   const lang = locale.split('-')[0]!
   return { ...en, ...builtIn[lang], ...builtIn[locale], ...overrides }
+}
+
+/**
+ * The language each resolved entry is WRITTEN in, as a BCP 47 tag — what
+ * a component puts in `lang` on the element that carries the words.
+ *
+ * The provider's own locale when the entry came from the app's
+ * overrides, the region's table or the language's table: `de-CH`, not a
+ * bare `de`, because under a correct `<html lang="de-CH">` a bare `de`
+ * could switch a screen reader's voice for nothing. `'en'` only where it
+ * fell back to English: `fr-CH` without a French table says "Loading",
+ * and that word has to be read as English.
+ *
+ * Not exported from the i18n entry: components read it through
+ * `t.lang(key)`, and the map is an implementation detail of that.
+ */
+export function resolveMessageLangs(locale: string, overrides?: Partial<Messages>): Record<MessageKey, string> {
+  const lang = locale.split('-')[0]!
+  const out = {} as Record<MessageKey, string>
+  for (const key of Object.keys(en) as MessageKey[]) {
+    const own = overrides?.[key] !== undefined
+      || builtIn[locale]?.[key] !== undefined
+      || lang === 'en'
+      || builtIn[lang]?.[key] !== undefined
+    out[key] = own ? locale : 'en'
+  }
+  return out
 }
 
 export function interpolate(value: MessageValue, vars: Record<string, string | number>, locale: string): string {

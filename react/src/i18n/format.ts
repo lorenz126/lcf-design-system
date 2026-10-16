@@ -130,9 +130,13 @@ export function createFormat(locale: string, overrides: Partial<Separators> = {}
    * Spaces of every width and both apostrophes are dropped first, as
    * grouping, whatever the locale says — a number pasted from a PDF
    * carries whichever one its author's software chose.
+   *
+   * Before any of it, NFKC: a Japanese or Chinese IME types full-width
+   * digits and stops, "１２．５", and those are digits a person meant.
+   * Measured: null before this line, 12.5 after it.
    */
   const parseNumber: Format['parseNumber'] = text => {
-    let s = text.trim().replace(/^\+/, '').replace(/[\u2212\u2013]/g, '-').replace(GROUP_LIKE, '')
+    let s = text.normalize('NFKC').trim().replace(/^\+/, '').replace(/[\u2212\u2013]/g, '-').replace(GROUP_LIKE, '')
     if (!s) return null
     const dec = separators.decimal === ',' ? ',' : '.'
     const other = dec === ',' ? '.' : ','

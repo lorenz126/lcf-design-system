@@ -1,6 +1,9 @@
+import { renderHook } from '@testing-library/react'
+import { createElement, type ReactNode } from 'react'
 import { describe, expect, it } from 'vitest'
+import { LcfProvider, useMessages } from './context'
 import { createFormat } from './format'
-import { resolveMessages, interpolate } from './messages'
+import { en, resolveMessageLangs, resolveMessages, interpolate, type MessageKey } from './messages'
 
 describe('separators are pinned where runtimes disagree', () => {
   it('de-CH prints an ASCII apostrophe, whatever ICU says', () => {
@@ -68,6 +71,10 @@ describe('parseNumber', () => {
   it.each(['', 'abc', '1.5.3', '12a', '--3'])('refuses %j', text => {
     expect(at.parseNumber(text)).toBeNull()
   })
+  it('reads full-width digits from an IME, by NFKC first (null before it)', () => {
+    expect(ch.parseNumber('１２．５')).toBe(12.5)
+    expect(at.parseNumber('１２，５')).toBe(12.5)
+  })
 })
 
 describe('messages', () => {
@@ -90,5 +97,41 @@ describe('messages', () => {
   it('placeholders fill, and an unknown one stays visible rather than vanishing', () => {
     expect(interpolate('At least {min}.', { min: 3 }, 'en')).toBe('At least 3.')
     expect(interpolate('At least {min}.', {}, 'en')).toBe('At least {min}.')
+  })
+})
+
+describe('the language each message is written in', () => {
+  const keys = Object.keys(en) as MessageKey[]
+  const all = (langs: Record<MessageKey, string>) => [...new Set(keys.map(k => langs[k]))]
+
+  it('is the provider locale where the table has the words, not a bare language', () => {
+    expect(all(resolveMessageLangs('de-CH'))).toEqual(['de-CH'])
+    expect(all(resolveMessageLangs('de-AT'))).toEqual(['de-AT'])
+    expect(all(resolveMessageLangs('en-GB'))).toEqual(['en-GB'])
+  })
+  it('is English where an unshipped language fell back to it', () => {
+    expect(all(resolveMessageLangs('fr-CH'))).toEqual(['en'])
+  })
+  it('is the locale for each entry the app supplied, and English for the rest', () => {
+    const langs = resolveMessageLangs('fr-CH', { loading: 'Chargement' })
+    expect(langs.loading).toBe('fr-CH')
+    expect(langs.dismiss).toBe('en')
+  })
+  it('reaches components as t.lang, and t(key) is unchanged', () => {
+    const wrap = (locale: string) => ({ children }: { children: ReactNode }) =>
+      createElement(LcfProvider, { locale }, children)
+    const ch = renderHook(() => useMessages(), { wrapper: wrap('de-CH') }).result.current
+    expect(ch('belowMin', { min: 3 })).toBe('Mindestens 3.')
+    expect(ch.lang('belowMin')).toBe('de-CH')
+    const fr = renderHook(() => useMessages(), { wrapper: wrap('fr-CH') }).result.current
+    expect(fr('loading')).toBe('Loading')
+    expect(fr.lang('loading')).toBe('en')
+    // No provider at all: the fallback config, en-GB.
+    expect(renderHook(() => useMessages()).result.current.lang('loading')).toBe('en-GB')
+  })
+  it('Swiss francs need their country outside Switzerland', () => {
+    expect(resolveMessages('de-CH').unitChf).toBe('Franken')
+    expect(resolveMessages('de-DE').unitChf).toBe('Schweizer Franken')
+    expect(resolveMessages('de-AT').unitChf).toBe('Schweizer Franken')
   })
 })
