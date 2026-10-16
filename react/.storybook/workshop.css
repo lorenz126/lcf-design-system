@@ -76,6 +76,11 @@
    sweep. Read as body text; stories and code (.sb-unstyled) are left to
    themselves, and :where() keeps this from outranking the notes below. */
 .sbdocs-content :is(p, li):not(:where(.sb-unstyled *, .sbdocs-subtitle)) { font: var(--w-regular) var(--fs-body)/var(--lh-body) var(--font-sans) !important; color: var(--fg) !important; }
+/* A quote in another language — <span lang="de-CH"> in an MDX page, as
+   the sweep's sixth question asks — is the prose around it, not
+   Storybook's 16px span: measured on Locale, "Wird geladen" stood 1px
+   taller than its 15px sentence. */
+.sbdocs-content :is(p, li):not(:where(.sb-unstyled *)) span[lang] { font: inherit !important; letter-spacing: inherit !important; }
 /* The design notes read as notes: quieter, narrower. */
 .lcf-design-notes .sbdocs-p, .lcf-design-notes p, .lcf-design-notes li { color: var(--fg-muted) !important; max-width: 68ch; }
 /* A phone gets the system's 16px gutter, not Storybook's 40px — at 390
