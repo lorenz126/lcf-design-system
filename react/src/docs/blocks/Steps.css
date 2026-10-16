@@ -46,8 +46,9 @@
    Markdown paragraph inside.
 
    No padding or border on the block axis, so the children's own margins
-   (25px above a code block, 40px below, from Storybook) collapse out of
-   the body: the rail runs exactly as long as the content. */
+   (--s-6 above a code block and --s-8 below, set in workshop.css)
+   collapse out of the body: the rail runs exactly as long as the
+   content. */
 .lcf-steps .lcf-step-body {
   margin-inline-start: calc(var(--c-mark) / 2 - var(--border-width) / 2);
   padding-inline-start: calc(var(--c-mark) / 2 + var(--c-gap) - var(--border-width) / 2);

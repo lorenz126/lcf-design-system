@@ -6,7 +6,14 @@ import { COLORS } from '../types'
 const meta = {
   title: 'Components/Button',
   component: Button,
-  parameters: { docs: { subtitle: 'Actions, from the one you want pressed to the ones you do not.' } },
+  parameters: {
+    docs: {
+      subtitle: 'Actions, from the one you want pressed to the ones you do not.',
+      // Centred on the docs page; Block, which is about the width, is not.
+      canvas: { layout: 'centered' }
+    }
+  },
+  argTypes: { children: { description: 'The label: what pressing it does. With `uniform`, a single icon instead.' } },
   args: { children: 'Save offer', color: 'primary', variant: 'solid', size: 'md' }
 } satisfies Meta<typeof Button>
 export default meta
@@ -52,6 +59,7 @@ export const Colors: Story = {
   )
 }
 
+/** Three heights and not nine — 22, 26 and 32px. A fourth starts producing controls nobody can tell apart. */
 export const Sizes: Story = {
   render: args => (
     <div className="ws-row">
@@ -62,6 +70,12 @@ export const Sizes: Story = {
   )
 }
 
+/**
+ * An icon before the label says what kind of action it is; one after it,
+ * where it goes next. A glyph alone is `uniform` — square — and needs an
+ * `aria-label`: without one it is announced as "button" and nothing else,
+ * and the component says so in development.
+ */
 export const Icons: Story = {
   render: args => (
     <div className="ws-row">
@@ -82,7 +96,20 @@ export const Loading: Story = {
   )
 }
 
-export const Disabled: Story = { args: { disabled: true } }
+/**
+ * Disabled, with the reason beside it. A disabled button that does not
+ * say why is the one thing Button refuses: disable it and say why next to
+ * it, or leave it enabled and say why on press.
+ */
+export const Disabled: Story = {
+  args: { disabled: true },
+  render: args => (
+    <div className="ws-row">
+      <Button {...args} />
+      <span className="ws-label">Set a price for Acoboard first.</span>
+    </div>
+  )
+}
 
 /** A toggle that is on takes the neutral "here", not the colour. */
 export const Selected: Story = {
@@ -94,13 +121,22 @@ export const Selected: Story = {
   )
 }
 
-export const Block: Story = { args: { block: true } }
+/** The full width of its container: the one action at the foot of a narrow panel, or on a phone. */
+export const Block: Story = {
+  args: { block: true },
+  // Centred, the canvas shrank it to its label — 96px of 818 — and the
+  // example no longer showed what the prop does.
+  parameters: { docs: { canvas: { layout: 'padded' } } }
+}
 
 /** Rendered through the provider's linkComponent. */
 export const Link: Story = { args: { href: '#offers', children: 'All offers', variant: 'soft' } }
 
 /** Floating lifts off the surface; glass needs something behind it. */
 export const OnContent: Story = {
+  // Storybook makes "On Content" of the export name; every other heading
+  // on the site is in sentence case. The id still comes from the export.
+  name: 'On content',
   render: () => (
     <div className="ws-backdrop ws-row">
       <Button variant="floating" startIcon={<Plus />}>Add</Button>

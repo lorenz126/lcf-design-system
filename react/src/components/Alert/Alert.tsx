@@ -5,9 +5,11 @@ import { useMessages } from '../../i18n/context'
 import type { Color } from '../types'
 
 export interface AlertProps extends Omit<ComponentPropsWithRef<'div'>, 'color' | 'title'> {
+  /** What it means. The ground and the mark carry it; the words stay full-strength. */
   color?: Exclude<Color, 'secondary'> | 'secondary'
   /** soft: tinted ground (default). outline: a hairline on the page. */
   variant?: 'soft' | 'outline'
+  /** What is the case, in a few words. Alone, it is the whole message. */
   title?: ReactNode
   /** Replaced by children when there is more to say. */
   description?: ReactNode

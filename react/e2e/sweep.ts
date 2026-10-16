@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import type { Page } from '@playwright/test'
+import { storyNameFromExport, toId } from 'storybook/internal/csf'
 
 /**
  * What the two sweeps — every story (stories.spec.ts) and every docs page
@@ -11,9 +12,20 @@ import type { Page } from '@playwright/test'
 
 export const SRC = join(import.meta.dirname, '..', 'src')
 
-/** Storybook's id rule: a title or an export name, kebab-cased the way Storybook does it. */
-export const kebab = (s: string) =>
-  s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase()
+/* Ids are Storybook's own rule, imported — as src/docs/blocks/links.ts
+   does — not a kebab-case written here. The hand-written copy this
+   replaces agreed on every title so far and was wrong for the next
+   ones: "Components/IconButton" gave components-icon-button where
+   Storybook says components-iconbutton, and an export "Size2x" gave
+   size2x where Storybook says size-2-x. Storybook builds a story's id as
+   toId(meta.id || meta.title, storyNameFromExport(export)), and a docs
+   page's from the same first half and "docs". */
+
+/** A story's id, from its meta's id or title and its export name. */
+export const storyId = (metaIdOrTitle: string, exportName: string) => toId(metaIdOrTitle, storyNameFromExport(exportName))
+
+/** An autodocs or MDX page's id, from its meta's id or title. */
+export const docsId = (metaIdOrTitle: string) => toId(metaIdOrTitle, 'docs')
 
 /** Every file under `dir` whose name ends in `suffix`, recursively. */
 export function sourceFiles(dir: string, suffix: string): string[] {
@@ -23,11 +35,20 @@ export function sourceFiles(dir: string, suffix: string): string[] {
   })
 }
 
-/** The meta title of a stories file — the first `title: '…'`, which is the meta's. */
-export function storiesTitle(file: string) {
-  const title = readFileSync(file, 'utf8').match(/title:\s*'([^']+)'/)?.[1]
-  if (!title) throw new Error(`${file}: no title in meta`)
-  return title
+/**
+ * What a stories file's ids start from: the meta's `id` when it sets
+ * one, else its `title`. Read from the meta object — the text before
+ * `export default` — so an `id:` in a story below cannot be mistaken
+ * for the meta's.
+ */
+export function storiesMetaId(file: string) {
+  const src = readFileSync(file, 'utf8')
+  const end = src.search(/^export default\b/m)
+  const meta = end < 0 ? src : src.slice(0, end)
+  const id = meta.match(/^\s*id:\s*'([^']+)'/m)?.[1]
+  const title = meta.match(/^\s*title:\s*'([^']+)'/m)?.[1]
+  if (!title && !id) throw new Error(`${file}: no title in meta`)
+  return (id ?? title)!
 }
 
 /** Every warning, error and uncaught exception the page reports. */

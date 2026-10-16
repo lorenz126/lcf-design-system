@@ -13,13 +13,18 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* No color-scheme here. tokens/color.css sets it with the theme —
+   light on :root and [data-theme], dark on [data-theme="dark"] — so
+   native scrollbars and form controls follow the page. This rule had
+   `color-scheme: light dark`, and lcf.base is the later layer, so it
+   won on <html> whatever the theme: measured, a dark page computed
+   'light dark', and with the OS in light its system colours resolved
+   light (CanvasText black, Canvas white) — white inputs on a dark page,
+   dark ones on a light page with the OS in dark. */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
-  /* Tells the browser which form controls and scrollbars to draw. Without
-     it a dark page keeps light native scrollbars. */
-  color-scheme: light dark;
 }
 
 body {
@@ -45,7 +50,13 @@ input, button, textarea, select { font: inherit; }
 /* Anchor navigation glides rather than jumping. Global on purpose: a
    component reaching out to style <html> would apply this to every page
    in the app, including ones it is not on. Decisions about the document
-   belong here. */
+   belong here.
+   Cost, measured on the docs site: a script that animates the scroll
+   itself — scrollTo() every frame, then focus() on the target, as tocbot
+   does — fights it. Each scrollTo restarts a native glide, and the
+   focus() cancels the last one; the page stopped hundreds of pixels
+   short. An app with such a script sets scroll-behavior: auto on <html>
+   above this layer, as .storybook/workshop.css does. */
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
 }

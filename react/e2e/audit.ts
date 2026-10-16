@@ -9,9 +9,73 @@ import type { Page } from '@playwright/test'
  * AA in the token table and not where it actually landed.
  */
 
+/**
+ * Colour, measured in the page: parse what getComputedStyle returns,
+ * composite translucent layers, the WCAG ratio, and the ground an
+ * element actually sits on. One copy, for audit() and focusRings():
+ * page.evaluate cannot close over it, so each passes this function's
+ * source in and rebuilds it there.
+ */
+function paint() {
+  const d = document
+  // Two syntaxes come back from getComputedStyle: `rgb(r g b / a)` in
+  // 0–255, and — for anything that went through color-mix — `color(srgb
+  // r g b / a)` in 0–1. Read as 0–255, the second is near-black, every
+  // ground goes dark, and every ratio is fiction. Measured: a blue badge
+  // reported at 3.15:1 that was really 5.4.
+  const parse = (s: string) => {
+    const m = s.match(/-?[\d.]+(?:e-?\d+)?/g)
+    if (!m) return null
+    const unit = s.startsWith('color(') ? 255 : 1
+    const [r, g, b, a = 1] = m.map(Number)
+    return [r! * unit, g! * unit, b! * unit, a] as [number, number, number, number]
+  }
+  const lin = (c: number) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 }
+  const lum = ([r, g, b]: number[]) => 0.2126 * lin(r!) + 0.7152 * lin(g!) + 0.0722 * lin(b!)
+  const over = (top: number[], under: number[]) => {
+    const a = top[3]!
+    return [0, 1, 2].map(i => top[i]! * a + under[i]! * (1 - a)).concat([1])
+  }
+  const ratio = (a: number[], b: number[]) => {
+    const [h, l] = [lum(a), lum(b)].sort((x, y) => y - x)
+    return (h! + 0.05) / (l! + 0.05)
+  }
+  const tokenColor = (name: string) => {
+    const s = d.createElement('span')
+    s.style.color = `var(${name})`
+    d.body.appendChild(s)
+    const c = parse(getComputedStyle(s).color)
+    s.remove()
+    return c
+  }
+  const page = parse(getComputedStyle(d.body).backgroundColor) ?? [255, 255, 255, 1]
+  // The ground, or null when it cannot be known: a gradient or an
+  // image is a background-image, not a background-color, and text over
+  // one has no single ratio. Glass buttons live on exactly that — the
+  // component says so, and says its contrast cannot be guaranteed —
+  // and measuring them against the page underneath the gradient
+  // reported 3.56:1 for a label that is sitting on something else.
+  const ground = (el: Element) => {
+    let acc: number[] | null = null
+    let e: Element | null = el
+    while (e) {
+      const cs = getComputedStyle(e)
+      if (cs.backgroundImage !== 'none') return null
+      const bg = parse(cs.backgroundColor)
+      if (bg && bg[3] > 0) acc = acc ? over(acc, bg) : bg
+      if (acc && acc[3]! >= 1) break
+      e = e.parentElement
+    }
+    return acc ? (acc[3]! >= 1 ? acc : over(acc, page)) : page
+  }
+  return { parse, over, ratio, ground, tokenColor }
+}
+export type Paint = ReturnType<typeof paint>
+export const paintSource = paint.toString()
+
 /** The DOM questions, asked inside the page. */
 export function audit(page: Page) {
-  return page.evaluate(() => {
+  return page.evaluate(paintSource => {
     const findings: string[] = []
     const d = document
     const root = d.documentElement
@@ -83,36 +147,7 @@ export function audit(page: Page) {
     // holds to that floor by decision. Deliberately faded things —
     // disabled, opacity below one anywhere up the chain — are excused,
     // and so is anything hidden from assistive technology.
-    // Two syntaxes come back from getComputedStyle: `rgb(r g b / a)` in
-    // 0–255, and — for anything that went through color-mix — `color(srgb
-    // r g b / a)` in 0–1. Read as 0–255, the second is near-black, every
-    // ground goes dark, and every ratio is fiction. Measured: a blue badge
-    // reported at 3.15:1 that was really 5.4.
-    const parse = (s: string) => {
-      const m = s.match(/-?[\d.]+(?:e-?\d+)?/g)
-      if (!m) return null
-      const unit = s.startsWith('color(') ? 255 : 1
-      const [r, g, b, a = 1] = m.map(Number)
-      return [r! * unit, g! * unit, b! * unit, a] as [number, number, number, number]
-    }
-    const lin = (c: number) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 }
-    const lum = ([r, g, b]: number[]) => 0.2126 * lin(r!) + 0.7152 * lin(g!) + 0.0722 * lin(b!)
-    const over = (top: number[], under: number[]) => {
-      const a = top[3]!
-      return [0, 1, 2].map(i => top[i]! * a + under[i]! * (1 - a)).concat([1])
-    }
-    const ratio = (a: number[], b: number[]) => {
-      const [h, l] = [lum(a), lum(b)].sort((x, y) => y - x)
-      return (h! + 0.05) / (l! + 0.05)
-    }
-    const tokenColor = (name: string) => {
-      const s = d.createElement('span')
-      s.style.color = `var(${name})`
-      d.body.appendChild(s)
-      const c = parse(getComputedStyle(s).color)
-      s.remove()
-      return c
-    }
+    const { parse, ratio, over, ground, tokenColor } = new Function(`return (${paintSource})()`)() as Paint
     const subtle = tokenColor('--fg-subtle')
     // Yellow and orange are held to 3.0 by decision — at the lightness
     // AA needs they read as brown — and check-contrast records that
@@ -121,26 +156,6 @@ export function audit(page: Page) {
     const relaxed = ['--warning-text', '--caution-text', '--warning-on-soft', '--caution-on-soft']
       .map(tokenColor).filter(Boolean).map(c => c!.slice(0, 3).join())
     const same = (a: number[] | null, key: string) => !!a && a.slice(0, 3).join() === key
-    const page = parse(getComputedStyle(d.body).backgroundColor) ?? [255, 255, 255, 1]
-    // The ground, or null when it cannot be known: a gradient or an
-    // image is a background-image, not a background-color, and text over
-    // one has no single ratio. Glass buttons live on exactly that — the
-    // component says so, and says its contrast cannot be guaranteed —
-    // and measuring them against the page underneath the gradient
-    // reported 3.56:1 for a label that is sitting on something else.
-    const ground = (el: Element) => {
-      let acc: number[] | null = null
-      let e: Element | null = el
-      while (e) {
-        const cs = getComputedStyle(e)
-        if (cs.backgroundImage !== 'none') return null
-        const bg = parse(cs.backgroundColor)
-        if (bg && bg[3] > 0) acc = acc ? over(acc, bg) : bg
-        if (acc && acc[3]! >= 1) break
-        e = e.parentElement
-      }
-      return acc ? (acc[3]! >= 1 ? acc : over(acc, page)) : page
-    }
     const faint: string[] = []
     for (const el of d.querySelectorAll('body *')) {
       const text = [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent!.trim()).join('')
@@ -170,5 +185,5 @@ export function audit(page: Page) {
     if (faint.length) findings.push(`text too faint to read: ${faint.sort().slice(0, 5).join(' · ')}`)
 
     return findings
-  })
+  }, paintSource)
 }

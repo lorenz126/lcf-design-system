@@ -37,7 +37,12 @@
 .sbdocs-p, .sbdocs-li, .sbdocs-td, .sbdocs-th { font: var(--w-regular) var(--fs-body)/var(--lh-body) var(--font-sans) !important; color: var(--fg) !important; }
 .sbdocs a { color: var(--accent-text) !important; }
 .sbdocs-preview { border-radius: var(--r-lg) !important; border-color: var(--border) !important; box-shadow: none !important; background: var(--bg) !important; }
-.docblock-argstable, .docblock-argstable * { font-family: var(--font-sans) !important; }
+/* The props table's prose in the system's face; its code stays code
+   (below). This was `.docblock-argstable *`, with !important, and it put
+   every name, every value ("primary", "sm") and the inline `aria-label`
+   in a description into the sans — while the same inline code outside
+   the table was mono: two styles of code on one page. */
+.docblock-argstable :is(th, td) { font-family: var(--font-sans) !important; }
 /* Inline code wraps. Storybook sets it nowrap, and on Installation the
    pre-paint <script dangerouslySetInnerHTML=…> line is 460px of one
    unbreakable run: at 390 the whole page scrolled sideways by 114px. */
@@ -60,12 +65,40 @@
 @media (max-width: 640px) {
   .sbdocs-wrapper { padding-inline: var(--s-6) !important; }
   .docblock-argstable td { overflow-wrap: anywhere; }
+  /* At 320 — the reflow width, and a 1280 window at 400% — every
+     component page still scrolled sideways by 34px: the table cannot
+     shrink below 337px in a 288px column, because Storybook gives the
+     div in each Description and Default cell min-width: 100px, and the
+     cells 15–20px of padding each side (20+35+15 + 15+100+15 + 15+100+20
+     + 2). Breaking words could not get under that. Without the minimum
+     and with --s-3 of padding the table is 288px at 320 and 358px at
+     390, as wide as its column. */
+  .docblock-argstable td div { min-width: 0 !important; }
+  .docblock-argstable :is(th, td) { padding-inline: var(--s-3) !important; }
 }
+
+/* Smooth scrolling for the docs is tocbot's, not the document's. base.css
+   sets html { scroll-behavior: smooth } (unless motion is reduced), and
+   "On this page" scrolls with a 420ms loop of window.scrollTo() and then
+   focuses the heading: under CSS smooth scrolling every scrollTo
+   restarted a native glide that had barely moved, and the closing
+   focus() cancelled the last one. Measured on Button at 1280: Usage and
+   Reference did not move at all, and Examples onwards stopped with the
+   heading 413–460px down instead of at 40 — and the list then marked the
+   wrong entry as current. With this, every entry lands at 40 except the
+   last one or two, which stop at the end of the page. Unlayered, so it
+   outranks @layer lcf.base without !important; the glide is not lost —
+   tocbot draws its own. */
+html { scroll-behavior: auto; }
 
 /* Block headings (Usage, Reference, Examples, each story) are bare h2/h3
    with a generated class, not .sbdocs-h2 — measured: they kept
-   Storybook's #171717 on the dark page. Matched by structure instead. */
-.sbdocs-content :is(h2, h3):not(.sbdocs-subtitle) { color: var(--fg) !important; border: 0 !important; font-family: var(--font-sans) !important; }
+   Storybook's #171717 on the dark page. Matched by structure instead.
+   The Stories block also sets its title in capitals (text-transform:
+   uppercase, 0.35em tracking): "EXAMPLES" between "Reference" and
+   "Design notes" — and "On this page" copied the capitals, since tocbot
+   reads each heading's innerText. */
+.sbdocs-content :is(h2, h3):not(.sbdocs-subtitle) { color: var(--fg) !important; border: 0 !important; font-family: var(--font-sans) !important; text-transform: none !important; }
 .sbdocs-content h2:not(.sbdocs-subtitle) { font: var(--w-semibold) var(--fs-title)/var(--lh-title) var(--font-sans) !important; letter-spacing: var(--tr-title) !important; margin-block-start: var(--s-11) !important; }
 .sbdocs-content h3 { font: var(--w-semibold) var(--fs-title-sm)/var(--lh-title-sm) var(--font-sans) !important; margin-block-start: var(--s-9) !important; }
 /* An MDX page's `# Title` is a bare h1, not .sbdocs-title: the same
@@ -73,13 +106,45 @@
    the page's title, so it reads as one. */
 .sbdocs-content h1 { font: var(--w-bold) var(--fs-title-lg)/var(--lh-title-lg) var(--font-sans) !important; letter-spacing: var(--tr-title-lg) !important; color: var(--fg) !important; }
 
-/* The props table and code: on the system's grounds, in both themes. */
+/* The props table and code: on the system's grounds, in both themes.
+   The box is the table's, so the header row sits inside it on a sunken
+   ground; it had been tbody's, with Name / Description / Default floating
+   above it. Rows are divided by their cells' top borders; Storybook's
+   drop shadow and per-cell outer borders go, the table's ring replaces
+   them. */
 .docblock-argstable :is(thead, tbody, tr, th, td) { background: transparent !important; color: var(--fg) !important; border-color: var(--border) !important; }
-.docblock-argstable tbody { box-shadow: 0 0 0 1px var(--border) !important; border-radius: var(--r-lg) !important; }
-.docblock-argstable th { color: var(--fg-muted) !important; font-weight: var(--w-medium) !important; }
+.docblock-argstable { box-shadow: 0 0 0 var(--border-width) var(--border) !important; border-radius: var(--r-lg) !important; }
+.docblock-argstable tbody { filter: none !important; }
+.docblock-argstable tbody > tr > * { border-inline: 0 !important; border-block-end: 0 !important; border-block-start: var(--border-width) solid var(--border) !important; }
+.docblock-argstable thead th { background: var(--bg-sunken) !important; color: var(--fg-muted) !important; font-weight: var(--w-medium) !important; }
+.docblock-argstable thead th:first-child { border-start-start-radius: var(--r-lg); }
+.docblock-argstable thead th:last-child { border-start-end-radius: var(--r-lg); }
 .docblock-argstable td :is(span, div, p) { color: inherit; }
-.docblock-argstable td code, .docblock-argstable td span[class] { background: var(--fill) !important; border-color: transparent !important; color: var(--fg) !important; }
-.docblock-source { background: var(--bg-raised) !important; border-color: var(--border) !important; box-shadow: none !important; border-radius: var(--r-lg) !important; }
+/* Code in the table is code: the name, each value, inline code in a
+   description — mono, on --fill, padded. The name's span had the fill
+   too, by the same selector, with no padding and no radius: a grey block
+   tight against "children", "color", like selected text. */
+.docblock-argstable td :is(code, span[class]) {
+  font-family: var(--font-mono) !important;
+  background: var(--fill) !important;
+  border-color: transparent !important;
+  border-radius: var(--r-xs) !important;
+  color: var(--fg) !important;
+}
+.docblock-argstable td:first-child > span:first-child {
+  padding: var(--s-1) var(--s-2);
+  font-size: var(--fs-small) !important;
+  font-weight: var(--w-semibold) !important;
+}
+/* Storybook's code block: 25px above, 40px below, 20px inside. On
+   Installation a block's end and the next paragraph were 40px apart,
+   paragraphs 16px, so each step read gappy; the import line sat 40px
+   above its example. Now --s-6 above, --s-8 below — collapsing with a
+   canvas's own 25px to 25 — and 16 by 20 inside. The open code under an
+   example has the same padding, so the two blocks on a component page
+   stay one style. */
+.docblock-source { background: var(--bg-raised) !important; border-color: var(--border) !important; box-shadow: none !important; border-radius: var(--r-lg) !important; margin-block: var(--s-6) var(--s-8) !important; }
+:is(.docblock-source, .sbdocs-preview > div[id]) pre { padding: var(--s-6) var(--s-7) !important; }
 /* Code, the same way in both themes: plain text --fg; keywords and tags
    --discovery-text; names and values --info-text; strings
    --success-text; punctuation and comments --fg-muted. Each is a token
@@ -90,43 +155,75 @@
    switched off by painting every token --fg. Order matters: a token can
    carry two of these classes (`tag punctuation`), and the later rule is
    the one that holds.
-   The primary example's open code (.docs-primary > div[id], see
-   docs-page.css) is the same highlighter without the docblock-source
-   class, on the same --bg-raised, so it is named here too: it had been
-   one colour while the import line above it was highlighted, two code
-   blocks a few pixels apart in two styles. */
-:is(.docblock-source, .docs-primary > div[id]) :is(pre, code, .token) { color: var(--fg) !important; }
-:is(.docblock-source, .docs-primary > div[id]) .token:is(.keyword, .tag, .atrule, .selector, .important, .builtin) { color: var(--discovery-text) !important; }
-:is(.docblock-source, .docs-primary > div[id]) .token:is(.number, .boolean, .constant, .symbol, .property, .attr-name, .class-name, .variable) { color: var(--info-text) !important; }
-:is(.docblock-source, .docs-primary > div[id]) .token:is(.string, .attr-value, .char, .regex, .url) { color: var(--success-text) !important; }
-:is(.docblock-source, .docs-primary > div[id]) .token:is(.comment, .prolog, .doctype, .cdata, .punctuation, .operator) { color: var(--fg-muted) !important; }
-.docblock-source button { background: var(--fill) !important; color: var(--fg) !important; border-color: var(--border) !important; }
+   The code an example opens — under every canvas, the primary's open
+   from the start and each example's behind "Show code" — is the same
+   highlighter without the docblock-source class: Preview renders it
+   through styled(Source), whose className replaces Source's own. It sits
+   in the canvas's one child with an id (`.sbdocs-preview > div[id]`).
+   This was scoped to the primary alone, and every example's "Show code"
+   still opened Storybook's black slab in its hex palette (tag
+   rgb(168,255,96) under the primary's token purple) — measured on
+   Button, light and dark. */
+:is(.docblock-source, .sbdocs-preview > div[id]) :is(pre, code, .token) { color: var(--fg) !important; }
+:is(.docblock-source, .sbdocs-preview > div[id]) .token:is(.keyword, .tag, .atrule, .selector, .important, .builtin) { color: var(--discovery-text) !important; }
+:is(.docblock-source, .sbdocs-preview > div[id]) .token:is(.number, .boolean, .constant, .symbol, .property, .attr-name, .class-name, .variable) { color: var(--info-text) !important; }
+:is(.docblock-source, .sbdocs-preview > div[id]) .token:is(.string, .attr-value, .char, .regex, .url) { color: var(--success-text) !important; }
+:is(.docblock-source, .sbdocs-preview > div[id]) .token:is(.comment, .prolog, .doctype, .cdata, .punctuation, .operator) { color: var(--fg-muted) !important; }
+/* The open code's ground: the import line's, a hairline from the
+   canvas, and the canvas's own bottom corners. Storybook paints it
+   rgba(0,0,0,.85) under a light page. */
+.sbdocs-preview > div[id] { background: var(--bg-raised) !important; }
+.sbdocs-preview > div[id] > div {
+  background: var(--bg-raised) !important;
+  border-top: var(--border-width) solid var(--border) !important;
+  border-radius: 0 0 var(--r-lg) var(--r-lg) !important;
+}
+/* The Copy tab in a code block: a tab of the page's own ground with a
+   hairline, cornered to sit in the block's --r-lg corner. It was --fill
+   with a 4px corner inside a 12px block. */
+.docblock-source button {
+  background: var(--bg) !important;
+  color: var(--fg) !important;
+  border: 0 !important;
+  box-shadow: inset 0 0 0 var(--border-width) var(--border) !important;
+  border-radius: var(--r-md) 0 var(--r-lg) 0 !important;
+}
 
 /* On this page: neutral, and "here" is heavier text, not the accent. */
 .toc-wrapper, .toc-wrapper :is(h2, a, li) { color: var(--fg-muted) !important; font-family: var(--font-sans) !important; }
 .toc-wrapper .is-active-link { color: var(--fg) !important; font-weight: var(--w-semibold) !important; }
 .toc-wrapper .toc-list-item.is-active-li::before, .toc-wrapper .toc-link::before { background: var(--fg) !important; }
 
-/* Three grounds Storybook paints white with generated classes only —
+/* Two grounds Storybook paints white with generated classes only —
    found by asking the dark page which elements still had a #fff
-   background: the copy button's tray, the canvas toolbar, and the
-   on-this-page title (#171717 on the dark page). */
+   background: the copy button's tray and the on-this-page title
+   (#171717 on the dark page). The third was the canvas toolbar, which
+   no canvas has any more (preview.tsx). */
 .docblock-source > div:has(> button) { background: transparent !important; }
-/* The toolbar is the preview's first child only when it has one: the
-   Examples previews have none, so `> div:first-child` was the story
-   itself — every button in it repainted --fg-muted, a solid success
-   button's label at 1.67:1, measured by the docs sweep. The toolbar is
-   whatever is not the story. */
-.sbdocs-preview > div:not(.docs-story) { background: var(--bg-raised) !important; border-color: var(--border) !important; color: var(--fg-muted) !important; }
-.sbdocs-preview > div:not(.docs-story) button { color: var(--fg-muted) !important; }
-/* The toolbar's bottom edge is an inset box-shadow in Storybook's light
-   border colour, #e5e5e5 — measured on the dark Button page: a bright
-   hairline across the primary canvas, 229 on 23. A first child that is
-   not the story is the toolbar and only the toolbar (the open code is
-   the last child). */
-.sbdocs-preview > div:first-child:not(.docs-story) { box-shadow: inset 0 calc(-1 * var(--border-width)) 0 var(--border) !important; }
 /* "Show code" / "Copy code" under each preview: Storybook's light
    textMutedColor (#525252) written into the element — 2.53:1 on the
-   dark page, measured by the docs sweep. */
+   dark page, measured by the docs sweep. "Hide code" is a pressed
+   toggle, and Storybook paints that in its light theme: #000 text, a
+   7% #171717 ground — on the dark page nothing to see. Pressed is the
+   neutral "here", the fill and --fg, on every example. */
 .sbdocs-preview-actions button { color: var(--fg-muted) !important; border-color: var(--border) !important; }
+.sbdocs-preview-actions .docblock-code-toggle--expanded { color: var(--fg) !important; background: var(--fill) !important; }
+
+/* Focus on the docs' own controls, from the tokens. Storybook draws it
+   with its theme's colorSecondary — and the docs blocks take the LIGHT
+   theme in both modes (preview.tsx), so on the dark page every ring was
+   #171717: 1.01:1 on the toolbar, 1.10:1 around "Hide code", "Show
+   code", "Copy code" and the heading links, measured by diffing focused
+   against blurred; the code block's Copy had only an inset blue bar,
+   2.96:1. base.css's own ring is inside :where() and loses to Storybook's
+   generated classes. Measured with this: 4.92–5.43:1 in dark, 3.85–4.02:1
+   in light. Stories keep their own rings — the components are what the
+   page documents. A code block's scroll area takes focus too, and the
+   block clips what is drawn outside it, so its ring is drawn inside. */
+.sbdocs :is(a, button, [role="switch"], [tabindex]):focus-visible:not(:where(.docs-story *, .sb-story *, .docs-hero *)) {
+  outline: var(--focus-width) solid var(--focus-color) !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+}
+.sbdocs [data-radix-scroll-area-viewport]:focus-visible { outline-offset: calc(-1 * var(--focus-width)) !important; }
 .sbdocs-toc--custom h2 { color: var(--fg-subtle) !important; font: var(--w-semibold) var(--fs-caption)/var(--lh-caption) var(--font-sans) !important; text-transform: uppercase; letter-spacing: .04em !important; }

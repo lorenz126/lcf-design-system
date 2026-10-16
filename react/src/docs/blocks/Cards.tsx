@@ -1,5 +1,5 @@
-import { useId, type ReactNode } from 'react'
-import { docsHref } from './links'
+import { useId, type MouseEvent, type ReactNode } from 'react'
+import { docsHref, followInSite } from './links'
 import './Cards.css'
 
 /**
@@ -44,7 +44,11 @@ export function Card({ title, description, icon, to, href }: CardProps) {
   const id = useId()
   // An in-page anchor must say _self: the iframe's <base target="_parent">
   // would otherwise load iframe.html#components into the manager's place.
-  const link = to ? { href: docsHref(to), target: '_top' } : { href, target: '_self' }
+  // A page of the site is followed inside it (links.ts says why); its
+  // href stays for a middle click, cmd-click, and iframe.html on its own.
+  const link = to
+    ? { href: docsHref(to), target: '_top', onClick: (e: MouseEvent<HTMLAnchorElement>) => followInSite(e, to) }
+    : { href, target: '_self' }
   return (
     <li className="lcf-doc-card">
       {/* The name is the title; the sentence is its description, read after it. */}

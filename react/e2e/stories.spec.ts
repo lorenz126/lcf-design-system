@@ -1,21 +1,21 @@
 import { readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
 import { audit } from './audit'
-import { SRC, kebab, listen, signal, sourceFiles, storiesTitle } from './sweep'
+import { SRC, listen, signal, sourceFiles, storiesMetaId, storyId } from './sweep'
 
 /**
  * Every story, loaded on its own, and the five questions asked of it.
  *
- * The story ids are DERIVED from the story files — title and export
- * names, kebab-cased the way Storybook does it — so a new story is swept
- * the moment it is written. An id this gets wrong loads Storybook's
- * "story not found" page, which fails the test, so the derivation checks
- * itself.
+ * The story ids are DERIVED from the story files — the meta's id or
+ * title and the export names, through Storybook's own id rule (sweep.ts)
+ * — so a new story is swept the moment it is written. An id this gets
+ * wrong loads Storybook's "story not found" page, which fails the test,
+ * so the derivation checks itself.
  */
 
 const stories = sourceFiles(SRC, '.stories.tsx').flatMap(file => {
-  const title = storiesTitle(file)
-  return [...readFileSync(file, 'utf8').matchAll(/^export const (\w+)/gm)].map(m => `${kebab(title)}--${kebab(m[1]!)}`)
+  const meta = storiesMetaId(file)
+  return [...readFileSync(file, 'utf8').matchAll(/^export const (\w+)/gm)].map(m => storyId(meta, m[1]!))
 })
 
 for (const id of stories) {

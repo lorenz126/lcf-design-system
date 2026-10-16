@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { catalogue } from './ComponentCatalogue'
@@ -20,7 +20,18 @@ describe('the component catalogue on the Introduction', () => {
 
   it('gives each one the sentence its page opens with', () => {
     const silent = catalogue.filter(c => !c.description?.trim()).map(c => c.name)
-    expect(silent, 'set parameters.docs.subtitle (or componentSubtitle) in the stories meta').toEqual([])
+    expect(silent, 'set parameters.docs.subtitle in the stories meta').toEqual([])
+  })
+
+  // Storybook still reads the old parameter — and warns on every page
+  // that sets it, which fails the docs sweep in the browser. Said here,
+  // before anything has to load.
+  it('reads no deprecated componentSubtitle', () => {
+    const stale = readdirSync(components, { withFileTypes: true })
+      .filter(d => d.isDirectory())
+      .map(d => join(components, d.name, `${d.name}.stories.tsx`))
+      .filter(f => existsSync(f) && /\bcomponentSubtitle\b/.test(readFileSync(f, 'utf8')))
+    expect(stale, 'parameters.componentSubtitle is deprecated: use parameters.docs.subtitle').toEqual([])
   })
 
   it('links to Storybook\'s own docs id, relative to iframe.html', () => {

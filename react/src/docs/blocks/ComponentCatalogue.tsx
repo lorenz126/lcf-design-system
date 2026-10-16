@@ -6,7 +6,7 @@ interface StoriesMeta {
   title?: string
   id?: string
   tags?: string[]
-  parameters?: { componentSubtitle?: string; docs?: { subtitle?: string } }
+  parameters?: { docs?: { subtitle?: string } }
 }
 
 export interface CatalogueEntry {
@@ -34,8 +34,10 @@ export const catalogue: CatalogueEntry[] = Object.values(modules)
   .map(m => ({
     name: m.title.split('/').pop()!.trim(),
     to: m.id ?? m.title,
-    // Where Storybook's own Subtitle block looks, in its order.
-    description: m.parameters?.docs?.subtitle ?? m.parameters?.componentSubtitle
+    // Where the page's own lead reads it (Lead, .storybook/DocsPage.tsx).
+    // Not `componentSubtitle`: Storybook deprecates it with a console
+    // warning on every page that sets it, which the docs sweep fails.
+    description: m.parameters?.docs?.subtitle
   }))
   .sort((a, b) => a.name.localeCompare(b.name, 'en'))
 

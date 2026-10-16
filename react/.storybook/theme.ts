@@ -54,10 +54,19 @@ const dark: Roles = {
 const sans = 'system-ui, "Segoe UI", Roboto, Inter, "Helvetica Neue", sans-serif'
 const mono = 'ui-monospace, Menlo, Consolas, monospace'
 
+/* The name, as markup: Storybook renders a string brandTitle with
+   dangerouslySetInnerHTML when there is no brandImage. The favicon's
+   mark beside the name, coloured by manager-head.html (.lcf-brand) so
+   it follows the theme — an image could not. The mark is decoration;
+   the link's name is the text. */
+const brand =
+  '<span class="lcf-brand"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/>' +
+  '<path d="M10 7.5h4.5V20H22v4.5H10z"/></svg>LCF Design System</span>'
+
 const build = (base: 'light' | 'dark', r: Roles) =>
   create({
     base,
-    brandTitle: 'LCF Design System',
+    brandTitle: brand,
     brandUrl: 'https://github.com/lorenz126/lcf-design-system',
     brandTarget: '_blank',
 

@@ -30,6 +30,11 @@ export const Showcase: Story = {
   )
 }
 
+/**
+ * Every colour. The ground says it and the mark keeps it, held to 3:1; the
+ * words stay full-strength, because coloured text on its own tint fell
+ * under AA in dark mode.
+ */
 export const Colors: Story = {
   render: args => (
     <div className="ws-stack">
@@ -38,8 +43,10 @@ export const Colors: Story = {
   )
 }
 
+/** A hairline on the page in place of the tint: the same alert, quieter, for a page that is already tinted around it. */
 export const Outline: Story = { args: { variant: 'outline' } }
 
+/** What to do about it, inside it. Small, soft buttons, so the alert stays a statement and does not become a dialog. */
 export const Actions: Story = {
   args: { actions: <Button size="sm" variant="soft" color="secondary">Set price</Button> }
 }
@@ -61,4 +68,5 @@ export const Findings: Story = {
   }
 }
 
-export const TitleOnly: Story = { args: { description: undefined, color: 'success', title: 'Saved' } }
+/** A title alone, when the condition is the whole message. */
+export const TitleOnly: Story = { name: 'Title only', args: { description: undefined, color: 'success', title: 'Saved' } }

@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, type ReactNode } from 'react'
 import {
   Anchor,
   ArgTypes,
@@ -64,9 +64,17 @@ import './docs-page.css'
  * project-wide `docs.canvas.sourceState` would open the code under every
  * example on the page too. So component pages render that same canvas
  * themselves — the story `<Primary>` would pick, the anchor and
- * `__primary` id it would give it, its toolbar — and pass
- * `sourceState="shown"`. The examples keep "Show code" closed: their
- * point is the picture, and twelve open code blocks bury it.
+ * `__primary` id it would give it — and pass `sourceState="shown"`. The
+ * examples keep "Show code" closed: their point is the picture, and
+ * twelve open code blocks bury it. No canvas has a toolbar
+ * (preview.tsx, `docs.canvas.withToolbar`).
+ *
+ * A CENTRED EXAMPLE GETS A STAGE. A meta that centres its examples
+ * (`docs.canvas.layout: 'centered'` — Button, Badge, Spinner) gives the
+ * primary canvas the `docs-stage` class, and docs-page.css a minimum
+ * height: one button in a 106px strip read as a line of the page, not
+ * as the thing the page is about. Alert fills its line and stays
+ * 'padded' — centred, it shrank to its content.
  */
 export function DocsPage() {
   const { preparedMeta, csfFile } = useOf('meta')
@@ -76,6 +84,8 @@ export function DocsPage() {
   const showcase = csfFile.moduleExports.Showcase as object | undefined
   // The same choice usePrimaryStory makes on an autodocs page.
   const primary = docs.componentStories().find(s => s.tags.includes('autodocs'))
+  // The same order CanvasImpl reads the layout in.
+  const centred = (primary?.parameters.layout ?? primary?.parameters.docs?.canvas?.layout) === 'centered'
   return (
     <>
       <Title />
@@ -91,7 +101,12 @@ export function DocsPage() {
           <Source language="tsx" dark={false} code={`import { ${name} } from '@lcf/design/components/${name}'`} />
           {primary && (
             <Anchor storyId={`primary--${primary.id}`}>
-              <Canvas of={primary.moduleExport} sourceState="shown" withToolbar className="docs-primary" story={{ __primary: true }} />
+              <Canvas
+                of={primary.moduleExport}
+                sourceState="shown"
+                className={centred ? 'docs-stage' : undefined}
+                story={{ __primary: true }}
+              />
             </Anchor>
           )}
           <Heading>Reference</Heading>
@@ -107,4 +122,33 @@ export function DocsPage() {
       </div>
     </>
   )
+}
+
+/**
+ * The one sentence under a page's title, as a paragraph.
+ *
+ * Storybook's Subtitle block renders an <h2>: on all eight pages the
+ * heading outline went "On this page", the title, then a full sentence
+ * as a level-2 section ("React 18 or 19. Tailwind is optional.") — the
+ * "On this page" list skipped it only because it was told to. The HTML
+ * standard keeps h1–h6 for headings, not for taglines. preview.tsx puts
+ * this in Storybook's place through `docs.components`, so the MDX pages'
+ * `<Subtitle>` and the component pages' `<Subtitle />` both get it.
+ *
+ * Read from the same places Storybook's block reads, minus the
+ * deprecated `parameters.componentSubtitle`: the children, else the
+ * meta's `docs.subtitle`. An MDX page with `<Meta title>` has no meta to
+ * resolve — useOf throws — and passes its sentence as children.
+ * `sb-unstyled` keeps Storybook's paragraph styles off; workshop.css
+ * sets `.sbdocs-subtitle` by class, so it looks as the <h2> did.
+ */
+export function Lead({ children }: { children?: ReactNode }) {
+  let subtitle: ReactNode
+  try {
+    subtitle = useOf('meta').preparedMeta.parameters.docs?.subtitle
+  } catch {
+    // No attached meta: an MDX page that passes its sentence.
+  }
+  const content = children ?? subtitle
+  return content ? <p className="sbdocs-subtitle sb-unstyled">{content}</p> : null
 }

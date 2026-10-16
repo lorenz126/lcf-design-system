@@ -3,10 +3,12 @@ import type { ComponentPropsWithRef, ReactNode } from 'react'
 import type { Color } from '../types'
 
 export interface BadgeProps extends Omit<ComponentPropsWithRef<'span'>, 'color'> {
+  /** What the status means. An app maps its own words onto it once. */
   color?: Color
   /** soft: tint and coloured text (default). solid: for the one status
    *  that must be seen from across the room. outline: on a busy ground. */
   variant?: 'soft' | 'solid' | 'outline'
+  /** `sm` for a dense row, `md` everywhere else. */
   size?: 'sm' | 'md'
   /** A leading dot, for status lists where the colour does the work. */
   dot?: boolean

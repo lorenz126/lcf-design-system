@@ -5,8 +5,11 @@ import { Spinner } from '../Spinner/Spinner'
 import type { Color, Size, Variant } from '../types'
 
 export interface ButtonProps extends Omit<ComponentPropsWithRef<'button'>, 'color'> {
+  /** What it means, not its hue. `primary` is the app's own colour. */
   color?: Color
+  /** How loud: `solid` is one per view. `floating` and `glass` sit on content, not in the layout. */
   variant?: Variant | 'floating' | 'glass'
+  /** 22, 26 or 32px high. */
   size?: Size
   /** Full width of its container. */
   block?: boolean
@@ -19,6 +22,7 @@ export interface ButtonProps extends Omit<ComponentPropsWithRef<'button'>, 'colo
   /** Before the label. Replaced by the spinner while loading, so the
    *  button keeps its width. */
   startIcon?: ReactNode
+  /** After the label: where the action goes next. */
   endIcon?: ReactNode
   /** Navigates instead: rendered through the provider's linkComponent. */
   href?: string

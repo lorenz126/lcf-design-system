@@ -4,7 +4,12 @@ import { Spinner } from './Spinner'
 const meta = {
   title: 'Components/Spinner',
   component: Spinner,
-  parameters: { docs: { subtitle: 'Work is happening, and nobody knows for how long.' } },
+  parameters: {
+    docs: {
+      subtitle: 'Work is happening, and nobody knows for how long.',
+      canvas: { layout: 'centered' }
+    }
+  },
   args: { labelled: true }
 } satisfies Meta<typeof Spinner>
 export default meta
@@ -25,6 +30,7 @@ export const Showcase: Story = {
   )
 }
 
+/** Three sizes, and `inherit`, which takes the font size around it — the size a button gives its spinner. */
 export const Sizes: Story = {
   render: () => (
     <div className="ws-row">
@@ -38,6 +44,7 @@ export const Sizes: Story = {
 
 /** Beside text that says it, the spinner stays silent. */
 export const BesideText: Story = {
+  name: 'Beside text',
   render: () => (
     <div className="ws-row"><Spinner /> <span>Loading offers…</span></div>
   )

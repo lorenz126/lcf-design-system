@@ -1,11 +1,11 @@
 import type { Preview } from '@storybook/react-vite'
-import { useEffect } from 'react'
+import { useEffect, type ComponentProps } from 'react'
 import { GLOBALS_UPDATED, SET_GLOBALS } from 'storybook/internal/core-events'
 import { addons } from 'storybook/preview-api'
 import '../src/css/index.css'
 import './workshop.css'
 import { LcfProvider } from '../src/i18n/context'
-import { DocsPage } from './DocsPage'
+import { DocsPage, Lead } from './DocsPage'
 import { theme as docsTheme } from './theme'
 
 /* A page with no story on it — every MDX page — runs no decorator, so
@@ -25,6 +25,55 @@ addons.ready().then(channel => {
   channel.on(GLOBALS_UPDATED, apply)
 })
 
+/* Every docs heading with an id carries Storybook's copy-link button
+   INSIDE it, before the text: <a aria-label="Copy heading URL to address
+   bar">. Measured with Playwright's aria snapshot: the headings were
+   named "Copy heading URL to address bar Usage", "… Reference", "…
+   Colors" — on Button thirteen of them, each also a Tab stop — so a
+   screen reader's list of headings began every entry with the same 31
+   characters. The button stays for the pointer (it shows on hover);
+   it leaves the accessibility tree and the Tab order, which "On this
+   page" already covers: it links every h2 and h3 and sets the same
+   #hash. Storybook renders that button from blocks the docs.components
+   override cannot reach without rewriting them (Heading, Subheading,
+   the MDX h1–h6 all go through its internal HeaderMdx), so this answers
+   the DOM instead. Any link inside a docs heading is that button — no
+   heading of ours holds one — so it is matched by place, not by
+   Storybook's label, and a reworded label cannot slip past. */
+const quietHeadingLinks = () => {
+  for (const a of document.querySelectorAll('.sbdocs-content :is(h1, h2, h3, h4, h5, h6) a:not([aria-hidden])')) {
+    a.setAttribute('aria-hidden', 'true')
+    a.setAttribute('tabindex', '-1')
+  }
+}
+new MutationObserver(quietHeadingLinks).observe(document.documentElement, { childList: true, subtree: true })
+
+/* A link a story renders goes nowhere. The iframe has <base
+   target="_parent">, so Button's Link example — href="#offers", no target
+   — replaced the whole site with the bare iframe.html#offers (measured:
+   no sidebar, tab title "components-button--docs"). An app's router link
+   handles the click itself; so does this one, by not following it. It is
+   still a real <a href> with every attribute the component gives it,
+   so the example shows what the component renders.
+   And the click ends here: "On this page" (tocbot) listens on the whole
+   document for in-page links and scrolls to their target — measured,
+   "#offers" names nothing on the page, and it threw "Cannot read
+   properties of null (reading 'offsetTop')". */
+function StayLink({ children, ...rest }: ComponentProps<'a'> & { href: string }) {
+  return (
+    <a
+      {...rest}
+      onClick={e => {
+        rest.onClick?.(e)
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+    >
+      {children}
+    </a>
+  )
+}
+
 /**
  * Two toolbar switches, because the two questions every component has to
  * answer are "does it hold in dark?" and "does it hold in German?". The
@@ -36,10 +85,20 @@ const preview: Preview = {
   globalTypes: {
     theme: {
       description: 'Theme',
-      toolbar: { icon: 'mirror', items: ['light', 'dark'], dynamicTitle: true }
+      // Titled, not the raw values: the button read "light" in lower case
+      // beside the chrome's sentence case.
+      toolbar: {
+        icon: 'mirror',
+        items: [
+          { value: 'light', title: 'Light', icon: 'sun' },
+          { value: 'dark', title: 'Dark', icon: 'moon' }
+        ],
+        dynamicTitle: true
+      }
     },
     locale: {
       description: 'Locale',
+      // BCP 47 codes, as a developer writes them on LcfProvider.
       toolbar: { icon: 'globe', items: ['en-GB', 'de-CH', 'de-AT', 'de-DE', 'fr-CH'], dynamicTitle: true }
     }
   },
@@ -51,18 +110,33 @@ const preview: Preview = {
         document.documentElement.dataset.theme = theme
       }, [theme])
       return (
-        <LcfProvider locale={ctx.globals.locale as string}>
+        <LcfProvider locale={ctx.globals.locale as string} linkComponent={StayLink}>
           <Story />
         </LcfProvider>
       )
     }
   ],
   parameters: {
-    layout: 'padded',
+    /* No project-wide `layout`. A story's `parameters.layout` outranks
+       `docs.canvas.layout` in the docs Canvas (addon-docs 10.6.2,
+       CanvasImpl), so the 'padded' that was set here — Storybook's
+       default anyway, in story mode and in docs — kept every meta from
+       centring its examples on the docs page alone. Story mode is
+       unchanged: no layout means 'padded' there (WebView.applyLayout). */
     docs: {
       page: DocsPage,
       theme: docsTheme,
-      toc: { headingSelector: 'h2, h3', ignoreSelector: '.sbdocs-subtitle', title: 'On this page' },
+      // Storybook's own Subtitle is an <h2>: a one-sentence lead sat in
+      // the heading outline as a section. This one is a paragraph.
+      components: { Subtitle: Lead },
+      toc: { headingSelector: 'h2, h3', title: 'On this page' },
+      /* No canvas toolbar anywhere. It is reload, zoom in, zoom out,
+         reset zoom and "Open canvas in new tab" — workbench tools, the
+         ones manager.ts hides from the site's own toolbar — and the last
+         opened the bare iframe.html, light from a dark page, titled with
+         the story id. DocsStory reads this before the `withToolbar` that
+         <Primary> passes it, so it holds there too. */
+      canvas: { withToolbar: false },
       codePanel: true
     },
     controls: { expanded: true, sort: 'requiredFirst' },

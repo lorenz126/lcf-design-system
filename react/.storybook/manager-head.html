@@ -18,17 +18,46 @@
     --here-ground: rgb(0 0 0 / .07);   /* --fill */
     --here-text: #171717;              /* --fg */
     --here-icon: #525252;              /* --fg-muted */
+    --here-page: #ffffff;              /* --bg */
     color-scheme: light;
   }
   :root[data-theme="dark"] {
     --here-ground: rgb(255 255 255 / .09);
     --here-text: #fafafa;
     --here-icon: #a3a3a3;
+    --here-page: #0a0a0a;
     /* Native scrollbars and form controls in the chrome go dark too. */
     color-scheme: dark;
   }
   /* The page behind the app, for the moment before it renders. */
-  :root[data-theme="dark"] body { background: #0a0a0a; }
+  :root[data-theme="dark"] body { background: var(--here-page); }
+
+  /* ---- The sidebar: a list of pages, not a tree of stories ----
+     Measured against the site this follows, at 1280: every row carried a
+     14px page icon in Storybook's own orange (rgb(255,131,0), gold
+     rgb(255,174,0) in dark) — no theme slot reaches it — and the one grey
+     icon was the current page's, the emphasis backwards. Groups were 11px
+     bold capitals with a 1.76px tracking, a chevron, and an "Expand all"
+     button that is always there and expands nothing (the sidebar lists
+     pages, so there is nothing under them). Rows were 28px with the label
+     at x=54. Now: no icons, so the label starts where the group's does
+     (x=20); groups in sentence case, quieter than the pages under them;
+     rows of 32px. Collapsing a group still works — the label is the
+     button — it just has no chevron to say so, as on the reference. */
+  .sidebar-item > a > div:has(> svg[type]) { display: none; }
+  .sidebar-item > a { padding-inline-start: 8px !important; }
+  .sidebar-item, .sidebar-item > a { min-height: 32px; }
+  .sidebar-item > a { align-items: center; padding-block: 0 !important; }
+  .sidebar-subheading { margin-block-start: 8px; }
+  .sidebar-subheading > button {
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 13px !important;     /* --fs-small */
+    font-weight: 500 !important;    /* --w-medium */
+    color: var(--here-icon) !important;
+  }
+  .sidebar-subheading > button > div:has(> svg),
+  .sidebar-subheading-action { display: none !important; }
 
   /* "Here" is neutral: the current page in the sidebar is a quiet ground
      and heavier text, as the system's own rule has it — not the solid
@@ -38,5 +67,57 @@
     color: var(--here-text) !important;
     font-weight: 600;
   }
-  .sidebar-item[data-selected="true"] svg { color: var(--here-icon) !important; }
+
+  /* ---- Keyboard in the sidebar ----
+     The page links are tabindex=-1; Tab lands on the list itself
+     (#storybook-explorer-menu), which Storybook draws with outline: 0 and
+     which takes the arrow keys. Measured: focused against blurred, the
+     sidebar differed by 0 px in both themes, and the row the arrows had
+     reached was rgba(fg, .15) on the page — 1.37:1 (light), 1.46:1
+     (dark), 1.17:1 against the current page's ground beside it. So the
+     row the keys are on gets the ring every other chrome control has;
+     manager.ts marks it (data-kbd), because Storybook says which row it
+     is only on the tree element and in a generated style. Before the
+     first arrow key there is no marked row, and the ring goes round the
+     list. */
+  #storybook-explorer-menu:focus-visible:not(:has(.sidebar-item[data-kbd])),
+  #storybook-explorer-menu:focus-visible .sidebar-item[data-kbd] {
+    outline: 2px solid var(--here-text);
+    outline-offset: -2px;
+  }
+
+  /* ---- The brand ----
+     It was 14px bold text, the same size and weight as the current page
+     under it. theme.ts writes it as markup (Storybook renders a string
+     brandTitle as HTML): the favicon's mark and the name at --fs-lead. */
+  .lcf-brand { display: inline-flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; letter-spacing: -0.011em; line-height: 26px; color: var(--here-text); }
+  .lcf-brand svg { width: 22px; height: 22px; flex: none; }
+  .lcf-brand rect { fill: var(--here-text); }
+  .lcf-brand path { fill: var(--here-page); }
+
+  /* ---- Workbench controls a reader has no use for ----
+     The gear opened "About your Storybook" (an upgrade notice), "Show
+     addons panel" (nothing to show in docs), and a "Documentation" link
+     to Storybook's own docs; on a phone the gear is a link to the same
+     About page. The tag filter offered "Documentation 8", "New 0",
+     "Modified 0", and excluding the one tag there is emptied the sidebar
+     to "No stories found". Keyboard shortcuts are off (manager.ts), so
+     the gear's list of them goes too. */
+  .sidebar-header button[aria-label="Settings"],
+  .sidebar-header a[aria-label="About Storybook"],
+  button[aria-label="Tag filters"],
+  button[aria-label*=" active tag filter"] { display: none !important; }
+
+  /* ---- The toolbar's two switches ----
+     Storybook starts the bar with a 1px separator meant to divide the
+     tools on its left from these menus; manager.ts hides the tools, so
+     it divided nothing from nothing at x=312. And it fills a select that
+     has a value with 7% of the bar colour — always, since the theme and
+     locale always have one — so both read as pressed at rest, the same
+     as with their menu open. At rest they are plain; the fill means
+     "pointer here" or "menu open". */
+  .sb-bar [role="toolbar"] > div:first-child > span:first-child { display: none; }
+  .sb-bar button[aria-haspopup="listbox"] { background: transparent !important; }
+  .sb-bar button[aria-haspopup="listbox"]:hover,
+  .sb-bar button[aria-haspopup="listbox"][aria-expanded="true"] { background: var(--here-ground) !important; }
 </style>

@@ -8,6 +8,7 @@ export interface SpinnerProps {
   labelled?: boolean
   /** A label of its own, when "Loading" is not the right word. */
   label?: string
+  /** For placing it. Its size is `size`, its colour the text around it. */
   className?: string
 }
 

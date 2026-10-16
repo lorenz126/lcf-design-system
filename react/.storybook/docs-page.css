@@ -25,32 +25,16 @@
 .docs-showcase[data-fill] { align-items: flex-start; }
 .docs-showcase[data-fill] > * { flex: 1 1 18rem; min-width: 0; }
 
-/* The primary example's code, open under it on every component page.
-   Preview renders it through styled(Source), whose className replaces
-   Source's own "docblock-source" — measured: the open code carried only
-   an emotion class, so none of the page's code styling reached it, and
-   it came out as Storybook's rgba(0,0,0,.85) slab directly under the
-   light Usage block. Its highlighter palette is the dark one, hard-coded
-   by Preview: yellow and lilac, which on the page's code ground would be
-   unreadable. So: the Usage block's ground and a hairline from the
-   canvas here; its colours are workshop.css's code palette, which names
-   this block beside .docblock-source so the two cannot drift apart.
-   Scoped to the primary: the examples' code stays closed by default and
-   is workshop.css's to style. */
-.docs-primary > div[id] > div {
-  background: var(--bg-raised) !important;
-  border-top: var(--border-width) solid var(--border) !important;
-  border-radius: 0 0 var(--r-lg) var(--r-lg) !important;
-}
+/* The primary example's code is open under it on every component page;
+   its ground, hairline and palette are workshop.css's, the same rules
+   as every example's "Show code" (`.sbdocs-preview > div[id]`), so the
+   two cannot drift apart.
 
-/* Its "Hide code" toggle is pressed from the start, and Storybook paints
-   a pressed toggle in its light theme's #000 — measured on the dark page:
-   black on --bg, nothing to see. */
-.docs-primary + .sbdocs-preview-actions button { color: var(--fg-muted) !important; }
-.docs-primary + .sbdocs-preview-actions .docblock-code-toggle--expanded {
-  color: var(--fg) !important;
-  background: var(--fill) !important;
-}
+   The stage. A meta that centres its examples on the docs page gives
+   the primary canvas this class (DocsPage.tsx): one button centred in a
+   106px strip read as a line of the page; at 176px — 64 + 64 + 48 — it
+   is the thing the page is about. The site this follows uses 180. */
+.docs-stage .docs-story { min-height: calc(var(--s-12) * 2 + var(--s-11)); }
 
 /* A component beside the words that say what it is doing. Set apart from
    the row by a second gap: at the row's own --s-5, three spinners and a

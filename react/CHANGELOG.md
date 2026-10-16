@@ -83,3 +83,10 @@ minor.
   spinner's own slower rule: measured, `animation-duration: 1e-05s ×1`,
   a stopped spinner. Here an element opts out with
   `data-motion="essential"` and slows to 2s a turn instead.
+- **Native controls followed the OS, not `data-theme`.** base.css set
+  `html { color-scheme: light dark }` in `@layer lcf.base`, which comes
+  after the tokens' `color-scheme: light` / `dark` and so won on
+  `<html>`: a dark page computed `light dark`, and with the OS in light
+  its scrollbars, inputs and selects were drawn light. The rule is gone;
+  the theme's own `color-scheme` applies. An app that sets no
+  `data-theme` gets `light`, as its tokens are.
