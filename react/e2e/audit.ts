@@ -1,12 +1,21 @@
 import type { Page } from '@playwright/test'
+import { resolveMessageLangs, resolveMessages, type MessageKey } from '../src/i18n/messages'
 
 /**
- * The five questions, carried over from the Nuxt layer's page sweep
- * unchanged except for the token names. Each one is there because it
- * caught something nothing else could: a page that scrolls sideways at
- * phone width, a closed dialog taking up the whole viewport, a duplicate
- * id under aria-labelledby, a control with no name, and text that clears
- * AA in the token table and not where it actually landed.
+ * Six questions. The first five came over from the Nuxt layer's page
+ * sweep unchanged except for the token names. Each one is there because
+ * it caught something nothing else could: a page that scrolls sideways
+ * at phone width, a closed dialog taking up the whole viewport, a
+ * duplicate id under aria-labelledby, a control with no name, and text
+ * that clears AA in the token table and not where it actually landed —
+ * values typed into a field included, since a value is not a text node.
+ *
+ * The sixth is the layer's own: its words in the wrong language. The
+ * workshop declares <html lang="en">, and the dark/de-CH pass renders
+ * German from the message table under it — the standing reproduction of
+ * a screen reader reading "Wird geladen" with English rules. Every
+ * element whose own text, aria-label or title is an entry of the table
+ * must sit under a `lang` with the entry's primary subtag.
  */
 
 /**
@@ -73,9 +82,37 @@ function paint() {
 export type Paint = ReturnType<typeof paint>
 export const paintSource = paint.toString()
 
-/** The DOM questions, asked inside the page. */
-export function audit(page: Page) {
-  return page.evaluate(paintSource => {
+/**
+ * The message table for a locale as patterns, with the language each
+ * entry is written in. A plain entry matches exactly, and also as the
+ * start of a composite name ("Ausblenden: Preis offen"). A template's
+ * placeholders match anything; one with fewer than four letters of its
+ * own ("{field}: {message}", "{value} {unit}") would match half the page
+ * and is left to the unit tests. A plural function is sampled at 1 and 3.
+ */
+function tablePatterns(locale: string) {
+  const messages = resolveMessages(locale)
+  const langs = resolveMessageLangs(locale)
+  const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const out: { re: string; key: MessageKey; lang: string }[] = []
+  for (const key of Object.keys(messages) as MessageKey[]) {
+    const v = messages[key]
+    const lang = langs[key]
+    if (typeof v === 'function') {
+      for (const count of [1, 3]) out.push({ re: `^${esc(v({ count }, locale)).replace(/\d+/g, '\\d+')}$`, key, lang })
+    } else if (/\{\w+\}/.test(v)) {
+      if ((v.replace(/\{\w+\}/g, '').match(/\p{L}/gu) ?? []).length < 4) continue
+      out.push({ re: `^${v.split(/\{\w+\}/).map(esc).join('.+')}$`, key, lang })
+    } else {
+      out.push({ re: `^${esc(v)}$`, key, lang }, { re: `^${esc(v)}: .+$`, key, lang })
+    }
+  }
+  return out
+}
+
+/** The DOM questions, asked inside the page, for the locale the page was rendered in. */
+export function audit(page: Page, locale: string) {
+  return page.evaluate(([paintSource, table]) => {
     const findings: string[] = []
     const d = document
     const root = d.documentElement
@@ -182,8 +219,64 @@ export function audit(page: Page) {
       const need = large || isSubtle || isRelaxed ? 3 : 4.5
       if (got < need) faint.push(`${got.toFixed(2)}:1 (needs ${need}) ${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]} “${text.slice(0, 24)}”`)
     }
+
+    // What is typed into a field is text too, and not a text node: its
+    // own colour against its ground, at 4.5 (3.0 if painted --fg-subtle).
+    // An empty field with a placeholder: the placeholder, at 3.0.
+    const NOT_TEXT = ['hidden', 'checkbox', 'radio', 'range', 'color', 'file', 'button', 'submit', 'reset', 'image']
+    for (const el of d.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea')) {
+      if (el instanceof HTMLInputElement && NOT_TEXT.includes(el.type)) continue
+      const cs = getComputedStyle(el)
+      if (cs.visibility === 'hidden' || cs.display === 'none') continue
+      if (el.closest('[aria-hidden="true"]')) continue
+      let opacity = 1
+      for (let e: Element | null = el; e && e !== d.body; e = e.parentElement) opacity *= parseFloat(getComputedStyle(e).opacity)
+      if (opacity < 0.99) continue
+      const r = el.getBoundingClientRect()
+      if (!r.width || !r.height) continue
+      const bg = ground(el)
+      if (!bg) continue
+      const what = `${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]}`
+      if (el.value) {
+        const fg = parse(cs.color)
+        if (!fg) continue
+        const got = ratio(over(fg, bg), bg)
+        const need = same(fg, subtle ? subtle.slice(0, 3).join() : '') ? 3 : 4.5
+        if (got < need) faint.push(`${got.toFixed(2)}:1 (needs ${need}) ${what} value “${el.value.slice(0, 24)}”`)
+      } else if (el.placeholder) {
+        const fg = parse(getComputedStyle(el, '::placeholder').color)
+        if (!fg) continue
+        const got = ratio(over(fg, bg), bg)
+        if (got < 3) faint.push(`${got.toFixed(2)}:1 (needs 3) ${what} placeholder “${el.placeholder.slice(0, 24)}”`)
+      }
+    }
     if (faint.length) findings.push(`text too faint to read: ${faint.sort().slice(0, 5).join(' · ')}`)
 
+    // The layer's words, in the language they are written in. Code is
+    // quoted, not said; a docs page quoting the table in prose wraps the
+    // quote in `lang`.
+    const patterns = table.map(p => ({ ...p, re: new RegExp(p.re, 'u') }))
+    const primary = (tag: string) => tag.split('-')[0]!.toLowerCase()
+    const wrong: string[] = []
+    for (const el of d.querySelectorAll('body *')) {
+      if (el.closest('pre, code, script, style, template')) continue
+      const said = [
+        [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').replace(/\s+/g, ' ').trim(),
+        el.getAttribute('aria-label')?.replace(/\s+/g, ' ').trim(),
+        el.getAttribute('title')?.replace(/\s+/g, ' ').trim()
+      ]
+      for (const text of said) {
+        if (!text) continue
+        const hit = patterns.find(p => p.re.test(text))
+        if (!hit) continue
+        const lang = el.closest('[lang]')?.getAttribute('lang') ?? ''
+        if (primary(lang) !== primary(hit.lang)) {
+          wrong.push(`“${text.slice(0, 32)}” (${hit.key}, ${hit.lang}) under lang="${lang}" on ${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]}`)
+        }
+      }
+    }
+    if (wrong.length) findings.push(`the layer's words in the wrong language: ${[...new Set(wrong)].slice(0, 5).join(' · ')}`)
+
     return findings
-  }, paintSource)
+  }, [paintSource, tablePatterns(locale)] as const)
 }

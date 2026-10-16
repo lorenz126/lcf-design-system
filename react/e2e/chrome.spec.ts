@@ -105,8 +105,15 @@ test.describe('the site around the pages', () => {
           .map(e => (e as HTMLElement).dataset.itemId ?? e.id)
       )
     expect(await ringed(), 'a ring on landing').toHaveLength(1)
+    // The page after Button in the sidebar, read from it: this said
+    // Spinner until Field sorted in between.
+    const next = await page.evaluate(() => {
+      const ids = [...document.querySelectorAll<HTMLElement>('.sidebar-item')].map(e => e.dataset.itemId)
+      return ids[ids.indexOf('components-button--docs') + 1]
+    })
+    expect(next, 'a page after Button').toBeTruthy()
     await page.keyboard.press('ArrowDown')
-    await expect.poll(ringed, { message: 'the ring follows the arrow keys' }).toEqual(['components-spinner--docs'])
+    await expect.poll(ringed, { message: 'the ring follows the arrow keys' }).toEqual([next])
   })
 
   /* "On this page" scrolls with a loop of scrollTo() and then focuses

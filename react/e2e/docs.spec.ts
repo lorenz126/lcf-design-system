@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
 import { audit, paintSource, type Paint } from './audit'
-import { SRC, docsId, listen, signal, sourceFiles, storiesMetaId } from './sweep'
+import { SRC, docsId, listen, localeOf, signal, sourceFiles, storiesMetaId } from './sweep'
 
 /**
- * Every docs page, loaded the way a reader gets it, and the same five
+ * Every docs page, loaded the way a reader gets it, and the same six
  * questions the story sweep asks.
  *
  * The story sweep loads stories in viewMode=story, which never renders
@@ -21,7 +21,7 @@ import { SRC, docsId, listen, signal, sourceFiles, storiesMetaId } from './sweep
  * find story matching '<id>'" — which fails the test, so the derivation
  * checks itself.
  *
- * Beyond the five questions, what the page around the stories owes a
+ * Beyond the six questions, what the page around the stories owes a
  * reader, each found broken by hand once:
  *
  * - every example's code, opened, in the system's code style — the
@@ -81,7 +81,7 @@ async function focusRings(page: Page) {
     const { parse, ratio, ground } = new Function(`return (${paintSource})()`)() as Paint
     const faint: string[] = []
     const name = (e: Element) => `${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} “${(e.textContent || e.getAttribute('aria-label') || '').trim().slice(0, 20)}”`
-    const controls = [...document.querySelectorAll<HTMLElement>('.sbdocs a[href], .sbdocs button, .sbdocs [tabindex]')]
+    const controls = [...document.querySelectorAll<HTMLElement>('.sbdocs a[href], .sbdocs button, .sbdocs summary, .sbdocs [tabindex]')]
       .filter(e => e.tabIndex >= 0 && !(e as HTMLButtonElement).disabled && !e.closest('.docs-story, .sb-story, .docs-hero'))
       .filter(e => e.getBoundingClientRect().width > 0)
     for (const e of controls) {
@@ -189,7 +189,8 @@ for (const id of pages) {
     expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(want)
 
     expect(signal(said), 'the console while loading').toEqual([])
-    expect(await audit(page), 'at 1280').toEqual([])
+    const locale = localeOf(globals)
+    expect(await audit(page, locale), 'at 1280').toEqual([])
     // Soft from here: each question is its own, and one failing should
     // not hide the next.
     expect.soft(await headingLinks(page), 'heading names').toEqual([])
@@ -197,12 +198,12 @@ for (const id of pages) {
     expect.soft(await storyLinks(page), 'links in the stories').toEqual([])
 
     expect.soft(await codeStyle(page), 'the code, every example open').toEqual([])
-    expect.soft(await audit(page), 'at 1280, every example open').toEqual([])
+    expect.soft(await audit(page, locale), 'at 1280, every example open').toEqual([])
 
     for (const width of [390, 320]) {
       await page.setViewportSize({ width, height: 760 })
       await page.waitForTimeout(150)
-      expect.soft(await audit(page), `at ${width}`).toEqual([])
+      expect.soft(await audit(page, locale), `at ${width}`).toEqual([])
     }
     expect(signal(said), 'the console, after all of it').toEqual([])
   })

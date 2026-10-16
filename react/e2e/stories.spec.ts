@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
 import { audit } from './audit'
-import { SRC, listen, signal, sourceFiles, storiesMetaId, storyId } from './sweep'
+import { SRC, listen, localeOf, signal, sourceFiles, storiesMetaId, storyId } from './sweep'
 
 /**
- * Every story, loaded on its own, and the five questions asked of it.
+ * Every story, loaded on its own, and the six questions asked of it.
  *
  * The story ids are DERIVED from the story files — the meta's id or
  * title and the export names, through Storybook's own id rule (sweep.ts)
@@ -31,10 +31,11 @@ for (const id of stories) {
     expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(want)
 
     expect(signal(said), 'the console while loading').toEqual([])
-    expect(await audit(page), 'at 1280').toEqual([])
+    const locale = localeOf(globals)
+    expect(await audit(page, locale), 'at 1280').toEqual([])
 
     await page.setViewportSize({ width: 390, height: 760 })
     await page.waitForTimeout(150)
-    expect(await audit(page), 'at 390').toEqual([])
+    expect(await audit(page, locale), 'at 390').toEqual([])
   })
 }

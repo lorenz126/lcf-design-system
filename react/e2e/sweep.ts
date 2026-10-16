@@ -51,6 +51,9 @@ export function storiesMetaId(file: string) {
   return (id ?? title)!
 }
 
+/** The locale a project renders in, from its globals (`theme:dark;locale:de-CH`); the workshop's default otherwise. */
+export const localeOf = (globals: string) => /(?:^|;)locale:([\w-]+)/.exec(globals)?.[1] ?? 'en-GB'
+
 /** Every warning, error and uncaught exception the page reports. */
 export function listen(page: Page) {
   const said: string[] = []
