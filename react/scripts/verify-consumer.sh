@@ -11,6 +11,10 @@
 #   - a Button got its colour from the shipped CSS, through the layer
 #   - the Tailwind preset turned a token into a utility
 #   - de-CH printed 10'410.00, not whatever ICU the browser carries
+#   - a NumberField imported from its own path found the Field imported
+#     from another: one context instance survived preserveModules, so
+#     the label names it and the description describes it; it shows
+#     1'234.5, posts 1234.5, and marks its number lang="de-CH"
 #
 # Static on purpose. "Does it work without a server" is a question a
 # consumer asked, and a `vite preview` of `dist/` is exactly that: an
@@ -66,6 +70,8 @@ import { LcfProvider } from '@lcf/design/components/LcfProvider'
 import { Button } from '@lcf/design/components/Button'
 import { Badge } from '@lcf/design/components/Badge'
 import { Alert } from '@lcf/design/components/Alert'
+import { Field } from '@lcf/design/components/Field'
+import { NumberField } from '@lcf/design/components/NumberField'
 import { useFormat } from '@lcf/design/i18n'
 import { useBreakpoint } from '@lcf/design/hooks/useBreakpoint'
 import { useDocumentTheme } from '@lcf/design/theme'
@@ -84,6 +90,7 @@ function App() {
       <Badge color="success">Gewonnen</Badge>
       <Alert color="caution" title="Preis offen" onDismiss={() => {}} />
       <Price />
+      <form id="offer"><Field label="Fläche" description="Netto"><NumberField unit="m2" defaultValue={1234.5} name="area" /></Field></form>
       <div id="tw" className="bg-danger-soft text-danger heading-md">Tailwind</div>
       <p>{theme} {String(wide)}</p>
     </LcfProvider>
@@ -140,7 +147,18 @@ const out = await p.evaluate(() => ({
   tw: getComputedStyle(document.getElementById('tw')).color,
   twSize: getComputedStyle(document.getElementById('tw')).fontSize,
   price: document.getElementById('price').textContent,
-  close: document.querySelector('.lcf-alert-x')?.getAttribute('aria-label')
+  close: document.querySelector('.lcf-alert-x')?.getAttribute('aria-label'),
+  field: (() => {
+    const input = document.querySelector('#offer .lcf-number input:not([type=hidden])')
+    return {
+      labelId: document.querySelector('#offer .lcf-field-label')?.id,
+      labelledBy: input?.getAttribute('aria-labelledby') ?? '',
+      describedBy: input?.getAttribute('aria-describedby') ?? '',
+      value: input?.value,
+      posted: new FormData(document.getElementById('offer')).get('area'),
+      lang: input?.getAttribute('lang')
+    }
+  })()
 }))
 await b.close()
 const fail = []
@@ -149,8 +167,15 @@ if (!/rgb|color/.test(out.button) || out.button === 'rgba(0, 0, 0, 0)') fail.pus
 if (out.tw === 'rgb(0, 0, 0)' || out.twSize !== '24px') fail.push(`tailwind preset not applied: ${out.tw} ${out.twSize}`)
 if (out.price !== "10'410.00") fail.push(`price: ${out.price}`)
 if (out.close !== 'Ausblenden: Preis offen') fail.push(`message table: ${out.close}`)
+const f = out.field
+if (!f.labelId || !f.labelledBy.split(' ').includes(f.labelId)) fail.push(`NumberField did not find its Field (two contexts?): aria-labelledby="${f.labelledBy}", label id ${f.labelId}`)
+if (!f.describedBy.split(' ').some(id => id.endsWith('-help'))) fail.push(`Field's description not wired: aria-describedby="${f.describedBy}"`)
+if (f.value !== "1'234.5") fail.push(`NumberField shows ${f.value}`)
+if (f.posted !== '1234.5') fail.push(`NumberField posts ${f.posted}`)
+if (f.lang !== 'de-CH') fail.push(`NumberField lang ${f.lang}`)
 if (errors.length) fail.push(...errors)
 console.log(`  theme before paint: ${early} · button ${out.button} · tailwind ${out.tw} ${out.twSize} · price ${out.price} · "${out.close}"`)
+console.log(`  field: "${f.value}" posts ${f.posted} · lang ${f.lang} · labelled by ${f.labelledBy} · described by ${f.describedBy}`)
 if (fail.length) { console.error('  FAILED\n    ' + fail.join('\n    ')); process.exit(1) }
 EOF
 # Run from the package directory, where @playwright/test is installed;
