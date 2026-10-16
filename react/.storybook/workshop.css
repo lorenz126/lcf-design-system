@@ -9,6 +9,29 @@
   gap: var(--s-5) var(--s-6);
 }
 .ws-label { color: var(--fg-muted); font: var(--w-medium) var(--fs-caption)/1.3 var(--font-sans); }
+/* A form section: fields in columns of at least 14rem, as many as fit up
+   to four, one under the other on a phone. */
+.ws-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--s-6);
+  align-items: start;
+  max-inline-size: calc(4 * 14rem + 3 * var(--s-6));
+}
+.ws-fields[data-dense] { gap: var(--s-5); max-inline-size: calc(4 * 14rem + 3 * var(--s-5)); }
+/* An app's own control in the Field "Any control" story: a native select
+   drawn with the tokens, the way an app would before Select exists. */
+.ws-select {
+  min-block-size: var(--field-md);
+  padding-inline: var(--s-4);
+  border: var(--border-width) solid var(--border-field);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: var(--fg);
+  font: var(--w-regular) var(--fs-body)/1.25 var(--font-sans);
+}
+.ws-select[data-color] { border-color: var(--c-border); }
+.ws-select:focus-visible { outline: var(--focus-width) solid var(--focus-color); outline-offset: 0; }
 .ws-backdrop {
   padding: var(--s-9);
   border-radius: var(--r-lg);
@@ -120,6 +143,11 @@ html { scroll-behavior: auto; }
 .docblock-argstable thead th:first-child { border-start-start-radius: var(--r-lg); }
 .docblock-argstable thead th:last-child { border-start-end-radius: var(--r-lg); }
 .docblock-argstable td :is(span, div, p) { color: inherit; }
+/* A union longer than Storybook shows at once ends in "Show 3 more...":
+   a <summary> in Storybook's light text, 1.10:1 on the dark page —
+   measured by the docs sweep on NumberField's `unit`, the first prop
+   with eleven values. */
+.docblock-argstable summary { color: var(--fg-muted) !important; }
 /* Code in the table is code: the name, each value, inline code in a
    description — mono, on --fill, padded. The name's span had the fill
    too, by the same selector, with no padding and no radius: a grey block
@@ -220,7 +248,7 @@ html { scroll-behavior: auto; }
    in light. Stories keep their own rings — the components are what the
    page documents. A code block's scroll area takes focus too, and the
    block clips what is drawn outside it, so its ring is drawn inside. */
-.sbdocs :is(a, button, [role="switch"], [tabindex]):focus-visible:not(:where(.docs-story *, .sb-story *, .docs-hero *)) {
+.sbdocs :is(a, button, summary, [role="switch"], [tabindex]):focus-visible:not(:where(.docs-story *, .sb-story *, .docs-hero *)) {
   outline: var(--focus-width) solid var(--focus-color) !important;
   outline-offset: 2px !important;
   box-shadow: none !important;

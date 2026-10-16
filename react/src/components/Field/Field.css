@@ -1,0 +1,127 @@
+/* Field: a column — head row, the control, its words. Its own text does
+   not scale with `size`; only the control does. */
+.lcf-field {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-inline-size: 0;
+  vertical-align: top;
+}
+.lcf-field[data-block] { display: flex; inline-size: 100%; }
+
+/* The head: label, the required word, and the marks at the end. It
+   wraps at narrow widths and never collapses its words into icons — a
+   title tooltip is not reachable by keyboard or touch.
+   Centred, not on the baseline: the marks begin with an icon, which has
+   no baseline, so a baseline row sat the 12px marks 3px above the 13px
+   label (measured in the States story). */
+.lcf-field-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--s-4);
+  row-gap: var(--s-2);
+  min-block-size: 20px;
+}
+
+.lcf-field-label {
+  font: var(--w-medium) var(--fs-small)/var(--lh-small) var(--font-sans);
+  letter-spacing: var(--tr-small);
+  color: var(--fg);
+}
+/* Required is not an error: the Nuxt layer's red asterisk said it was. */
+.lcf-field-req { color: var(--fg-muted); margin-inline-start: 2px; }
+
+/* "Pflichtfeld", only while the control is empty — read by CSS from the
+   control's own data-empty, so nothing is reported upward and nothing
+   flashes on the first paint. The word replaces the asterisk. */
+.lcf-field-req-word {
+  display: none;
+  align-items: center;
+  gap: var(--s-2);
+  font: var(--w-regular) var(--fs-caption)/var(--lh-caption) var(--font-sans);
+  letter-spacing: var(--tr-caption);
+  color: var(--fg-muted);
+}
+.lcf-field-req-word::before {
+  content: "";
+  flex: none;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: var(--r-full);
+  background: var(--c-border);
+}
+.lcf-field[data-required]:has(> .lcf-field-control [data-empty]) .lcf-field-req-word { display: inline-flex; }
+.lcf-field[data-required]:has(> .lcf-field-control [data-empty]) .lcf-field-req { display: none; }
+
+/* At the end of the row, and still at the end when they wrap. */
+.lcf-field-marks {
+  margin-inline-start: auto;
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--s-2) var(--s-4);
+  font: var(--w-regular) var(--fs-caption)/var(--lh-caption) var(--font-sans);
+  letter-spacing: var(--tr-caption);
+  color: var(--fg-muted);
+}
+.lcf-field-marks svg { width: var(--icon-sm); height: var(--icon-sm); stroke-width: var(--icon-stroke); flex: none; }
+.lcf-field-origin, .lcf-field-hint { display: inline-flex; align-items: center; gap: var(--s-2); }
+/* The origin's icon is a graphic beside words that say the same thing:
+   --fg-subtle, 3:1 or better in both themes. Neutral on purpose — the
+   state says what needs a person, the origin only who said it. */
+.lcf-field-origin svg { color: var(--fg-subtle); }
+
+/* ✓ and ↺: 20px targets, at least 4px apart (the spacing exception of
+   WCAG 2.5.8 for targets under 24px). */
+.lcf-field-action {
+  min-inline-size: 20px;
+  block-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  padding: 0 var(--s-1);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.lcf-field-action:hover { background: var(--fill); color: var(--fg); }
+.lcf-field-action:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 1px;
+}
+.lcf-field-confirmed { display: inline-flex; }
+.lcf-field-confirmed svg { color: var(--c-text); }
+
+.lcf-field-control { display: flex; flex-direction: column; align-items: flex-start; }
+.lcf-field[data-block] .lcf-field-control { align-items: stretch; }
+
+/* THE SUGGESTED CONTRACT. A suggested value is grey and italic — a
+   non-colour cue as well as a colour — until anything in the field has
+   focus; then it is ordinary text, because it is about to be the
+   person's own. The control reads these two on its value text. */
+.lcf-field[data-state="suggested"]:not(:focus-within) {
+  --fld-value-fg: var(--fg-muted);
+  --fld-value-style: italic;
+}
+
+/* The words under the control: the app's error, its description, and a
+   control's own problem (NumberField). Defined here because index.css
+   always loads it. */
+.lcf-field-msg {
+  display: flex;
+  gap: var(--s-2);
+  align-items: flex-start;
+  margin: 0;
+  font: var(--w-regular) var(--fs-caption)/var(--lh-caption) var(--font-sans);
+  letter-spacing: var(--tr-caption);
+  color: var(--fg-muted);
+}
+.lcf-field-msg[data-color] { color: var(--c-text); }
+.lcf-field-msg svg { width: var(--icon-sm); height: var(--icon-sm); stroke-width: var(--icon-stroke); flex: none; margin-block-start: 1px; }

@@ -1,0 +1,51 @@
+/* NumberField: Input's frame (Input.css), a number aligned to the end,
+   its unit as a column at the end, and its own problem under it — the
+   problem line is .lcf-field-msg, from Field.css. */
+.lcf-number {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-inline-size: 0;
+}
+.lcf-number[data-block] { display: flex; inline-size: 100%; }
+
+/* Figures that line up down a column of fields, at the end where a
+   number's ones digit sits. 10ch holds "10'410.50" without a block
+   frame; a block frame's flex: 1 grows it. */
+.lcf-number .lcf-input-el {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  inline-size: 10ch;
+}
+
+/* The unit as a column: 3ch, so "m²", "%" and "CHF" fields end their
+   numbers on one edge. At the end in every locale; printed text still
+   puts a currency where format.money says. */
+.lcf-number-unit {
+  min-inline-size: 3ch;
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* − and +: inside the frame's end padding, so they do not push the
+   number about. 24px wide, the frame's inner height tall — 24px at md,
+   30 at lg; never at sm, where they would be under 24 (WCAG 2.5.8). */
+.lcf-number-steps {
+  display: inline-flex;
+  gap: var(--s-1);
+  margin-inline-end: calc(var(--fld-pad) * -1 + var(--s-1));
+}
+.lcf-number-step {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 24px;
+  block-size: calc(var(--fld-h) - 2 * var(--border-width));
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+.lcf-number-step:hover:not(:disabled) { background: var(--fill); color: var(--fg); }
+.lcf-number-step:disabled { opacity: .4; cursor: not-allowed; }

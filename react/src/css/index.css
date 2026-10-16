@@ -26,4 +26,7 @@
 @import "../components/Alert/Alert.css" layer(lcf.components);
 @import "../components/Badge/Badge.css" layer(lcf.components);
 @import "../components/Button/Button.css" layer(lcf.components);
+@import "../components/Field/Field.css" layer(lcf.components);
+@import "../components/Input/Input.css" layer(lcf.components);
+@import "../components/NumberField/NumberField.css" layer(lcf.components);
 @import "../components/Spinner/Spinner.css" layer(lcf.components);

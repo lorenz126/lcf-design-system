@@ -15,6 +15,14 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
-    css: false
+    css: false,
+    /* Off. Vitest 5 keeps transformed modules in node_modules/.vitest-cache
+       across runs, keyed by the file's own content — and a module that
+       uses import.meta.glob (the Introduction's component catalogue) has
+       its file list baked into that transform. Measured: with Field,
+       Input and NumberField's stories added, the catalogue test still
+       saw the four components of the run before, until the cache was
+       deleted. The whole suite runs in about three seconds without it. */
+    fsModuleCache: false
   }
 })

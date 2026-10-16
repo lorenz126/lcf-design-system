@@ -1,0 +1,88 @@
+/* The frame every one-line control is drawn in: Input, and NumberField
+   on top of it. Semantic tokens and --c-* only.
+
+   --fld-h, --fld-fs and --fld-pad are LOCAL to the frame, set from its
+   own data-size — the control decides its size (its prop, else the
+   Field's, else md), so nothing reaches down from a parent. They are not
+   a token family. --fld-value-fg and --fld-value-style are the other
+   half of the Field contract: a Field sets them on itself (suggested),
+   and the value text reads them. */
+.lcf-input {
+  --fld-h: var(--field-md);
+  --fld-fs: var(--fs-body);
+  --fld-pad: var(--control-pad-md, var(--s-5));
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  box-sizing: border-box;
+  /* A minimum, not a height: text-spacing overrides (WCAG 1.4.12) grow
+     the box rather than clip the value. */
+  min-block-size: var(--fld-h);
+  padding-inline: var(--fld-pad);
+  border: var(--border-width) solid var(--border-field);
+  /* Button's cap, so a field is never a capsule either. */
+  border-radius: min(var(--r-control), calc(var(--fld-h) * .4));
+  background: var(--bg);
+  cursor: text;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              box-shadow   var(--dur-fast) var(--ease-out);
+}
+.lcf-input[data-size="sm"] { --fld-h: var(--field-sm); --fld-fs: var(--fs-small); --fld-pad: var(--control-pad-sm, var(--s-4)); }
+.lcf-input[data-size="lg"] { --fld-h: var(--field-lg); --fld-fs: var(--fs-lead); --fld-pad: var(--control-pad-lg, var(--s-6)); }
+.lcf-input[data-block] { display: flex; inline-size: 100%; }
+
+.lcf-input-el {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  outline: none;
+  font: var(--w-regular) var(--fld-fs)/1.25 var(--font-sans);
+  letter-spacing: var(--tr-body);
+  color: var(--fld-value-fg, var(--fg));
+  font-style: var(--fld-value-style, normal);
+}
+/* Firefox draws a placeholder at .54 opacity by default, which takes
+   --fg-subtle under its own 3:1. */
+.lcf-input-el::placeholder { color: var(--fg-subtle); opacity: 1; font-style: normal; }
+
+/* Hover moves the edge to --fg-subtle (4.74 light, 4.18 dark). */
+.lcf-input:hover:not([data-disabled], [data-readonly], [data-color]) { border-color: var(--fg-subtle); }
+
+/* Caution while required and empty (in a Field), danger while invalid.
+   Danger also doubles the edge, so invalid is not told by hue alone. */
+.lcf-input[data-color] { border-color: var(--c-border); }
+.lcf-input[data-color="danger"] { box-shadow: inset 0 0 0 1px var(--c-border); }
+
+/* The ring is on the frame, so it goes round the adornments too. One
+   ring colour for every control (geometry.css), invalid ones included:
+   it answers "where am I", the edge answers "what is wrong". */
+.lcf-input:has(> .lcf-input-el:focus-visible) {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 0;
+}
+.lcf-input:not([data-color]):has(> .lcf-input-el:focus-visible) { border-color: var(--focus-color); }
+
+/* Read-only: the quiet ground; the edge stays a field's edge. */
+.lcf-input[data-readonly] { background: var(--fill-quiet); cursor: default; }
+.lcf-input[data-disabled] { opacity: .4; cursor: not-allowed; }
+.lcf-input[data-disabled] .lcf-input-el { cursor: not-allowed; }
+
+.lcf-input-adornment {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--fg-muted);
+  font: var(--w-regular) var(--fld-fs)/1.25 var(--font-sans);
+}
+.lcf-input-adornment svg { width: var(--icon-sm); height: var(--icon-sm); stroke-width: var(--icon-stroke); flex: none; }
+
+/* Forced colours: the edge is the field, so it must survive the
+   palette swap; system colours keep danger distinguishable by width. */
+@media (forced-colors: active) {
+  .lcf-input { border-color: CanvasText; }
+  .lcf-input[data-color="danger"] { border-width: 2px; }
+}
