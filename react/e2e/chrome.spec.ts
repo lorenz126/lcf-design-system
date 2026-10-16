@@ -31,6 +31,19 @@ async function open(page: Page, path: string) {
     const pending = await frame.locator('#storybook-docs .sb-story').evaluateAll(s => s.filter(e => !e.querySelector('[id$="-inner"] > *')).length)
     expect(pending).toBe(0)
   }).toPass({ timeout: 30_000 })
+  /* And until the page has stopped growing. Rendered stories are not the
+     end of it: the base example's open source block arrives later, with
+     the syntax highlighter Storybook loads on demand. Measured on the
+     "On this page" test, 2 runs in 10 even with one worker: the click
+     scrolled to where Reference stood (scrollY 505), the code block then
+     pushed it 234px down, and it rested at 274px instead of 40. */
+  let last = -1
+  await expect(async () => {
+    const height = await frame.locator('body').evaluate(() => document.documentElement.scrollHeight)
+    const settled = height === last
+    last = height
+    expect(settled, 'the page height, unchanged across 400ms').toBe(true)
+  }).toPass({ timeout: 30_000, intervals: [400] })
   return frame
 }
 
