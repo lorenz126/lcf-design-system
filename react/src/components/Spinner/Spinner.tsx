@@ -24,7 +24,8 @@ export interface SpinnerProps {
  *
  * Decorative by default: it usually sits beside the word that says what
  * is loading. `labelled` gives it a name of its own — the app's word for
- * "Loading", from the message table — for when it stands alone.
+ * "Loading", from the message table, marked with the language it is
+ * written in — for when it stands alone.
  *
  * Not a progress bar. When the share done is known, show the share.
  */
@@ -38,6 +39,9 @@ export function Spinner({ size = 'md', labelled, label, className }: SpinnerProp
       data-motion="essential"
       role={name ? 'status' : undefined}
       aria-label={name}
+      // The table's word is marked with its language; an app's `label`
+      // is the app's text, and is not.
+      lang={labelled && label === undefined ? t.lang('loading') : undefined}
       aria-hidden={name ? undefined : true}
     />
   )

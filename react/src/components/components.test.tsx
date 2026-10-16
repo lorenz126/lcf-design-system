@@ -9,6 +9,7 @@ import { Button } from './Button/Button'
 import { Spinner } from './Spinner/Spinner'
 
 const de = ({ children }: { children: ReactNode }) => <LcfProvider locale="de-CH">{children}</LcfProvider>
+const fr = ({ children }: { children: ReactNode }) => <LcfProvider locale="fr-CH">{children}</LcfProvider>
 
 describe('Button', () => {
   it('renders the vocabulary as data attributes, which is all its CSS reads', () => {
@@ -75,6 +76,14 @@ describe('Alert', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Ausblenden: Preis offen' }))
     expect(onDismiss).toHaveBeenCalledOnce()
   })
+
+  it('marks the language of its own word: the provider locale, or English where it fell back', () => {
+    const { unmount } = render(<Alert title="Preis offen" onDismiss={() => {}} />, { wrapper: de })
+    expect(screen.getByRole('button', { name: 'Ausblenden: Preis offen' })).toHaveAttribute('lang', 'de-CH')
+    unmount()
+    render(<Alert title="Prix ouvert" onDismiss={() => {}} />, { wrapper: fr })
+    expect(screen.getByRole('button', { name: 'Dismiss: Prix ouvert' })).toHaveAttribute('lang', 'en')
+  })
 })
 
 describe('Spinner', () => {
@@ -83,6 +92,17 @@ describe('Spinner', () => {
     expect(container.firstChild).toHaveAttribute('aria-hidden', 'true')
     rerender(<Spinner labelled />)
     expect(screen.getByRole('status', { name: 'Wird geladen' })).toBeInTheDocument()
+  })
+
+  it('marks the table word with its language, and never the app\'s own label', () => {
+    const { unmount } = render(<Spinner labelled />, { wrapper: de })
+    expect(screen.getByRole('status')).toHaveAttribute('lang', 'de-CH')
+    unmount()
+    const { unmount: u2 } = render(<Spinner labelled />, { wrapper: fr })
+    expect(screen.getByRole('status', { name: 'Loading' })).toHaveAttribute('lang', 'en')
+    u2()
+    render(<Spinner labelled label="Offerten werden geladen" />, { wrapper: de })
+    expect(screen.getByRole('status')).not.toHaveAttribute('lang')
   })
 })
 

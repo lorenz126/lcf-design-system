@@ -57,6 +57,10 @@ const MARK: Record<string, ReactNode> = {
  * Several of them in a row is a list of findings — blocks and hints from
  * a calculation — and should be one Alert with a list in its body, not a
  * stack of boxes.
+ *
+ * Its own word — "Dismiss" on the close button — carries `lang`, so a
+ * German "Ausblenden" under an English document is read as German. The
+ * title and body are the app's, and are never marked.
  */
 export function Alert({
   color = 'secondary',
@@ -89,6 +93,10 @@ export function Alert({
           type="button"
           className="lcf-alert-x"
           aria-label={typeof title === 'string' ? `${t('dismiss')}: ${title}` : t('dismiss')}
+          // The name is the table's word with the app's title after it;
+          // it takes the word's language, which is the provider's when
+          // the table has it — and then the title is in it too.
+          lang={t.lang('dismiss')}
           onClick={onDismiss}
         >
           <X aria-hidden="true" />
