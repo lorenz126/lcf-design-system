@@ -23,14 +23,46 @@ half.
 | ✓ | **J15** Findings as a list — one Alert with a list body, not a stack | Alert `Findings` |
 | ✓ | Theme helpers and the pre-paint script, verified on a static build | `src/theme/index.ts`, `verify-consumer.sh` |
 | ✓ | Button, Badge, Alert (was Banner), Spinner | `src/components/` |
+| ✓ | **J3** NumberField with unit: the reader's separators, min, max, step, commit on blur/Enter/arrows, never clamped or rounded; Input for text; Field for label, description, error and required | `src/components/NumberField`, `Input`, `Field` |
+| ✓ | **J4** Field state (`suggested`, `confirmed`; required-and-empty derived), origin (customer, staff by name, assumed, missing; by e-mail or form), the price-driver `hint`, Enter to confirm and ↺ back to the suggestion | `src/components/Field` |
+| ✓ | The layer's words carry their language (`t.lang`), Alert and Spinner included; the sweep checks it | `src/i18n/context.tsx`, `e2e/audit.ts` |
+
+### J3 and J4: where the build departs from the request, for Jonathan to confirm
+
+1. **"Pflicht leer" is not a `state` value.** It is derived from
+   `required` and the control's emptiness, so it cannot disagree with
+   the value. `state` is `suggested` or `confirmed`.
+2. **The unit is part of the field's accessible NAME** ("Fläche
+   Quadratmeter", through `aria-labelledby`), not its description:
+   VoiceOver reads descriptions late, if at all.
+3. **"help" is spelled `description`**, as Alert spells it.
+4. **The "slot for a mark" is a typed `origin`** from the layer's
+   vocabulary — consistent across fields and, later, media items. The
+   free third slot is `hint` (a string, and `hintIcon`).
+
+Open questions:
+
+1. Enter confirms and never submits in a field the app makes
+   confirmable, and does not move to the next field. Agreed?
+2. Is a value a person typed "bestätigt" by itself, or only after Enter
+   or ✓? The Review story's recipe assumes Enter or ✓.
+3. Should "Pflichtfeld" with its caution edge show on pristine required
+   fields outside review screens (a "create offer" form)?
+4. A required, empty field with origin "missing" shows both
+   "Pflichtfeld" and "Fehlt". Keep both?
+5. Sign-off on the darker field edge, `--border-field`, 3.41:1 where
+   the Nuxt edge was 1.48:1.
+
+Before tagging: a manual pass with NVDA, JAWS and VoiceOver (macOS and
+iOS) over Enter-to-confirm, the blur and step announcements, and the
+voice switching on `lang` — no screen reader was available to the build.
 
 ## Next — Priority 1 (the first Offerttool screen)
 
 | # | component | the hard part |
 |---|---|---|
-| J3 | **Field**, **Input**, **NumberField** with unit | The text a person is typing is not a number yet. The field keeps the TEXT while focused and commits a number on blur, so "12," is not rejected mid-keystroke; min/max/step report through Field's error, never by silently clamping. Unit as a suffix that is part of the label for a screen reader (`aria-describedby`), not part of the value. |
-| J4 | **Field state and origin** | One `state` (`empty-required` · `suggested` · `confirmed`) and one `origin` slot for a mark, on Field itself so every control gets it. "Suggested" is grey and italic and carries a "back to suggestion" button — which means the field must know the suggested value, not only that there was one. Origin is a mark with a name (Kunde, ergänzt von …, angenommen, fehlt), never colour alone. The price-driver hint is a third slot, not a fourth state. |
-| — | Select, Combobox, Checkbox, Radio, Switch, Textarea | Ports. Select and Combobox on Radix's primitives where the Nuxt versions hand-rolled listbox keyboard handling. |
+| — | Select, Combobox, Textarea | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment, and Field's "Any control" story wires a native select by it alone. Select and Combobox on Radix's primitives where the Nuxt versions hand-rolled listbox keyboard handling; a Radix Dialog must leave a NumberField's Escape (`[data-dirty]`) alone. |
+| — | Checkbox, Radio, Switch | Ports. Not in Field: their label sits beside a control that comes first. |
 
 ## Then — Priority 1 continued, and media
 
@@ -39,7 +71,7 @@ half.
 | J5 | **DataGrid** (new; Table stays a display table) | Editing per cell with validation per cell and marked changes. A new component, not a Table prop: a grid has a cell cursor and Enter-to-edit, a table has rows you read, and one component with both keyboard models is neither. Columns per market = a column filter on the app's side, not a feature. |
 | J6 | Table: **groups and totals** | Chapter rows with subtotals and a footer total. Totals through `useFormat().money`, and `numeric` columns in tabular figures — the place where the CH/AT separator pinning pays. |
 | J7 | **AsyncCombobox** (new; Combobox stays local) | Server search: debounce, cancel the stale request, keep the selected item's label when it falls out of the results, announce the result count. Combobox's doc says it is not a remote picker; that stays true. |
-| J19 | **MediaPanel** | Thumbnails, one main image (images only, never a PDF), favourites, reorder by drag *and by keyboard*, unlink. Knows no storage: preview URL, original URL, metadata. |
+| J19 | **MediaPanel** | Origin per item (customer, staff, e-mail, form) with Field's `Origin` type and words — `originWords` in `Field/origin.tsx` becomes public then. Thumbnails, one main image (images only, never a PDF), favourites, reorder by drag *and by keyboard*, unlink. Knows no storage: preview URL, original URL, metadata. |
 | J20 | **MediaUpload** (new, beside Attachments) | Several files, drop, progress, camera on a phone (`capture`), and category, licence and author REQUIRED per file before save. A new component rather than Attachments with props: Attachments is "choose files", this is a form per file. |
 | J21 | **TagInput** | Suggestions from the app, free tags allowed, spaces to underscores as the app's rule, not the component's. |
 | J22 | **MediaGallery** | List ↔ tiles, filter bar (category, licence, type, object), search. |

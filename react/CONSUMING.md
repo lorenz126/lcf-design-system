@@ -11,8 +11,8 @@ into that app's `AGENTS.md` or `CLAUDE.md`.
 import { Button } from '@lcf/design/components/Button'
 ```
 
-Available now: Alert, Badge, Button, Spinner, LcfProvider — and the
-`i18n`, `theme` and `hooks/useBreakpoint` modules. `ROADMAP.md` in the
+Available now: Alert, Badge, Button, Field, Input, NumberField, Spinner,
+LcfProvider — and the `i18n`, `theme` and `hooks/useBreakpoint` modules. `ROADMAP.md` in the
 package's repository lists what is next and in which order. If what you
 need is not here yet, build it in the app and say so — do not copy a
 component to add a prop; ask for the prop upstream.
@@ -28,6 +28,11 @@ import { LcfProvider } from '@lcf/design/components/LcfProvider'
 
 And the theme script in `<head>` (`themeScript` from
 `@lcf/design/theme`), or the first paint of a dark-mode user is white.
+
+Set `<html lang>` to the provider's locale (`<html lang="de-CH">`). The
+components mark their own words with `lang`, but an accessible name or
+description is spoken in the language of the focused element — so a
+wrong `<html lang>` still mispronounces a field's description.
 
 ## The vocabulary
 
@@ -45,6 +50,36 @@ Always `useFormat()`: `f.number`, `f.money`, `f.unit(12.5, 'm2')`,
 `f.date('2026-10-13')`, `f.parseNumber(text)`. **Never
 `toLocaleString()`** — it differs between Node, Deno and browsers. Dates
 in and out are ISO `yyyy-mm-dd` strings, never `Date`.
+
+## Fields
+
+Every input goes in a `Field` — it owns the label, the description, the
+error and `required`, and wires them to the control:
+
+```tsx
+<Field label="Fläche" description="Netto gemäss Plan" error={problem} required>
+  <NumberField unit="m2" min={0} value={area} onValueChange={setArea} name="area" />
+</Field>
+```
+
+- **Numbers are `NumberField`, never `Input`.** Its value is a number
+  (or null), emitted on blur, Enter, an arrow key or the stepper —
+  never per keystroke — and never clamped or rounded: out of range, it
+  says so and keeps the number. It posts the canonical number
+  (`1234.5`, not `1'234.5`) under `name`.
+- **A review screen tells each Field what it knows:** `state`
+  (`suggested` | `confirmed`), `origin` (`{ source: 'customer', via:
+  'email' }`, `{ source: 'staff', by: 'Anna' }`), `hint` for a price
+  driver, `suggestion` as the field shows it. `onConfirm` makes Enter
+  confirm (and never submit); pass `onRevert` only while the value
+  differs from the suggestion and nobody confirmed it. The recipe is
+  Field's "Review" story.
+- **A form that saves drafts sets `noValidate`** (or `formNoValidate`
+  on its save button): fields use native `required`, which otherwise
+  blocks the submit.
+- **Your own control in a Field** calls `useField()` and follows the
+  contract in its doc comment — at least `id`, `aria-describedby` and
+  `data-empty` on its box.
 
 ## Text
 

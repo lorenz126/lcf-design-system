@@ -64,3 +64,54 @@ always grouping. The locale's decimal separator is always the decimal.
 The other of `.` and `,` is grouping when exactly three digits follow
 it (`12.500` in de-AT is twelve thousand five hundred) and a decimal
 otherwise (`12.5` typed into a German form is twelve and a half).
+
+## The language of the words
+
+A screen reader reads text with the rules of the language the document
+declares, unless an element says otherwise. Under `<html lang="en">`
+with a de-CH provider, <span lang="de-CH">Wird geladen</span> is read
+as if it were English. So every word a component takes from the table
+says which language it is in:
+
+```tsx
+const t = useMessages()
+<button aria-label={t('dismiss')} lang={t.lang('dismiss')}>…</button>
+```
+
+- **What is marked.** Every element whose text, `aria-label` or `title`
+  comes from the table carries `lang`, set to `t.lang(key)`, on the
+  smallest element that holds only those words. Always — the layer
+  never reads `<html lang>`, since reading the page while rendering
+  breaks a server render, and a `lang` that repeats the page's own
+  cannot be heard.
+- **Which language.** The provider's locale (`de-CH`, not a bare `de`)
+  where the table has the words; `en` where it fell back to English.
+- **Words joined with the app's.** <span lang="de-CH">Ausblenden: Preis offen</span>,
+  <span lang="de-CH">Zurück zum Vorschlag: 118 m²</span>,
+  <span lang="de-CH">Ergänzt von Anna</span> take the language of their
+  message key. Where the layer ships the provider's language, the app's
+  half is in it too.
+- **Numbers the formatter writes** carry the formatter's locale:
+  NumberField's input is `lang={format.locale}`.
+- **The app's own text is never marked**: labels, descriptions, errors,
+  hints, Spinner's `label`, an Input's value. The layer never writes
+  `<html lang>`, and LcfProvider renders no element — a wrapper would not
+  reach portals, and would mark the app's text as well.
+
+**Set `<html lang>` to the provider's locale.** An accessible name or
+description is one flat string, spoken in the language of the element
+that has focus: a `lang` on a description sentence serves browse mode
+and braille, not the announcement when the field is focused.
+
+**In a locale the layer does not ship**, such as `fr-CH` without a French
+table, the words fall back to English and are marked `lang="en"`. A name
+that joins them with the app's French — "Dismiss: Prix ouvert" — is then
+half wrong whichever language it is read in. The fix is the table:
+
+```tsx
+<LcfProvider locale="fr-CH" messages={{ dismiss: 'Masquer', loading: 'Chargement', /* … */ }}>
+```
+
+This workshop keeps `<html lang="en">` on purpose: its dark/de-CH pass
+is the standing reproduction of the problem, and the sweep fails on any
+word from the table that does not say its language.

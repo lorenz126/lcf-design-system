@@ -46,7 +46,7 @@ minor.
   `--accent`, `--accent-text` and `--accent-solid-bg` and every `primary`
   follows.
 - **`lcf-check-contrast app-theme.css`** — the contrast guard, run over an
-  app's own colours. 322 pairs, both themes.
+  app's own colours. 332 pairs, both themes.
 - **Nested themes** — `data-theme="light"` inside a dark page is a light
   island; the derived tokens recompute on every theme root.
 - **`LcfProvider`** — locale, message overrides, formatter overrides,
@@ -65,9 +65,49 @@ minor.
 - **`useBreakpoint()`** — the same breakpoints the Tailwind preset uses.
 - Storybook as the documentation: a docs page per component with its
   props from the types, a story per axis.
+- **Field** (`@lcf/design/components/Field`) — label, description,
+  error and required wired once for any control, through the public
+  **`useField()`** context; the review state (`state`: `suggested`,
+  `confirmed`), where a value came from (`origin`), the app's
+  price-driver mark (`hint`, `hintIcon`), and confirm/revert
+  (`onConfirm`, `onRevert`, `suggestion`). "Required and empty" is
+  derived from the control's `data-empty`, never a prop. Root
+  attributes `data-state`, `data-origin`, `data-required`,
+  `data-invalid`, `data-block` may be styled. (J3, J4)
+- **Input** (`@lcf/design/components/Input`) — one line of text:
+  `type` text/email/tel/url/password, `size`, `invalid`, `block`,
+  `startAdornment`, `endAdornment`.
+- **NumberField** (`@lcf/design/components/NumberField`) — a number with
+  its unit (`unit`: the i18n `Unit`), in the reader's separators;
+  `value`/`defaultValue`/`onValueChange` on commit, `min`, `max`,
+  `step`, `minimumFractionDigits`, `stepper`; posts the canonical number
+  under `name`. Never clamps, snaps or rounds what was typed. (J3)
+- **Types** `FieldState`, `Origin`, `OriginSource`, `OriginChannel`, from
+  `@lcf/design/components/Field` — the origin model media items will
+  share.
+- **28 message keys** for fields and units (`stateSuggested` …
+  `unitEur`), English and German; `unitChf` is "Franken" in de-CH and
+  "Schweizer Franken" in de-DE and de-AT. Adding them to `Messages` makes
+  an app that types a full table of its own fail to compile until it
+  supplies them — the intended signal that there are new words to
+  translate.
+- **`t.lang(key)`** on what `useMessages()` returns, and the
+  **`Translate`** type: the BCP 47 tag the resolved entry is written in
+  (the provider's locale, or `'en'` where it fell back). `t(key)` is
+  unchanged.
+- **`--border-field`** (and Tailwind's `border-field`) — a text field's
+  resting edge, 3.41:1 light and 3.66:1 dark, because an empty field is
+  found by its edge alone (WCAG 1.4.11).
+- **10 contrast pairs** for fields: the edge on the page and on a card,
+  and a read-only and a suggested value.
+- **The sweep asks six questions**: the layer's words under the wrong
+  `lang` is new, and the text question now reads typed values and
+  placeholders, which are not text nodes.
 
 ### Changed
 
+- **`parseNumber` normalises NFKC first**, so full-width digits from an
+  IME parse: "１２．５" is 12.5, where it was null. Every caller sees it.
 - **A solid primary is `#0070ef`, was `#007aff`.** White on `#007aff` is
   4.02:1, under AA; the solid ground is now `--accent-solid-bg`, which
   defaults to the blue already measured at 4.60:1. Rings, borders and
@@ -78,6 +118,11 @@ minor.
 
 ### Fixed
 
+- **Alert and Spinner mark the language of their own words.** Under an
+  English `<html lang>` with a de-CH provider, "Ausblenden" and "Wird
+  geladen" were read with English rules. The dismiss button and a
+  labelled Spinner now carry `lang` from the table; an app's own
+  `label` is never marked.
 - **The spinner spun under reduced motion.** In the Nuxt layer base.css
   collapsed every animation to 0.01ms with `!important`, which beat the
   spinner's own slower rule: measured, `animation-duration: 1e-05s ×1`,
