@@ -10,7 +10,7 @@ maintenance; this directory is `0.4.0` onward. Read the root
 pnpm test
 ```
 
-In order, failing on the first: contrast (322 pairs, both themes) ·
+In order, failing on the first: contrast (332 pairs, both themes) ·
 stories (every component has stories with a `Showcase`, a doc comment
 on every example, a public path and its CSS in `src/css/index.css`) ·
 strings (no visible text outside the message table) · vitest · tsc ·

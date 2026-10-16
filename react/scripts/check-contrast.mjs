@@ -356,6 +356,34 @@ function expectations() {
     { what: 'chart/2', fg: '--chart-2', bg: '--bg', min: UI, why: 'chart mark, not text' },
     { what: 'chart/3', fg: '--chart-3', bg: '--bg', min: UI, why: 'chart mark, not text' },
     {
+      /* A TEXT FIELD'S EDGE IS HELD TO 3:1, unlike a button's. A button
+         is named by its label; an empty text field is found by its edge
+         and nothing else, which is exactly where WCAG 1.4.11 asks 3:1 of
+         a boundary — the reason the neutral outline below may be a
+         hairline is the reason this one may not. */
+      what: 'field/border',
+      fg: '--border-field',
+      bg: '--bg',
+      min: UI,
+      why: 'a text field is identified by its edge alone (WCAG 1.4.11)'
+    },
+    {
+      what: 'field/border on raised',
+      fg: '--border-field',
+      bg: '--bg-raised',
+      min: UI,
+      why: 'the same, on a card'
+    },
+    // A read-only field: the value on the quiet fill it takes instead
+    // of the page.
+    { what: 'field/read-only value', fg: '--fg', bg: '--fill-quiet', on: '--bg', min: AA },
+    // A suggested value is grey and italic — and it is a VALUE, priced
+    // and submitted, not a placeholder, so it is held to AA. Measured
+    // here because an input's value is not a text node, and the page
+    // sweep's text question did not see it until it asked inputs too.
+    { what: 'field/suggested, read-only', fg: '--fg-muted', bg: '--fill-quiet', on: '--bg', min: AA },
+    { what: 'field/suggested, read-only on raised', fg: '--fg-muted', bg: '--fill-quiet', on: '--bg-raised', min: AA },
+    {
       // outline-offset puts the ring on the PAGE, not on the control, so
       // that is what it has to contrast against. WCAG 2.4.11 wants 3:1
       // for a focus indicator.

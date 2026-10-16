@@ -30,6 +30,7 @@
   --color-surface-sunken: var(--bg-sunken);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-border-field: var(--border-field);
   --color-fill: var(--fill);
   --color-fill-quiet: var(--fill-quiet);
   --color-fill-strong: var(--fill-strong);

@@ -94,6 +94,14 @@
   --border:        var(--gray-200);   /* default hairline */
   --border-strong: var(--gray-300);   /* emphasised division */
 
+  /* The resting edge of a text field. Not a hairline: a button is named
+     by its label, but an empty text field is found by its edge and
+     nothing else, and WCAG 1.4.11 asks 3:1 of a boundary exactly where
+     the boundary is what identifies the control. --border-strong
+     measured 1.48:1 here (1.91 dark). Mixed from --fg and --bg, so it
+     follows an app's neutrals: 3.41:1 on the page, 3.26 on a card. */
+  --border-field:  color-mix(in srgb, var(--fg) 50%, var(--bg));
+
   /* Neutral fills — for controls that need a ground without carrying a
      hue. Alpha, not opaque, so they composite correctly over any
      surface rather than only over --bg. */
@@ -273,6 +281,8 @@
 
   --border:        var(--gray-800);
   --border-strong: var(--gray-700);
+  /* Less of --fg than in light: 40% is 3.66:1 on the page, 3.31 on a card. */
+  --border-field:  color-mix(in srgb, var(--fg) 40%, var(--bg));
 
   --chart-1: #4a90e8;
   --chart-2: #a8730f;
