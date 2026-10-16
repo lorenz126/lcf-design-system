@@ -19,6 +19,8 @@
   max-inline-size: calc(4 * 14rem + 3 * var(--s-6));
 }
 .ws-fields[data-dense] { gap: var(--s-5); max-inline-size: calc(4 * 14rem + 3 * var(--s-5)); }
+/* A form around a section of fields, its buttons in a row below. */
+.ws-form { display: flex; flex-direction: column; gap: var(--s-6); }
 /* An app's own control in the Field "Any control" story: a native select
    drawn with the tokens, the way an app would before Select exists. */
 .ws-select {

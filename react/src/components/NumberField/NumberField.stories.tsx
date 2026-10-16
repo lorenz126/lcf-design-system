@@ -60,7 +60,7 @@ export const Units: Story = {
   )
 }
 
-/** One value, three ways: each provider writes and reads its own separators. Type "1.234,5" into the Austrian one. */
+/** One value, three ways: each provider writes and reads its own separators. "1.234,5" pasted into any of them is 1234.5. */
 export const Separators: Story = {
   render: () => (
     <div className="ws-fields">
@@ -179,5 +179,5 @@ function InFieldDemo() {
   )
 }
 
-/** Suggested by the customer: Enter confirms it, typing overrides it, ↺ brings it back. */
+/** Suggested by the customer: Enter confirms it, typing overrides it, Escape or ↺ brings it back. */
 export const InField: Story = { name: 'In a field', render: () => <InFieldDemo /> }

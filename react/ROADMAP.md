@@ -52,6 +52,14 @@ Open questions:
    "Pflichtfeld" and "Fehlt". Keep both?
 5. Sign-off on the darker field edge, `--border-field`, 3.41:1 where
    the Nuxt edge was 1.48:1.
+6. In de-CH, a lone comma is now the decimal comma: "2,450" in a metre
+   field is 2.45, where it was read as 2450 (`format.test.ts` pinned
+   `1,500` → 1500 and now pins 1.5). Swiss usage writes the comma on
+   quantities and the apostrophe for thousands; an English-trained
+   hand writing "1,500" for fifteen hundred now gets 1.5. Agreed?
+7. Escape in a field with ↺ goes back to the suggestion (↺ itself left
+   the Tab order: as a Tab stop it sat in the forward path of the field
+   above it). Agreed as the keyboard way back?
 
 Before tagging: a manual pass with NVDA, JAWS and VoiceOver (macOS and
 iOS) over Enter-to-confirm, the blur and step announcements, and the
@@ -61,7 +69,7 @@ voice switching on `lang` — no screen reader was available to the build.
 
 | # | component | the hard part |
 |---|---|---|
-| — | Select, Combobox, Textarea | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment, and Field's "Any control" story wires a native select by it alone. Select and Combobox on Radix's primitives where the Nuxt versions hand-rolled listbox keyboard handling; a Radix Dialog must leave a NumberField's Escape (`[data-dirty]`) alone. |
+| — | Select, Combobox, Textarea | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment, and Field's "Any control" story wires a native select by it alone. Select and Combobox on Radix's primitives where the Nuxt versions hand-rolled listbox keyboard handling; a Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
 | — | Checkbox, Radio, Switch | Ports. Not in Field: their label sits beside a control that comes first. |
 
 ## Then — Priority 1 continued, and media

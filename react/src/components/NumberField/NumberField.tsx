@@ -14,10 +14,10 @@ import {
 import { flushSync } from 'react-dom'
 import { useFormat, useMessages } from '../../i18n/context'
 import type { Unit } from '../../i18n/format'
-import { announce, ensureAnnouncer } from '../Field/announce'
+import { announce, ensureAnnouncer, spokenText } from '../Field/announce'
 import { useField } from '../Field/context'
 import { joinIds } from '../Field/ids'
-import { InputFrame } from '../Input/InputFrame'
+import { InputFrame, resolveControl } from '../Input/InputFrame'
 import { mergeRefs } from '../refs'
 import type { Size } from '../types'
 import { decimals, displayText, inputModeFor, rangeProblem, readText, stepFrom, UNIT_WORD, type Problem } from './number'
@@ -51,15 +51,6 @@ export interface NumberFieldProps extends Omit<ComponentPropsWithRef<'input'>,
 
 const MONEY: readonly Unit[] = ['CHF', 'EUR']
 
-/* The visible label's text, as a screen reader would read it: without
-   the aria-hidden asterisk. */
-function spokenText(node: Node | null | undefined): string {
-  if (!node) return ''
-  if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? ''
-  if (node instanceof Element && (node.getAttribute('aria-hidden') === 'true' || node.hasAttribute('hidden'))) return ''
-  return [...node.childNodes].map(spokenText).join('')
-}
-
 /**
  * NumberField — a quantity with its unit, typed in the reader's own separators and kept as a number.
  *
@@ -87,7 +78,12 @@ function spokenText(node: Node | null | undefined): string {
  *   uses `format.money`. Pasted units are understood: "CHF 1'200.–" is
  *   1200 in a franc field.
  * - **It posts the canonical number.** With `name`, a hidden input
- *   carries 1234.5, never "1'234.5"; the visible box has no name.
+ *   carries 1234.5, never "1'234.5"; the visible box has no name. `form`
+ *   reaches both, so a field outside the form it names is still
+ *   validated by it; a form reset puts an uncontrolled field back to
+ *   `defaultValue`.
+ * - **`className` and `style` sit on its outer box**, which holds the
+ *   frame, the problem line and the hidden input.
  * - **Refuses:**
  *   - `type="number"`;
  *   - `spinbutton`;
@@ -121,6 +117,7 @@ export function NumberField({
   disabled,
   readOnly,
   onKeyDown,
+  onFocus,
   onBlur,
   ref,
   'aria-label': ariaLabel,
@@ -133,9 +130,7 @@ export function NumberField({
   const f = useFormat()
   const auto = useId()
   const id = field?.id ?? idProp ?? auto
-  const size = sizeProp ?? field?.size ?? 'md'
-  const isDisabled = !!(disabled || field?.disabled)
-  const isReadOnly = !!(readOnly || field?.readOnly)
+  const { size, disabled: isDisabled, readOnly: isReadOnly } = resolveControl(field, { size: sizeProp, disabled, readOnly })
 
   const input = useRef<HTMLInputElement | null>(null)
   const setRef = useMemo(() => mergeRefs(input, ref), [ref])
@@ -144,7 +139,22 @@ export function NumberField({
   const [dirty, setDirty] = useState(false)
   const [parseFailed, setParseFailed] = useState(false)
   const [inner, setInner] = useState<number | null>(defaultValue ?? null)
+  const [focused, setFocused] = useState(false)
   const committed = value !== undefined ? value : inner
+
+  /* A value set from outside while the person is elsewhere wins over
+     text left in the box that could not be read. Measured: "acht" left
+     in a field, then ↺ — the value went back to 6 and the box still said
+     "acht", drawn as the suggestion. While the box has focus the text is
+     the person's, and stays. Render-time, no sync effect. */
+  const [seen, setSeen] = useState(value)
+  if (!Object.is(value, seen)) {
+    setSeen(value)
+    if (!focused && dirty) {
+      setDirty(false)
+      setParseFailed(false)
+    }
+  }
 
   const bounds = { min, max, step }
   const mfd = minimumFractionDigits ?? (unit && MONEY.includes(unit) ? 2 : 0)
@@ -171,7 +181,9 @@ export function NumberField({
       ? f.unit(x, unit, { maximumFractionDigits: Math.max(digits, unit && MONEY.includes(unit) ? 2 : 0) })
       : f.number(x, { maximumFractionDigits: digits })
   }
-  const problemText = problem && t(problem.key, problem.value === undefined ? {} : { min: amount(problem.value), max: amount(problem.value), step: amount(problem.value) })
+  const problemMessage = (p: Problem) =>
+    t(p.key, p.value === undefined ? {} : { min: amount(p.value), max: amount(p.value), step: amount(p.value) })
+  const problemText = problem && problemMessage(problem)
 
   // The form agrees with what the field says.
   useLayoutEffect(() => {
@@ -181,16 +193,15 @@ export function NumberField({
   useEffect(() => { ensureAnnouncer() }, [])
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'production') return
-    if (field && idProp !== undefined) console.warn("[lcf] an `id` on a control inside a Field is ignored — set the Field's `id`; it names the control.")
-  }, [field, idProp])
-  useEffect(() => {
     if (process.env.NODE_ENV !== 'production' && stepper && size === 'sm') {
       console.warn('[lcf] NumberField: no stepper at size sm — its buttons would be under 24px (WCAG 2.5.8). Arrow keys step at every size.')
     }
   }, [stepper, size])
 
   /* ---- what is said ---- */
+  /* The last problem said aloud, so one failed commit reached by Enter
+     and then by the blur after it is said once. Any new edit clears it:
+     a commit after typing is news, even when the sentence is the same. */
   const lastSaid = useRef<string | null>(null)
   const labelText = () => {
     const el = input.current
@@ -204,7 +215,7 @@ export function NumberField({
       lastSaid.current = null
       return
     }
-    const message = t(p.key, p.value === undefined ? {} : { min: amount(p.value), max: amount(p.value), step: amount(p.value) })
+    const message = problemMessage(p)
     const label = labelText()
     const said = label ? t('fieldMessage', { field: label, message }) : message
     if (said === lastSaid.current) return
@@ -292,6 +303,7 @@ export function NumberField({
         if (dirty) {
           setDirty(false)
           setParseFailed(false)
+          lastSaid.current = null
           e.preventDefault()
           e.stopPropagation()
         }
@@ -301,8 +313,32 @@ export function NumberField({
 
   const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
     onBlur?.(e)
+    setFocused(false)
     commit('blur')
   }
+
+  /* A form reset puts an uncontrolled field back to its default. The box
+     is controlled by this component, so the browser's own reset cannot. */
+  const uncontrolled = value === undefined
+  useEffect(() => {
+    const owner = input.current?.form
+    if (!uncontrolled || !owner) return
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const onReset = () => {
+      // The reset event fires BEFORE the values change; act after it.
+      timer = setTimeout(() => {
+        setInner(defaultValue ?? null)
+        setDirty(false)
+        setParseFailed(false)
+        lastSaid.current = null
+      }, 0)
+    }
+    owner.addEventListener('reset', onReset)
+    return () => {
+      owner.removeEventListener('reset', onReset)
+      clearTimeout(timer)
+    }
+  }, [uncontrolled, defaultValue, form])
 
   /* ---- naming ---- */
   const unitId = `${id}-unit`
@@ -347,11 +383,23 @@ export function NumberField({
   }
 
   return (
-    <div className={clsx('lcf-number', className)} style={style} data-block={block || undefined}>
+    /* The box directly inside a Field's control slot: Field reads
+       data-empty and data-dirty here (useField's contract). */
+    <div
+      className={clsx('lcf-number', className)}
+      style={style}
+      data-block={block || undefined}
+      data-empty={empty || undefined}
+      data-dirty={dirty ? 'true' : undefined}
+    >
       <InputFrame
         {...rest}
         ref={setRef}
-        id={id}
+        // Inside a Field the frame takes the Field's id and warns about
+        // one given here; outside, it takes this one, so the unit's and
+        // the problem's ids match.
+        id={field ? idProp : id}
+        form={form}
         type="text"
         size={size}
         block={block}
@@ -363,8 +411,13 @@ export function NumberField({
         onChange={e => {
           setText(e.currentTarget.value)
           setDirty(true)
+          lastSaid.current = null
         }}
         onKeyDown={handleKeyDown}
+        onFocus={e => {
+          onFocus?.(e)
+          setFocused(true)
+        }}
         onBlur={handleBlur}
         inputMode={inputModeFor(min)}
         autoComplete="off"

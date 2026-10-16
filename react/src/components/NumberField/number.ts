@@ -43,9 +43,9 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 /**
  * The text, ready for parseNumber: trimmed; the field's own unit taken
  * off the start or the end ("CHF 1'200", "12 %", "118 m2"); and a
- * trailing zero-cents dash dropped ("1'200.–"). Done on the raw text,
- * before parseNumber's NFKC — NFKC turns "²" into "2", and "118 m²"
- * would become "118 m2" and then 1182.
+ * trailing zero-cents dash dropped ("1'200.–"). Done on the raw text:
+ * parseNumber reads digits and separators only, and refuses "118 m²"
+ * (under the NFKC it once ran, "²" became "2" and that was 1182).
  *
  * Another unit is not taken off: "12 kg" in a square-metre field is not
  * a number, and saying so is better than guessing.

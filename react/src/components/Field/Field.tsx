@@ -3,6 +3,7 @@ import { Check, CircleCheck, CircleX, RotateCcw } from 'lucide-react'
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   type ComponentPropsWithRef,
@@ -14,7 +15,7 @@ import { useMessages } from '../../i18n/context'
 import type { MessageKey } from '../../i18n/messages'
 import { mergeRefs } from '../refs'
 import type { FieldState, Origin, OriginSource, Size } from '../types'
-import { announce, ensureAnnouncer } from './announce'
+import { announce, ensureAnnouncer, spokenText } from './announce'
 import { FieldContext, type FieldContextValue } from './context'
 import { joinIds } from './ids'
 import { normaliseOrigin, OriginMark, originWords } from './origin'
@@ -22,7 +23,7 @@ import { normaliseOrigin, OriginMark, originWords } from './origin'
 export interface FieldProps extends Omit<ComponentPropsWithRef<'div'>, 'id' | 'children'> {
   /** What the value is. Required: a field nobody can name is a box nobody can find. */
   label: ReactNode
-  /** Visually hides the label (and its asterisk); it stays the name. Marks and actions stay visible. Default false. */
+  /** Visually hides the label (and its asterisk); it stays the name. Marks, actions and the required word stay visible. Default false. */
   hideLabel?: boolean
   /** Guidance under the control. Stays when an error arrives. */
   description?: ReactNode
@@ -50,9 +51,9 @@ export interface FieldProps extends Omit<ComponentPropsWithRef<'div'>, 'id' | 'c
   hintIcon?: ReactNode
   /** The suggested value as the field shows it ("118 m²", from useFormat().unit). Display only: the ↺ button's text and name, and the "Suggestion: …" sentence. */
   suggestion?: string
-  /** Makes the field confirmable: Enter in the control, or the ✓ button, calls this. Enter then never submits the form. */
+  /** Makes the field confirmable: Enter in the control, or the ✓ button, calls this — unless the control reports a problem of its own (its `validity`), which is said instead. Enter then never submits the form. */
   onConfirm?: () => void
-  /** Back to the suggestion. Pass it only while there is something to go back to; ↺ shows exactly when it is given. */
+  /** Back to the suggestion. Pass it only while there is something to go back to; ↺ shows exactly when it is given, and Escape in the control calls it. */
   onRevert?: () => void
   /** Exactly one control. */
   children: ReactNode
@@ -82,14 +83,27 @@ const hasWords = (error: ReactNode) =>
  *   flashes on first paint.
  * - **Three states, and only two are props.** Suggested is grey italic,
  *   with no word, because most of forty fields arrive suggested and a
- *   word on each hides the ones that need a person. Confirmed is a ✓.
- *   Required-and-empty is derived: the word and a caution edge, the one
- *   edge that clears 3:1 in colour, shown before any submit because in a
- *   review an empty required field is the to-do.
- * - **One Tab stop per field.** Enter confirms what is in the box, and a
- *   confirmable field never submits on Enter. ✓ is for the pointer. ↺
- *   sits before the control, so the forward pass never meets it, and
- *   focus returns to the control after either action.
+ *   word on each hides the ones that need a person. Text the control
+ *   holds but could not commit is never drawn as the suggestion.
+ *   Confirmed is a ✓. Required-and-empty is derived: the word and a
+ *   caution edge, the one edge that clears 3:1 in colour, shown before
+ *   any submit because in a review an empty required field is the to-do.
+ *   The word stays with a hidden label: without it the edge says
+ *   "required" by hue alone (1.0:1 against the resting edge, measured in
+ *   light).
+ * - **One Tab stop per field, and it is the control.** Enter confirms
+ *   what is in the box, and a confirmable field never submits on Enter.
+ *   ✓ and ↺ are for the pointer, out of the Tab order; Escape in the
+ *   control is ↺ for the keyboard, once the control has no edit of its
+ *   own to undo. Measured when ↺ was a Tab stop before the control: it
+ *   sat in the forward path of the field ABOVE it, so Enter, Tab, Enter
+ *   there threw away a typed override nobody had confirmed yet. Focus
+ *   returns to the control after either action.
+ * - **A confirm acts on what the box shows.** Before confirming, Field
+ *   reads the control's `validity`: text NumberField could not read, a
+ *   number out of range, a required field still empty stop Enter and ✓
+ *   alike, and the reason is said instead. The app's own `error` does
+ *   not stop it; that verdict is the app's to act on.
  * - **Every mark is said once.** The head row's marks are aria-hidden.
  *   Each is spoken by its own sentence ending in a full stop, referenced
  *   by `aria-describedby`. Measured: a word beside an aria-hidden icon
@@ -103,6 +117,7 @@ const hasWords = (error: ReactNode) =>
  *     gets submitted and priced);
  *   - being invalid without words;
  *   - validating (it shows what the app and the control found);
+ *   - confirming a value the control itself calls wrong;
  *   - tracking origin (the app owns it, Field shows it);
  *   - inventing the app's words (`hint` is the app's);
  *   - colour as the only signal;
@@ -162,11 +177,12 @@ export function Field({
     error: hasError ? `${id}-error` : undefined,
     state: stateKey ? `${id}-state` : undefined,
     keys: showConfirm ? `${id}-keys` : undefined,
+    escape: showRevert ? `${id}-escape` : undefined,
     origin: origin ? `${id}-origin` : undefined,
     hint: hint ? `${id}-hint` : undefined,
     help: description != null && description !== false && description !== '' ? `${id}-help` : undefined
   }
-  const describedBy = joinIds(ids.error, ids.state, ids.keys, ids.origin, ids.hint, ids.help)
+  const describedBy = joinIds(ids.error, ids.state, ids.keys, ids.escape, ids.origin, ids.hint, ids.help)
 
   const context = useMemo<FieldContextValue>(() => ({
     id,
@@ -207,28 +223,77 @@ export function Field({
     }
   }, [state, t])
 
+  /* The callbacks as of the last commit, not of the render this
+     handler was made in. React collects an event's listeners before any
+     runs, so on Enter Field's handler is the closure from BEFORE
+     NumberField's flushed commit: measured, an onConfirm that saved its
+     `value` saved 118 while the box said 120. A layout effect runs
+     inside that flush, so the ref already holds the new callback. */
+  const confirmRef = useRef(onConfirm)
+  const revertRef = useRef(onRevert)
+  useLayoutEffect(() => {
+    confirmRef.current = onConfirm
+    revertRef.current = onRevert
+  })
+
+  const control = () => (root.current?.ownerDocument ?? document).getElementById(id) as HTMLInputElement | null
+
+  /* Whether the control itself says its value is wrong, and if so, say
+     why — with the field's name, as NumberField says a late problem, so
+     the same problem from both is one sentence and is queued once. The
+     words are the control's own (setCustomValidity, from the table);
+     an empty required field has the table's word; anything else native
+     is the browser's sentence, in a language the page cannot know. */
+  const refuses = (el: HTMLInputElement | null): boolean => {
+    const v = el?.validity
+    if (!el || !v || v.valid) return false
+    const name = spokenText(el.ownerDocument.getElementById(labelId)).trim()
+    const [message, lang] = v.customError ? [el.validationMessage, t.lang('fieldMessage')]
+      : v.valueMissing ? [t('required'), t.lang('required')]
+        : [el.validationMessage, '']
+    announce(name ? t('fieldMessage', { field: name, message }) : message, lang)
+    return true
+  }
+
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     onKeyDown?.(e)
-    if (e.key !== 'Enter' || e.defaultPrevented) return
+    // A control that spent the key on itself (NumberField's unreadable
+    // text on Enter, its edit on Escape) has prevented it.
+    if (e.defaultPrevented) return
+    if (e.key !== 'Enter' && e.key !== 'Escape') return
     if (e.nativeEvent.isComposing || e.keyCode === 229) return
     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
-    const target = e.target as HTMLElement
-    if (target.id !== id || !confirmsOnEnter(target)) return
-    if (!onConfirm || disabled || readOnly) return
-    if ((target as HTMLInputElement).readOnly || (target as HTMLInputElement).disabled) return
+    const target = e.target as HTMLInputElement
+    if (target.id !== id || disabled || readOnly || target.readOnly || target.disabled) return
+    if (e.key === 'Escape') {
+      if (!revertRef.current) return
+      // The Escape is spent here: a dialog around the field stays open.
+      e.preventDefault()
+      e.stopPropagation()
+      act(revertRef.current, 'revert')
+      return
+    }
+    if (!confirmRef.current || !confirmsOnEnter(target)) return
     // Confirming, not submitting: no implicit submission either.
     e.preventDefault()
-    onConfirm()
+    if (refuses(target)) return
+    confirmRef.current()
   }
 
   /* ✓ and ↺ do not cancel mousedown: focus moves to the button, so a
      NumberField with typed text commits it on blur BEFORE the click —
-     otherwise the box and the value would disagree. After the action,
-     focus goes back to the control. */
+     otherwise the box and the value would disagree. When that commit
+     fails, or the control has a problem, ✓ confirms nothing and says
+     why. After the action, focus goes back to the control. */
   const act = (fn: (() => void) | undefined, which: 'confirm' | 'revert') => {
     if (!fn) return
     const doc = root.current?.ownerDocument ?? document
-    const hadFocus = doc.activeElement !== null && doc.activeElement === doc.getElementById(id)
+    const el = control()
+    const hadFocus = doc.activeElement !== null && doc.activeElement === el
+    if (which === 'confirm' && (el?.readOnly || el?.disabled || refuses(el))) {
+      el?.focus()
+      return
+    }
     acting.current = true
     try {
       flushSync(fn)
@@ -236,7 +301,7 @@ export function Field({
       acting.current = false
     }
     const now = doc.activeElement
-    if (!now || now === doc.body || root.current?.contains(now)) doc.getElementById(id)?.focus()
+    if (!now || now === doc.body || root.current?.contains(now)) control()?.focus()
     // Moving focus makes a screen reader read the field again — value
     // and "Vorschlag." — so ↺ only speaks when focus did not move.
     if (which === 'revert' && hadFocus) announce(t('stateSuggested'), t.lang('stateSuggested'))
@@ -253,6 +318,14 @@ export function Field({
     </label>
   )
   const hasMarks = !!origin || !!hint || showRevert || showConfirm || state === 'confirmed'
+  // Shown by CSS only while the control is empty. With a hidden label
+  // and no marks it stands alone above the control, so a filled field
+  // has no empty head row taking room in a table-like row.
+  const reqWord = required && (
+    <span className="lcf-field-req-word" data-color="caution" aria-hidden="true" lang={t.lang('required')}>
+      {t('required')}
+    </span>
+  )
 
   return (
     <div
@@ -269,11 +342,7 @@ export function Field({
       {showHead ? (
         <div className="lcf-field-head">
           {labelEl}
-          {required && !hideLabel && (
-            <span className="lcf-field-req-word" data-color="caution" aria-hidden="true" lang={t.lang('required')}>
-              {t('required')}
-            </span>
-          )}
+          {reqWord}
           {hasMarks && (
             <span className="lcf-field-marks">
               {origin && <OriginMark origin={origin} t={t} />}
@@ -288,6 +357,7 @@ export function Field({
                   type="button"
                   className="lcf-field-action"
                   data-action="revert"
+                  tabIndex={-1}
                   lang={t.lang(revertKey)}
                   aria-label={revertName}
                   title={revertName}
@@ -321,7 +391,7 @@ export function Field({
             </span>
           )}
         </div>
-      ) : labelEl}
+      ) : <>{labelEl}{reqWord}</>}
       <div className="lcf-field-control">
         <FieldContext.Provider value={context}>{children}</FieldContext.Provider>
       </div>
@@ -336,6 +406,7 @@ export function Field({
           aria-describedby and never a second time in browse mode. */}
       {ids.state && <span id={ids.state} hidden lang={t.lang(stateKey!)}>{stateText}</span>}
       {ids.keys && <span id={ids.keys} hidden lang={t.lang('enterConfirms')}>{t('enterConfirms')}</span>}
+      {ids.escape && <span id={ids.escape} hidden lang={t.lang('escapeReverts')}>{t('escapeReverts')}</span>}
       {ids.origin && <span id={ids.origin} hidden lang={t.lang('originSentence')}>{t('originSentence', { origin: originText! })}</span>}
       {ids.hint && <span id={ids.hint} hidden>{hintText}</span>}
     </div>

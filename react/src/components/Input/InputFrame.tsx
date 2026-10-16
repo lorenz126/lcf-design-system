@@ -10,7 +10,7 @@ import {
   type MouseEvent,
   type ReactNode
 } from 'react'
-import { useField } from '../Field/context'
+import { useField, type FieldContextValue } from '../Field/context'
 import { joinIds } from '../Field/ids'
 import { mergeRefs } from '../refs'
 import type { Size } from '../types'
@@ -49,6 +49,24 @@ const warn = (msg: string) => {
 }
 
 /**
+ * The Field contract's arithmetic, once, for every control built on the
+ * frame (NumberField reads it too, for its stepper and its hidden input):
+ * the control's own size wins, then the Field's, then 'md'; required,
+ * disabled and read-only are OR'ed.
+ */
+export function resolveControl(
+  field: FieldContextValue | null,
+  own: { size?: Size; required?: boolean; disabled?: boolean; readOnly?: boolean }
+) {
+  return {
+    size: own.size ?? field?.size ?? 'md',
+    required: !!(own.required || field?.required),
+    disabled: !!(own.disabled || field?.disabled),
+    readOnly: !!(own.readOnly || field?.readOnly)
+  }
+}
+
+/**
  * The box every one-line control is drawn in, and the Field contract
  * (`useField`'s doc comment) kept once: Input is this with nothing
  * added, NumberField builds on it. Internal.
@@ -81,10 +99,9 @@ export function InputFrame({
   const inner = useRef<HTMLInputElement | null>(null)
   const setRef = useMemo(() => mergeRefs(inner, ref), [ref])
 
-  const size = sizeProp ?? field?.size ?? 'md'
-  const required = !!(requiredProp || field?.required)
-  const disabled = !!(disabledProp || field?.disabled)
-  const readOnly = !!(readOnlyProp || field?.readOnly)
+  const { size, required, disabled, readOnly } = resolveControl(field, {
+    size: sizeProp, required: requiredProp, disabled: disabledProp, readOnly: readOnlyProp
+  })
   const ariaInvalid = rest['aria-invalid']
   const invalid = !!(invalidProp || field?.invalid || ariaInvalid === true || ariaInvalid === 'true')
 
@@ -113,7 +130,10 @@ export function InputFrame({
     }
   }, [controlled])
 
-  const color = invalid ? 'danger' : field && required && empty ? 'caution' : undefined
+  /* Caution only from the Field's `required`: the Field draws the word
+     beside it. Measured with `required` on the control instead, the
+     edge turned caution and nothing else said why — a hue alone. */
+  const color = invalid ? 'danger' : field?.required && empty ? 'caution' : undefined
 
   // Development only, and enforced: the sweep fails on console warnings.
   const ariaLabel = rest['aria-label']
@@ -128,6 +148,12 @@ export function InputFrame({
       warn("an `id` on a control inside a Field is ignored — set the Field's `id`; it names the control.")
     }
   }, [field, idProp])
+  const inField = !!field
+  useEffect(() => {
+    if (!inField) return
+    const own = [requiredProp && 'required', disabledProp && 'disabled', readOnlyProp && 'readOnly'].filter(Boolean)
+    if (own.length) warn(`${own.join(', ')} on a control inside a Field — set it on the Field; it owns the word, the asterisk and the actions.`)
+  }, [inField, requiredProp, disabledProp, readOnlyProp])
   useEffect(() => {
     if (!TYPES.includes(type)) warn(`Input: type="${type}" is not one of ${TYPES.join(', ')}. Numbers, dates and search have components of their own.`)
   }, [type])
@@ -176,7 +202,10 @@ export function InputFrame({
         required={required}
         disabled={disabled}
         readOnly={readOnly}
-        aria-invalid={invalid || undefined}
+        // Always written: with no attribute, Chrome reports the native
+        // validity — measured, "anna" in an e-mail field was announced
+        // invalid with no words on the screen.
+        aria-invalid={invalid ? 'true' : 'false'}
         aria-labelledby={ariaLabelledBy}
         aria-describedby={joinIds(rest['aria-describedby'], field?.describedBy)}
       />

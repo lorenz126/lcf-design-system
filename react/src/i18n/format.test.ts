@@ -54,7 +54,24 @@ describe('parseNumber', () => {
     [ch, '10’410.50', 10410.5],
     [ch, '10 410.50', 10410.5],
     [ch, '1,5', 1.5],
-    [ch, '1,500', 1500],
+    // de-CH groups with an apostrophe, so a lone comma is the decimal
+    // comma Swiss usage writes on quantities (was 1500; ROADMAP asks).
+    [ch, '1,500', 1.5],
+    [ch, '2,450', 2.45],
+    [ch, '12,500', 12.5],
+    [ch, '0,125', 0.125],
+    [ch, '-0,125', -0.125],
+    // Both separators: the rightmost is the decimal, the other groups.
+    [ch, '1.234,5', 1234.5],
+    [ch, '12.500,00', 12500],
+    [ch, '1,234.5', 1234.5],
+    [at, '1,234.5', 1234.5],
+    [at, '12,500.00', 12500],
+    [at, '0.125', 0.125],
+    [en, '1.234,5', 1234.5],
+    [en, '12.500,00', 12500],
+    [en, '0,125', 0.125],
+    [en, '1,234.5', 1234.5],
     [at, '10.410,50', 10410.5],
     [at, '12.500', 12500],
     [at, '12.5', 12.5],
@@ -71,9 +88,28 @@ describe('parseNumber', () => {
   it.each(['', 'abc', '1.5.3', '12a', '--3'])('refuses %j', text => {
     expect(at.parseNumber(text)).toBeNull()
   })
-  it('reads full-width digits from an IME, by NFKC first (null before it)', () => {
+  it.each([
+    // A reading that could be 1000 times off is refused, never guessed.
+    [ch, '1.234,5,6'],
+    [ch, '1,234,567'],
+    [en, '1,23.5'],
+    [ch, '0.123,5'],
+    // Space and apostrophe groups are three digits, and only before the decimal.
+    [ch, "10'41.50"],
+    [ch, "1'2'3"],
+    [ch, '12 5'],
+    [ch, "0'125"],
+    [ch, "1.234'5"],
+    // Superscripts are not digits (NFKC read "5²" as 52).
+    [ch, '5²'],
+    [ch, '25³']
+  ] as const)('%#: refuses %j', (f, text) => {
+    expect(f.parseNumber(text)).toBeNull()
+  })
+  it('reads full-width digits from an IME (null before they were folded)', () => {
     expect(ch.parseNumber('１２．５')).toBe(12.5)
     expect(at.parseNumber('１２，５')).toBe(12.5)
+    expect(ch.parseNumber('１\u3000２３４．５')).toBe(1234.5)
   })
 })
 

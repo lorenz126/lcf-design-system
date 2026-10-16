@@ -90,7 +90,9 @@ a hue, never an intent token by name.
   a Field sets `--fld-value-fg` and `--fld-value-style` on itself while
   suggested, and the value text reads them. Nothing reaches down with a
   descendant selector, and nothing reports up: Field reads a control's
-  emptiness only from `data-empty`, with `:has()`.
+  emptiness only from `data-empty` (and uncommitted text from
+  `data-dirty`) on the box directly inside its control slot, with
+  `:has()`.
 - **A React 19 `useId` id is not a CSS selector.** Join ids into
   `aria-*` attributes and look them up with `getElementById` or a ref.
 - **A description is one flat string, spoken in the focused element's
@@ -98,9 +100,15 @@ a hue, never an intent token by name.
   mode and braille, not the focused announcement — which is why apps
   must set `<html lang>` to the provider locale.
 - **A Radix Dialog listens for Escape in the capture phase.** NumberField
-  spends an Escape on undoing an edit (`[data-dirty]` on its frame); a
-  Dialog built on Radix must leave that Escape alone, or it closes the
-  dialog with the edit.
+  spends an Escape on undoing an edit (`[data-dirty]` on its box), and
+  a Field with ↺ spends the next one on going back to the suggestion
+  (`[data-action="revert"]` in the field); a Dialog built on Radix must
+  leave those Escapes alone, or it closes the dialog with the edit.
+- **React collects an event's listeners before any runs.** A parent's
+  handler is the closure of the render before a child's `flushSync`:
+  Field read a stale `onConfirm` on Enter and confirmed 118 while the
+  box said 120. A callback read after a child's flush goes through a ref
+  set in a layout effect.
 - **Vitest's module cache bakes `import.meta.glob` results in.** Vitest 5
   caches transforms by the file's own content, so a glob over the tree
   (the Introduction's catalogue) kept the old file list when stories

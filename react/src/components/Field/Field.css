@@ -34,7 +34,9 @@
 
 /* "Pflichtfeld", only while the control is empty — read by CSS from the
    control's own data-empty, so nothing is reported upward and nothing
-   flashes on the first paint. The word replaces the asterisk. */
+   flashes on the first paint. The word replaces the asterisk. Only the
+   box directly inside the control slot counts: an empty list inside a
+   future control must not make the field "required and empty". */
 .lcf-field-req-word {
   display: none;
   align-items: center;
@@ -51,8 +53,8 @@
   border-radius: var(--r-full);
   background: var(--c-border);
 }
-.lcf-field[data-required]:has(> .lcf-field-control [data-empty]) .lcf-field-req-word { display: inline-flex; }
-.lcf-field[data-required]:has(> .lcf-field-control [data-empty]) .lcf-field-req { display: none; }
+.lcf-field[data-required]:has(> .lcf-field-control > [data-empty]) .lcf-field-req-word { display: inline-flex; }
+.lcf-field[data-required]:has(> .lcf-field-control > [data-empty]) .lcf-field-req { display: none; }
 
 /* At the end of the row, and still at the end when they wrap. */
 .lcf-field-marks {
@@ -105,8 +107,11 @@
 /* THE SUGGESTED CONTRACT. A suggested value is grey and italic — a
    non-colour cue as well as a colour — until anything in the field has
    focus; then it is ordinary text, because it is about to be the
-   person's own. The control reads these two on its value text. */
-.lcf-field[data-state="suggested"]:not(:focus-within) {
+   person's own. The control reads these two on its value text. Text the
+   control holds but could not commit ([data-dirty] on its box) is the
+   person's, not the suggestion: measured, "12 kg" left in a suggested
+   field was drawn grey and italic. */
+.lcf-field[data-state="suggested"]:not(:focus-within):not(:has(> .lcf-field-control > [data-dirty])) {
   --fld-value-fg: var(--fg-muted);
   --fld-value-style: italic;
 }

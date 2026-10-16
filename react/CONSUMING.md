@@ -71,15 +71,19 @@ error and `required`, and wires them to the control:
   (`suggested` | `confirmed`), `origin` (`{ source: 'customer', via:
   'email' }`, `{ source: 'staff', by: 'Anna' }`), `hint` for a price
   driver, `suggestion` as the field shows it. `onConfirm` makes Enter
-  confirm (and never submit); pass `onRevert` only while the value
-  differs from the suggestion and nobody confirmed it. The recipe is
+  confirm (and never submit) — unless the control says the value is
+  wrong, which is said instead; pass `onRevert` only while the value
+  differs from the suggestion and nobody confirmed it — Escape in the
+  control and ↺ call it. The recipe is
   Field's "Review" story.
 - **A form that saves drafts sets `noValidate`** (or `formNoValidate`
   on its save button): fields use native `required`, which otherwise
   blocks the submit.
 - **Your own control in a Field** calls `useField()` and follows the
-  contract in its doc comment — at least `id`, `aria-describedby` and
-  `data-empty` on its box.
+  contract in its doc comment — at least `id`, `aria-describedby`
+  (joined with `joinIds`, from the same import), `aria-invalid` written
+  as `"true"` or `"false"`, and `data-empty` on its box. Put
+  `required`, `disabled` and `readOnly` on the Field, not the control.
 
 ## Text
 

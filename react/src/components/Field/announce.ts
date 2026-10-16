@@ -10,6 +10,13 @@
  * - THE SAME SENTENCE TWICE IS NOT A CHANGE. It is cleared first and
  *   filled on the next frame, so "Bestätigt." after "Bestätigt." is
  *   still heard.
+ * - EVERYTHING SAID IN ONE EVENT IS SAID. Messages that arrive before
+ *   the frame are queued and rendered together, in order, each in its
+ *   own <span lang>. Measured when the second replaced the first: Enter
+ *   in a confirmable field committed 20 against a max of 15, NumberField
+ *   said "Rabatt: Höchstens 15%." and Field's "Bestätigt." cancelled it
+ *   before it reached the DOM. A sentence already queued in the same
+ *   frame is not queued twice (Field and NumberField saying one problem).
  *
  * One region per document: a page with forty fields would otherwise
  * have forty, and a screen reader watching several announces whichever
@@ -20,6 +27,7 @@
  */
 let region: HTMLElement | null = null
 let pending: number | undefined
+let queue: { message: string; lang: string }[] = []
 
 export function ensureAnnouncer(): HTMLElement | null {
   if (typeof document === 'undefined') return null
@@ -45,18 +53,33 @@ export function ensureAnnouncer(): HTMLElement | null {
   return region
 }
 
-/** Speak `message`, marked as written in `lang` (from `t.lang(key)`). */
+/**
+ * Speak `message`, marked as written in `lang` (from `t.lang(key)`).
+ * An empty `lang` claims none: words the browser wrote, in a language
+ * the page cannot know.
+ */
 export function announce(message: string, lang: string): void {
   const r = ensureAnnouncer()
   if (!r) return
-  if (pending !== undefined) cancelAnimationFrame(pending)
+  if (queue.some(q => q.message === message)) return
+  queue.push({ message, lang })
+  if (pending !== undefined) return
   r.textContent = ''
   pending = requestAnimationFrame(() => {
     pending = undefined
-    const span = r.ownerDocument.createElement('span')
-    span.lang = lang
-    span.textContent = message
-    r.replaceChildren(span)
+    const items = queue
+    queue = []
+    const doc = r.ownerDocument
+    const nodes: Node[] = []
+    items.forEach((item, i) => {
+      // A space between sentences, so they are not read as one word.
+      if (i > 0) nodes.push(doc.createTextNode(' '))
+      const span = doc.createElement('span')
+      if (item.lang) span.lang = item.lang
+      span.textContent = item.message
+      nodes.push(span)
+    })
+    r.replaceChildren(...nodes)
   })
 }
 
@@ -64,6 +87,21 @@ export function announce(message: string, lang: string): void {
 export function _resetAnnouncer(): void {
   if (pending !== undefined) cancelAnimationFrame(pending)
   pending = undefined
+  queue = []
   region?.remove()
   region = null
+}
+
+/**
+ * An element's text as a screen reader would read it as a name: without
+ * aria-hidden or hidden parts (a label's "*"). The prefix of a late
+ * announcement — "Fläche: Höchstens 500 m²." — is built from it by Field
+ * and by NumberField alike, so the same problem said by both is the same
+ * sentence and is queued once.
+ */
+export function spokenText(node: Node | null | undefined): string {
+  if (!node) return ''
+  if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? ''
+  if (node instanceof Element && (node.getAttribute('aria-hidden') === 'true' || node.hasAttribute('hidden'))) return ''
+  return [...node.childNodes].map(spokenText).join('')
 }

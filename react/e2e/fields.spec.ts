@@ -5,7 +5,7 @@ import { listen, localeOf, signal, storyId } from './sweep'
 /**
  * Field, Input and NumberField in a real engine, driven by the keyboard
  * alone — what jsdom cannot show: `:has()` deriving "required and empty"
- * from the control's own attribute, Tab order with ↺ before the control,
+ * from the control's own attribute, a Tab order with one stop per field,
  * the selection a Tab leaves, the focus ring as painted, and forced
  * colours. In all three passes, so the announcement is checked in
  * English and in German.
@@ -32,28 +32,29 @@ const token = (page: Page, name: string) =>
 
 const active = (page: Page) => page.evaluate(() => document.activeElement?.id ?? '')
 
-test('Review, by keyboard: Enter confirms, typing overrides, ↺ goes back', async ({ page }, info) => {
+test('Review, by keyboard: Enter confirms and never submits, typing overrides, Escape goes back', async ({ page }, info) => {
   const said = listen(page)
   const globals = globalsOf(info)
   await open(page, 'Field/Review', globals)
-  const url = page.url()
+  const form = page.locator('form')
   const fields = page.locator('.lcf-field')
   const control = (i: number) => fields.nth(i).locator('.lcf-field-control input')
+  // The story's form counts submits; Enter in a confirmable field must cause none.
+  await expect(form).toHaveAttribute('data-submitted', '0')
 
   // Tab into field 1: the whole value is selected, ready to be typed over.
   await page.keyboard.press('Tab')
   expect(await active(page)).toBe(await control(0).getAttribute('id'))
   expect(await control(0).evaluate((e: HTMLInputElement) => e.selectionStart === 0 && e.selectionEnd === e.value.length && e.value.length > 0)).toBe(true)
 
-  // Enter confirms — and does not submit or navigate.
+  // Enter confirms — and does not submit the form around it.
   await page.keyboard.press('Enter')
   await expect(fields.nth(0)).toHaveAttribute('data-state', 'confirmed')
-  expect(page.url()).toBe(url)
   const confirmed = localeOf(globals).startsWith('de') ? 'Bestätigt.' : 'Confirmed.'
   await expect(page.locator('[data-lcf-announcer]')).toHaveText(confirmed)
 
   // Field 2: type over it, Tab on. It reformats, its ↺ appears, and the
-  // forward pass goes to field 3's control — never to ↺.
+  // forward pass goes to field 3's control.
   await page.keyboard.press('Tab')
   expect(await active(page)).toBe(await control(1).getAttribute('id'))
   await page.keyboard.type('1200')
@@ -63,15 +64,33 @@ test('Review, by keyboard: Enter confirms, typing overrides, ↺ goes back', asy
   await expect(revert).toBeVisible()
   expect(await active(page)).toBe(await control(2).getAttribute('id'))
 
-  // Back twice: field 2's control, then its ↺. Enter restores the suggestion.
+  // Back once: field 2's control — ↺ is not a Tab stop. Escape restores
+  // the suggestion, and focus stays.
   await page.keyboard.press('Shift+Tab')
-  await page.keyboard.press('Shift+Tab')
-  await expect(revert).toBeFocused()
-  await page.keyboard.press('Enter')
+  expect(await active(page)).toBe(await control(1).getAttribute('id'))
+  await page.keyboard.press('Escape')
   await expect(fields.nth(1)).toHaveAttribute('data-state', 'suggested')
   expect(await active(page)).toBe(await control(1).getAttribute('id'))
   await expect(control(1)).toHaveValue('96')
 
+  // Override field 3 and leave it waiting. From field 2, Enter then Tab
+  // lands on field 3's control, so the next Enter confirms the override
+  // rather than throwing it away (measured when ↺ was a Tab stop).
+  await page.keyboard.press('Tab')
+  await page.keyboard.type('90')
+  await page.keyboard.press('Tab')
+  await expect(fields.nth(2).locator('[data-action="revert"]')).toBeVisible()
+  await page.keyboard.press('Shift+Tab')
+  await page.keyboard.press('Shift+Tab')
+  expect(await active(page)).toBe(await control(1).getAttribute('id'))
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('Tab')
+  expect(await active(page)).toBe(await control(2).getAttribute('id'))
+  await page.keyboard.press('Enter')
+  await expect(fields.nth(2)).toHaveAttribute('data-state', 'confirmed')
+  await expect(control(2)).toHaveValue('90.00')
+
+  await expect(form).toHaveAttribute('data-submitted', '0')
   expect(signal(said), 'the console').toEqual([])
 })
 
@@ -100,7 +119,7 @@ test('NumberField, by keyboard: arrows on the grid, unreadable text kept, Escape
   expect(await box.evaluate((e: HTMLInputElement) => e.validity.customError)).toBe(true)
   await page.keyboard.press('Escape')
   await expect(box).toHaveValue('84.85')
-  await expect(box).not.toHaveAttribute('aria-invalid')
+  await expect(box).toHaveAttribute('aria-invalid', 'false')
 
   // The wheel changes nothing.
   await box.hover()
@@ -142,18 +161,37 @@ test('the focus ring: on the frame, 2px, 3:1 on its ground, the one ring colour 
   }
 })
 
-test('forced colours: an invalid field keeps its edge and its words', async ({ page }, info) => {
+test('forced colours: an invalid field keeps its edge, two pixels wide, and its words', async ({ page }, info) => {
   await page.emulateMedia({ forcedColors: 'active' })
-  await open(page, 'Field/DescriptionAndError', globalsOf(info))
-  const edge = await page.locator('.lcf-input').evaluate(e => {
-    const cs = getComputedStyle(e)
-    return { style: cs.borderTopStyle, width: parseFloat(cs.borderTopWidth), color: cs.borderTopColor }
-  })
+  const edgeOf = async (story: string) => {
+    await open(page, story, globalsOf(info))
+    return page.locator('.lcf-input').evaluate(e => {
+      const cs = getComputedStyle(e)
+      return { style: cs.borderTopStyle, width: parseFloat(cs.borderTopWidth), color: cs.borderTopColor, shadow: cs.boxShadow }
+    })
+  }
+  // Forced colours drop the inset shadow that doubles the danger edge,
+  // so its width is the one cue left that is not a hue.
+  const plain = await edgeOf('Field/Base')
+  expect(plain.width).toBe(1)
+  const edge = await edgeOf('Field/DescriptionAndError')
+  expect(edge.shadow).toBe('none')
   expect(edge.style).not.toBe('none')
-  expect(edge.width).toBeGreaterThanOrEqual(1)
+  expect(edge.width).toBeGreaterThanOrEqual(2)
   expect(edge.color).not.toBe('rgba(0, 0, 0, 0)')
   await expect(page.locator('.lcf-field-msg[data-color="danger"]')).toBeVisible()
   await expect(page.locator('.lcf-field-msg[data-color="danger"]')).toHaveText(/\S/)
+})
+
+test('Hidden label: required and empty is said by the word, not by the edge alone', async ({ page }, info) => {
+  await open(page, 'Field/HiddenLabel', globalsOf(info))
+  const field = page.locator('.lcf-field[data-required]')
+  const word = field.locator('.lcf-field-req-word')
+  await expect(word).toBeVisible()
+  await expect(field.locator('label')).toHaveClass(/lcf-sr-only/)
+  await field.locator('input').fill('Anna')
+  await field.locator('input').evaluate((e: HTMLInputElement) => e.blur())
+  await expect(word).toBeHidden()
 })
 
 test('Dense at 390: a form section never scrolls sideways', async ({ page }, info) => {

@@ -97,4 +97,14 @@ describe('display and keyboard', () => {
     expect(readText('abc', undefined, ch)).toEqual({ ok: false })
     expect(readText('-0', undefined, ch)).toEqual({ ok: true, value: 0 })
   })
+  it('takes its own unit off before reading, and refuses a stray superscript', () => {
+    expect(readText('118 m²', 'm2', ch)).toEqual({ ok: true, value: 118 })
+    expect(readText('25²', 'm2', ch)).toEqual({ ok: false })
+    expect(readText('5²', undefined, ch)).toEqual({ ok: false })
+  })
+  it('reads a German price pasted into a Swiss field, and a Swiss decimal comma', () => {
+    expect(readText('12.500,00 €', 'EUR', ch)).toEqual({ ok: true, value: 12500 })
+    expect(readText('1.234,5 m²', 'm2', ch)).toEqual({ ok: true, value: 1234.5 })
+    expect(readText('2,450 m', 'm', ch)).toEqual({ ok: true, value: 2.45 })
+  })
 })

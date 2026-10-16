@@ -59,11 +59,24 @@ Everything else is what `Intl` says. An app with its own rule passes
 
 ## Reading numbers back
 
-`parseNumber` takes what a person types. Spaces and apostrophes are
-always grouping. The locale's decimal separator is always the decimal.
-The other of `.` and `,` is grouping when exactly three digits follow
-it (`12.500` in de-AT is twelve thousand five hundred) and a decimal
-otherwise (`12.5` typed into a German form is twelve and a half).
+`parseNumber` takes what a person types, and refuses what it would
+have to guess — a reading that could be a thousand times off is shown
+as "Bitte eine Zahl eingeben." with the text kept, never reformatted.
+
+- **Both `.` and `,`:** the rightmost is the decimal, the other groups
+  the digits before it. `12.500,00` is 12500 in every locale — a German
+  supplier's price pasted into a Swiss offer.
+- **Only the locale's decimal separator:** the decimal.
+- **Only the other one:** grouping where it is the locale's own group
+  separator and the groups are three digits (`12.500` in de-AT,
+  `1,000` in en-GB); otherwise, once, a decimal. `12.5` typed into a
+  German form is twelve and a half, and in de-CH, which groups with an
+  apostrophe, `2,450` is the decimal comma Swiss usage writes on
+  quantities: 2.45. `0,125` is never grouping.
+- **Spaces and apostrophes** group in any locale, in groups of three
+  before the decimal: `10 410.50` is a number, `12 5` is not.
+- **Full-width digits** from an IME (`１２．５`) are read; superscripts
+  are not digits (`5²` is not 52).
 
 ## The language of the words
 

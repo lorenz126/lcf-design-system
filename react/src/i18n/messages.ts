@@ -40,6 +40,7 @@ export interface Messages {
   stateConfirmed: MessageValue
   suggestionWas: MessageValue
   enterConfirms: MessageValue
+  escapeReverts: MessageValue
   confirmValue: MessageValue
   backToSuggestionValue: MessageValue
   originSentence: MessageValue
@@ -101,6 +102,7 @@ export const en: Messages = {
   stateConfirmed: 'Confirmed.',
   suggestionWas: 'Suggestion: {value}.',
   enterConfirms: 'Enter confirms.',
+  escapeReverts: 'Escape: back to suggestion.',
   confirmValue: 'Confirm',
   backToSuggestionValue: 'Back to suggestion: {value}',
   originSentence: 'Source: {origin}.',
@@ -154,6 +156,7 @@ export const de: Messages = {
   stateConfirmed: 'Bestätigt.',
   suggestionWas: 'Vorschlag: {value}.',
   enterConfirms: 'Enter bestätigt.',
+  escapeReverts: 'Escape: zurück zum Vorschlag.',
   confirmValue: 'Bestätigen',
   backToSuggestionValue: 'Zurück zum Vorschlag: {value}',
   originSentence: 'Herkunft: {origin}.',

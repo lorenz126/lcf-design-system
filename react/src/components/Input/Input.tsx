@@ -22,9 +22,9 @@ export type { InputProps, InputType } from './InputFrame'
  *   `:invalid` the moment it loads. It is styled from what the app and
  *   the Field said — `aria-invalid` and `data-color` — and keeps native
  *   `required`, so `form.checkValidity()` still works.
- * - **`className` sits on the frame**, so adornments are layout, not a
- *   breaking change. `ref` and every native prop go to the `<input>`;
- *   `onChange` is native, per keystroke.
+ * - **`className` and `style` sit on the frame**, so adornments are
+ *   layout, not a breaking change. `ref` and every other native prop go
+ *   to the `<input>`; `onChange` is native, per keystroke.
  * - **Sizes match Button** — 22, 26 and 32px — so a field and its
  *   button sit on one line. The height is a minimum, so text spacing
  *   overrides (WCAG 1.4.12) grow it rather than clip it.

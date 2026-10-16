@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { TrendingUp } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { fn } from 'storybook/test'
 import { useFormat } from '../../i18n/context'
 import type { Unit } from '../../i18n/format'
+import { Button } from '../Button/Button'
 import { Input } from '../Input/Input'
 import { NumberField } from '../NumberField/NumberField'
 import type { Origin, OriginSource } from '../types'
@@ -195,14 +196,28 @@ function ReviewField({ row }: { row: Row }) {
   )
 }
 
-/** Six offer fields wired by the recipe: Enter confirms, typing overrides, ↺ goes back. */
-export const Review: Story = {
-  render: () => (
-    <div className="ws-fields" data-testid="review">
-      {OFFER.map(row => <ReviewField key={row.label} row={row} />)}
-    </div>
+/* Saving the offer is the app's: here it only counts, so a submit that
+   Enter must not cause can be seen (data-submitted). */
+function ReviewForm() {
+  const [submitted, setSubmitted] = useState(0)
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSubmitted(n => n + 1)
+  }
+  return (
+    <form className="ws-form" onSubmit={onSubmit} noValidate data-submitted={submitted}>
+      <div className="ws-fields" data-testid="review">
+        {OFFER.map(row => <ReviewField key={row.label} row={row} />)}
+      </div>
+      <div className="ws-row">
+        <Button type="submit" size="sm">Save offer</Button>
+      </div>
+    </form>
   )
 }
+
+/** Six offer fields in a form, wired by the recipe: Enter confirms and never submits, typing overrides, Escape or ↺ goes back. */
+export const Review: Story = { render: () => <ReviewForm /> }
 
 /** An offer section in sm block fields, four columns that wrap at phone width. */
 export const Dense: Story = {
@@ -220,7 +235,7 @@ export const Dense: Story = {
   )
 }
 
-/** A table-like row: the label is still the name, and marks and actions stay visible. */
+/** A table-like row: the label is still the name, and marks, actions and the required word stay visible. */
 export const HiddenLabel: Story = {
   name: 'Hidden label',
   render: () => (
@@ -230,6 +245,9 @@ export const HiddenLabel: Story = {
       </Field>
       <Field hideLabel label="Price per m²" state="confirmed">
         <NumberField unit="CHF" min={0} defaultValue={84} />
+      </Field>
+      <Field hideLabel label="Site contact" required>
+        <Input />
       </Field>
     </div>
   )
@@ -265,7 +283,8 @@ export const DisabledAndReadOnly: Story = {
 }
 
 /* A control the layer does not have yet, wired by the contract alone:
-   the id, the description, required, and data-empty on its box. */
+   the id, the description, required, aria-invalid written either way,
+   and data-empty on its box. */
 function RoofSelect({ children }: { children: ReactNode }) {
   const field = useField()
   const [value, setValue] = useState('')
@@ -276,6 +295,7 @@ function RoofSelect({ children }: { children: ReactNode }) {
       id={field?.id}
       aria-describedby={field?.describedBy}
       required={field?.required}
+      aria-invalid={field?.invalid ? 'true' : 'false'}
       data-empty={empty || undefined}
       data-color={field?.required && empty ? 'caution' : undefined}
       value={value}

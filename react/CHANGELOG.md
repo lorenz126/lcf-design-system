@@ -70,24 +70,31 @@ minor.
   **`useField()`** context; the review state (`state`: `suggested`,
   `confirmed`), where a value came from (`origin`), the app's
   price-driver mark (`hint`, `hintIcon`), and confirm/revert
-  (`onConfirm`, `onRevert`, `suggestion`). "Required and empty" is
-  derived from the control's `data-empty`, never a prop. Root
+  (`onConfirm`, `onRevert`, `suggestion`). Enter and ✓ confirm only
+  what the control does not call wrong (its `validity`); Escape in the
+  control, or ↺, goes back; one Tab stop per field. "Required and
+  empty" is derived from the control's `data-empty`, never a prop.
+  `joinIds` is exported beside `useField` for an app's own control. Root
   attributes `data-state`, `data-origin`, `data-required`,
   `data-invalid`, `data-block` may be styled. (J3, J4)
 - **Input** (`@lcf/design/components/Input`) — one line of text:
   `type` text/email/tel/url/password, `size`, `invalid`, `block`,
-  `startAdornment`, `endAdornment`.
+  `startAdornment`, `endAdornment`. `aria-invalid` is always written,
+  `"false"` included, so Chrome never reports native validity the
+  screen does not show.
 - **NumberField** (`@lcf/design/components/NumberField`) — a number with
   its unit (`unit`: the i18n `Unit`), in the reader's separators;
   `value`/`defaultValue`/`onValueChange` on commit, `min`, `max`,
   `step`, `minimumFractionDigits`, `stepper`; posts the canonical number
-  under `name`. Never clamps, snaps or rounds what was typed. (J3)
+  under `name`, and `form` reaches the visible box too; a form reset
+  puts an uncontrolled field back to `defaultValue`. Never clamps, snaps
+  or rounds what was typed. (J3)
 - **Types** `FieldState`, `Origin`, `OriginSource`, `OriginChannel`, from
   `@lcf/design/components/Field` — the origin model media items will
   share.
-- **28 message keys** for fields and units (`stateSuggested` …
-  `unitEur`), English and German; `unitChf` is "Franken" in de-CH and
-  "Schweizer Franken" in de-DE and de-AT. Adding them to `Messages` makes
+- **29 message keys** for fields and units (`stateSuggested` …
+  `unitEur`, `escapeReverts`), English and German; `unitChf` is
+  "Franken" in de-CH and "Schweizer Franken" in de-DE and de-AT. Adding them to `Messages` makes
   an app that types a full table of its own fail to compile until it
   supplies them — the intended signal that there are new words to
   translate.
@@ -106,8 +113,17 @@ minor.
 
 ### Changed
 
-- **`parseNumber` normalises NFKC first**, so full-width digits from an
-  IME parse: "１２．５" is 12.5, where it was null. Every caller sees it.
+- **`parseNumber` reads full-width digits** from an IME: "１２．５" is
+  12.5, where it was null. Only the full-width forms are folded — a
+  first version ran NFKC, which also read "5²" as 52.
+- **`parseNumber` refuses what it would have to guess.** With both `.`
+  and `,`, the rightmost is the decimal: "1.234,5" is 1234.5 and
+  "12.500,00" is 12500 in every locale (de-CH read 1.2345 and 12.5).
+  The other separator alone is grouping only where it is the locale's
+  own group separator, never with a leading 0: in de-CH "2,450" is
+  2.45 (was 2450) and "0,125" is 0.125 everywhere (was 125). Space and
+  apostrophe groups are three digits: "12 5" and "10'41.50" are no
+  longer numbers. Every caller sees it.
 - **A solid primary is `#0070ef`, was `#007aff`.** White on `#007aff` is
   4.02:1, under AA; the solid ground is now `--accent-solid-bg`, which
   defaults to the blue already measured at 4.60:1. Rings, borders and

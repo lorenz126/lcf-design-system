@@ -4,10 +4,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useState, type ReactNode } from 'react'
 import { LcfProvider } from '../i18n/context'
 import { Alert } from './Alert/Alert'
-import { _resetAnnouncer } from './Field/announce'
+import { _resetAnnouncer, announce } from './Field/announce'
 import { useField } from './Field/context'
 import { Field } from './Field/Field'
 import { joinIds } from './Field/ids'
+import * as FieldEntry from './Field/index'
 import { Input } from './Input/Input'
 import { NumberField } from './NumberField/NumberField'
 import { Spinner } from './Spinner/Spinner'
@@ -87,6 +88,18 @@ describe('Field: ids and naming', () => {
     expect(confirm.closest('.lcf-sr-only')).toBeNull()
     expect(screen.getByText('Angenommen').closest('.lcf-sr-only')).toBeNull()
   })
+
+  it('hideLabel keeps the required word visible, so required-and-empty is never a hue alone', () => {
+    const { container, rerender } = render(<Field label="Kontakt" hideLabel required><Input /></Field>, { wrapper: de })
+    const word = screen.getByText('Pflichtfeld')
+    expect(word.closest('.lcf-sr-only')).toBeNull()
+    expect(word).toHaveAttribute('lang', 'de-CH')
+    expect(word).toHaveAttribute('aria-hidden', 'true')
+    // With no marks there is no head row: filled, the field takes no room for it.
+    expect(container.querySelector('.lcf-field-head')).toBeNull()
+    rerender(<Field label="Kontakt" hideLabel required origin="missing"><Input /></Field>)
+    expect(screen.getByText('Pflichtfeld').closest('.lcf-field-head')).not.toBeNull()
+  })
 })
 
 describe('Field: descriptions and errors', () => {
@@ -128,10 +141,10 @@ describe('Field: descriptions and errors', () => {
   it('error={true} and error="" make nothing invalid, and true warns', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const { rerender } = render(<Field label="A" error={true}><Input /></Field>)
-    expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid')
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'false')
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('never invalid without words'))
     rerender(<Field label="A" error=""><Input /></Field>)
-    expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid')
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'false')
   })
 })
 
@@ -158,6 +171,16 @@ describe('Field: required and empty', () => {
     expect(frame).not.toHaveAttribute('data-color')
     await user.click(screen.getByRole('button', { name: 'Reset' }))
     await waitFor(() => expect(frame).toHaveAttribute('data-empty'))
+  })
+
+  it('takes caution only from the Field\'s required: on the control it is native only, and warned about', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(<Field label="Kontakt"><Input required /></Field>, { wrapper: de })
+    const box = screen.getByRole('textbox')
+    expect(box).toBeRequired()
+    expect(box.closest('.lcf-input')).not.toHaveAttribute('data-color')
+    expect(screen.queryByText('Pflichtfeld')).toBeNull()
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('required on a control inside a Field'))
   })
 
   it('stamps data-empty from a controlled value, and whitespace is not empty (native required agrees)', () => {
@@ -239,6 +262,53 @@ describe('Field: Enter', () => {
     expect(order).toEqual(['value 120', 'confirm'])
   })
 
+  it('confirms with the callback of the committed render: an onConfirm that saves its value saves 120', async () => {
+    const user = userEvent.setup()
+    const saved: (number | null)[] = []
+    function App() {
+      const [value, setValue] = useState<number | null>(118)
+      return (
+        <Field label="Fläche" onConfirm={() => saved.push(value)}>
+          <NumberField unit="m2" value={value} onValueChange={setValue} />
+        </Field>
+      )
+    }
+    render(<App />, { wrapper: de })
+    const box = screen.getByRole('textbox')
+    await user.clear(box)
+    await user.type(box, '120{Enter}')
+    expect(box).toHaveValue('120')
+    expect(saved).toEqual([120])
+  })
+
+  it('refuses to confirm a number the control calls wrong, and says why — once', async () => {
+    const user = userEvent.setup()
+    const onConfirm = vi.fn()
+    render(<Field label="Rabatt" onConfirm={onConfirm}><NumberField unit="percent" max={15} defaultValue={5} /></Field>, { wrapper: de })
+    const box = screen.getByRole('textbox')
+    await user.clear(box)
+    await user.type(box, '20{Enter}')
+    expect(onConfirm).not.toHaveBeenCalled()
+    expect(await said()).toBe('Rabatt: Höchstens 15%.')
+    // Already committed and still wrong: Enter again says it again.
+    region()!.textContent = ''
+    await user.keyboard('{Enter}')
+    expect(onConfirm).not.toHaveBeenCalled()
+    expect(await said()).toBe('Rabatt: Höchstens 15%.')
+  })
+
+  it('refuses to confirm a required field still empty, in the table\'s word', async () => {
+    const user = userEvent.setup()
+    const onConfirm = vi.fn()
+    const onSubmit = vi.fn((e: { preventDefault(): void }) => e.preventDefault())
+    render(<form onSubmit={onSubmit}><Field label="Kontakt" required onConfirm={onConfirm}><Input /></Field></form>, { wrapper: de })
+    await user.type(screen.getByRole('textbox'), '{Enter}')
+    expect(onConfirm).not.toHaveBeenCalled()
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(await said()).toBe('Kontakt: Pflichtfeld')
+    expect(region()?.querySelector('span')).toHaveAttribute('lang', 'de-CH')
+  })
+
   it('neither confirms nor submits on text NumberField cannot read', async () => {
     const user = userEvent.setup()
     const onConfirm = vi.fn()
@@ -264,25 +334,118 @@ describe('Field: ✓ and ↺', () => {
     expect(confirm).toHaveAttribute('lang', 'de-CH')
   })
 
-  it('↺ is tabbable, sits before the control, says what it goes back to, and is described by the label', () => {
+  it('↺ is for the pointer too: out of the Tab order, says what it goes back to, and is described by the label', () => {
     render(<Field label="Fläche" suggestion="118 m²" onRevert={() => {}}><Input defaultValue="120" /></Field>, { wrapper: de })
     const revert = screen.getByRole('button', { name: 'Zurück zum Vorschlag: 118 m²' })
-    const box = screen.getByRole('textbox')
-    expect(revert.tabIndex).toBe(0)
-    expect(revert.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(revert).toHaveAttribute('tabindex', '-1')
     expect(revert).toHaveAccessibleDescription('Fläche')
     expect(revert).toHaveAttribute('lang', 'de-CH')
+    const box = screen.getByRole('textbox')
+    expect(box).toHaveAccessibleDescription('Vorschlag: 118 m². Escape: zurück zum Vorschlag.')
+    expect(document.getElementById(`${box.id}-escape`)).toHaveAttribute('lang', 'de-CH')
   })
 
-  it('↺ by keyboard reverts, and focus lands on the control', async () => {
+  it('Tab from the field above lands on the control of an overridden field, never on its ↺', async () => {
     const user = userEvent.setup()
     const onRevert = vi.fn()
-    render(<Field label="Fläche" suggestion="118 m²" onRevert={onRevert}><Input defaultValue="120" /></Field>, { wrapper: de })
+    render(
+      <>
+        <Field label="Preis" onConfirm={() => {}}><Input defaultValue="84" /></Field>
+        <Field label="Rabatt" suggestion="5%" onConfirm={() => {}} onRevert={onRevert}><Input defaultValue="10" /></Field>
+      </>,
+      { wrapper: de }
+    )
     await user.tab()
-    expect(screen.getByRole('button', { name: /Zurück zum Vorschlag/ })).toHaveFocus()
     await user.keyboard('{Enter}')
+    await user.tab()
+    expect(screen.getByRole('textbox', { name: 'Rabatt' })).toHaveFocus()
+    await user.keyboard('{Enter}')
+    expect(onRevert).not.toHaveBeenCalled()
+  })
+
+  it('Escape in the control goes back, says "Vorschlag.", and focus stays on the control', async () => {
+    const user = userEvent.setup()
+    const onRevert = vi.fn()
+    const parent = vi.fn()
+    render(
+      <div onKeyDown={e => parent(e.key)}>
+        <Field label="Fläche" suggestion="118 m²" onRevert={onRevert}><Input defaultValue="120" /></Field>
+      </div>,
+      { wrapper: de }
+    )
+    await user.tab()
+    expect(screen.getByRole('textbox')).toHaveFocus()
+    await user.keyboard('{Escape}')
     expect(onRevert).toHaveBeenCalledOnce()
     expect(screen.getByRole('textbox')).toHaveFocus()
+    expect(parent).not.toHaveBeenCalledWith('Escape')
+    expect(await said()).toBe('Vorschlag.')
+  })
+
+  it('in a NumberField the first Escape undoes the edit, the second goes back to the suggestion', async () => {
+    const user = userEvent.setup()
+    function Edited() {
+      const [value, setValue] = useState<number | null>(120)
+      return (
+        <Field label="Fläche" suggestion="118 m²" onRevert={value === 118 ? undefined : () => setValue(118)}>
+          <NumberField unit="m2" value={value} onValueChange={setValue} />
+        </Field>
+      )
+    }
+    render(<Edited />, { wrapper: de })
+    const box = screen.getByRole('textbox')
+    await user.click(box)
+    await user.type(box, '5')
+    expect(box).toHaveValue('1205')
+    await user.keyboard('{Escape}')
+    expect(box).toHaveValue('120')
+    await user.keyboard('{Escape}')
+    expect(box).toHaveValue('118')
+  })
+
+  it('↺ after text NumberField could not read shows the suggestion it restored', async () => {
+    const user = userEvent.setup()
+    function Edited() {
+      const [value, setValue] = useState<number | null>(8)
+      return (
+        <Field label="Montage" suggestion="6 h" onRevert={value === 6 ? undefined : () => setValue(6)}>
+          <NumberField unit="h" value={value} onValueChange={setValue} />
+        </Field>
+      )
+    }
+    render(<Edited />, { wrapper: de })
+    const box = screen.getByRole('textbox')
+    await user.clear(box)
+    await user.type(box, 'acht')
+    await user.click(screen.getByRole('button', { name: 'Zurück zum Vorschlag: 6 h' }))
+    expect(box).toHaveValue('6')
+    expect(box).toHaveAttribute('aria-invalid', 'false')
+    expect(box.closest('.lcf-number')).not.toHaveAttribute('data-dirty')
+    expect(box).toHaveFocus()
+  })
+
+  it('✓ confirms nothing while the box holds text NumberField could not read', async () => {
+    const user = userEvent.setup()
+    const onConfirm = vi.fn()
+    render(<Field label="Fläche" state="suggested" onConfirm={onConfirm}><NumberField unit="m2" defaultValue={118} /></Field>, { wrapper: de })
+    const box = screen.getByRole('textbox')
+    await user.clear(box)
+    await user.type(box, '12o')
+    await user.click(screen.getByRole('button', { name: 'Bestätigen' }))
+    expect(onConfirm).not.toHaveBeenCalled()
+    expect(box).toHaveValue('12o')
+    expect(box).toHaveFocus()
+    expect(await said()).toBe('Fläche: Bitte eine Zahl eingeben.')
+  })
+
+  it('✓ confirms nothing on a control that is read-only itself, as Enter does not', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const onConfirm = vi.fn()
+    render(<Field label="Fläche" onConfirm={onConfirm}><Input readOnly defaultValue="x" /></Field>, { wrapper: de })
+    await user.click(screen.getByRole('button', { name: 'Bestätigen' }))
+    await user.type(screen.getByRole('textbox'), '{Enter}')
+    expect(onConfirm).not.toHaveBeenCalled()
   })
 
   it('shows no actions on a field nobody may change', () => {
@@ -347,6 +510,15 @@ describe('Field: what is announced', () => {
     expect(screen.getByRole('textbox')).toHaveFocus()
   })
 
+  it('says everything said in one event, in order, each in its language, and a sentence queued twice once', async () => {
+    announce('Rabatt: Höchstens 15%.', 'de-CH')
+    announce('Rabatt: Höchstens 15%.', 'de-CH')
+    announce('Confirmed.', 'en')
+    expect(await said()).toBe('Rabatt: Höchstens 15%. Confirmed.')
+    const spans = [...region()!.querySelectorAll('span')]
+    expect(spans.map(s => s.lang)).toEqual(['de-CH', 'en'])
+  })
+
   it('says nothing on mount, or when the app changes the error', async () => {
     const { rerender } = render(<Field label="Fläche" state="confirmed" error="Zu gross." onConfirm={() => {}}><Input /></Field>, { wrapper: de })
     rerender(<Field label="Fläche" state="confirmed" error="Viel zu gross." onConfirm={() => {}}><Input /></Field>)
@@ -375,9 +547,10 @@ describe('useField', () => {
     expect(select.closest('.lcf-input')).toHaveAttribute('data-empty')
   })
 
-  it('joinIds drops the empty parts and repeats', () => {
+  it('joinIds drops the empty parts and repeats, and is public beside useField', () => {
     expect(joinIds(undefined, 'a', '', 'b c', 'a', false)).toBe('a b c')
     expect(joinIds(undefined, '')).toBeUndefined()
+    expect(FieldEntry.joinIds).toBe(joinIds)
   })
 })
 
@@ -463,7 +636,7 @@ describe('NumberField: reading and showing', () => {
     render(<NumberField aria-label="Fläche" onValueChange={onValueChange} />, { wrapper: de })
     const box = screen.getByRole('textbox')
     await user.type(box, '12,')
-    expect(box).not.toHaveAttribute('aria-invalid')
+    expect(box).toHaveAttribute('aria-invalid', 'false')
     await user.tab()
     expect(onValueChange).toHaveBeenCalledWith(12)
   })
@@ -520,7 +693,7 @@ describe('NumberField: reading and showing', () => {
     expect(box).toHaveAttribute('aria-invalid', 'true')
     await user.clear(box)
     await user.type(box, '4')
-    expect(box).not.toHaveAttribute('aria-invalid')
+    expect(box).toHaveAttribute('aria-invalid', 'false')
   })
 
   it('never rounds: CHF 10.555 stays 10.555, and 0.1 + 0.2 by arrows shows 0.3', async () => {
@@ -724,7 +897,7 @@ describe('NumberField: values, forms and wiring', () => {
     expect(screen.getByRole('textbox', { name: 'Preis Schweizer Franken' })).toBeInTheDocument()
   })
 
-  it('says a blur-time problem with the field\'s name, once', async () => {
+  it('says a blur-time problem with the field\'s name — and again after a new edit that is still wrong', async () => {
     const user = userEvent.setup()
     render(<Field label="Fläche" required><NumberField unit="m2" max={500} /></Field>, { wrapper: de })
     const box = screen.getByRole('textbox')
@@ -732,11 +905,88 @@ describe('NumberField: values, forms and wiring', () => {
     await user.tab()
     expect(await said()).toBe('Fläche: Höchstens 500 m².')
     region()!.textContent = ''
+    // Focus and leave without typing: the same commit, not said twice.
+    await user.click(box)
+    await user.tab()
+    expect(await said()).toBe('')
+    // A new edit, still wrong: the person's fix did not work, and hears so.
     await user.click(box)
     await user.clear(box)
     await user.type(box, '700')
     await user.tab()
+    expect(await said()).toBe('Fläche: Höchstens 500 m².')
+  })
+
+  it('says unreadable text once across Enter and the blur after it, and again after Escape and a retype', async () => {
+    const user = userEvent.setup()
+    render(<Field label="Fläche"><NumberField unit="m2" defaultValue={5} /></Field>, { wrapper: de })
+    const box = screen.getByRole('textbox')
+    await user.clear(box)
+    await user.type(box, 'abc{Enter}')
+    expect(await said()).toBe('Fläche: Bitte eine Zahl eingeben.')
+    region()!.textContent = ''
+    await user.tab()
     expect(await said()).toBe('')
+    await user.click(box)
+    await user.keyboard('{Escape}')
+    expect(box).toHaveValue('5')
+    await user.clear(box)
+    await user.type(box, 'abc')
+    await user.tab()
+    expect(await said()).toBe('Fläche: Bitte eine Zahl eingeben.')
+  })
+
+  it('goes back to its default on a form reset when uncontrolled, as Input does', async () => {
+    const user = userEvent.setup()
+    render(
+      <form>
+        <NumberField aria-label="Menge" name="m" defaultValue={3} />
+        <Input aria-label="Text" defaultValue="x" />
+        <button type="reset">Reset</button>
+      </form>,
+      { wrapper: de }
+    )
+    const box = screen.getByRole('textbox', { name: 'Menge' })
+    await user.clear(box)
+    await user.type(box, '9')
+    await user.tab()
+    expect(box).toHaveValue('9')
+    await user.click(screen.getByRole('button', { name: 'Reset' }))
+    await waitFor(() => expect(box).toHaveValue('3'))
+    expect(document.querySelector<HTMLInputElement>('input[type=hidden][name=m]')!.value).toBe('3')
+    expect(screen.getByRole('textbox', { name: 'Text' })).toHaveValue('x')
+  })
+
+  it('belongs to the form its `form` names, visible box included: a required empty field stops that form', () => {
+    render(
+      <>
+        <form id="f1" />
+        <NumberField aria-label="Menge" name="m" form="f1" required />
+      </>,
+      { wrapper: de }
+    )
+    const f1 = document.getElementById('f1') as HTMLFormElement
+    const box = screen.getByRole<HTMLInputElement>('textbox')
+    expect(box.form).toBe(f1)
+    expect(box).not.toHaveAttribute('name')
+    expect(f1.checkValidity()).toBe(false)
+  })
+
+  it('stamps data-empty and data-dirty on its box, the element directly inside the Field\'s control slot', async () => {
+    const user = userEvent.setup()
+    render(<Field label="Fläche" required><NumberField unit="m2" /></Field>, { wrapper: de })
+    const outer = document.querySelector('.lcf-field-control > .lcf-number')!
+    expect(outer).toHaveAttribute('data-empty')
+    await user.type(screen.getByRole('textbox'), 'x')
+    expect(outer).not.toHaveAttribute('data-empty')
+    expect(outer).toHaveAttribute('data-dirty', 'true')
+  })
+
+  it('warns once about an id inside a Field, from the frame', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(<Field label="Fläche" id="area"><NumberField id="mine" unit="m2" /></Field>, { wrapper: de })
+    expect(screen.getByRole('textbox')).toHaveAttribute('id', 'area')
+    expect(warn.mock.calls.filter(c => String(c[0]).includes('ignored'))).toHaveLength(1)
   })
 })
 
@@ -775,6 +1025,7 @@ describe('the language of the layer\'s words, where the table falls back (fr-CH)
       document.getElementById(`${box.id}-unit`),
       document.getElementById(`${box.id}-state`),
       document.getElementById(`${box.id}-keys`),
+      document.getElementById(`${box.id}-escape`),
       document.getElementById(`${box.id}-origin`),
       screen.getByText(/^At most/).closest('.lcf-field-msg'),
       screen.getByRole('button', { name: 'Dismiss: Prix ouvert' }),
