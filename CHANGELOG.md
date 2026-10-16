@@ -10,7 +10,33 @@ tag. Before a tag, `pnpm verify:consumer`.
 
 ## Unreleased
 
+## 0.3.4 — 2026-10-16
+
+The last line of the Nuxt layer to carry features; from here 0.3.x gets
+fixes, and new components are built in the React library (`react/`,
+0.4.0 onward). Nothing here is breaking.
+
+### Added
+
+- **ToggleGroup takes `variant="pill"`.** The same control on the page's
+  own ground: a hairline track, fully round, the selection in the
+  quietest fill and no shadow — for a page with nothing around the
+  control, where `segmented`'s sunken well reads as furniture from an
+  application.
+- **Button's inline padding is `--control-pad-sm/-md/-lg`**, each falling
+  back to the spacing step it always used. Nothing defines them, so
+  nothing renders differently; a product that raises its control
+  heights can now raise the padding with them.
+
 ### Changed
+
+- **ToggleGroup's selection travels.** In `single`, the selection is one
+  element behind the options that slides to the chosen one, measured
+  against the track, instead of a fill that goes out on one button and
+  comes on at another. `multiple` and `toolbar` keep the per-button
+  fill. The slide is set up a frame after the first measurement, so it
+  does not slide in on page load; reduced motion collapses it like
+  every other duration.
 
 - **The layer is MIT-licensed.** `LICENSE` added, `package.json` says
   `MIT`, the README says what that means. Every tag before this one
@@ -23,6 +49,23 @@ tag. Before a tag, `pnpm verify:consumer`.
 
 ### Fixed
 
+- **Button `tone="accent"` follows `--accent`.** It shared a rule with
+  `tone="blue"` and read the blue tokens directly, which was invisible
+  while the accent was blue. An app that re-themes `--accent` now gets
+  its primary buttons in its own colour — the focus ring and links
+  already followed it. Its solid ground is `--accent-solid-bg` (below);
+  set that too when re-theming, or solid buttons keep the measured blue.
+- **Button's quiet variants hover on the border, not the ground.**
+  `tinted`, `plain` and `outline` used to mix their ground 40% toward
+  their own label on hover: a tinted accent button went from 4.51:1 at
+  rest to 2.50:1 under the pointer. `glass` did the same and also grew
+  more opaque (5.42:1 → 3.35:1 over white). Now the border, or for glass
+  the rim and shadow, moves, and the ground the label sits on is the
+  same in both states.
+- **DocLayout's stacked layout applies below `--bp-md`.** A one-class
+  rule in the media query lost to two-class placement rules, so at 375px
+  the article column was 43px wide. Every selector in the block now
+  carries the side class.
 - **Spinner and indeterminate Progress keep moving under reduced
   motion.** Both said they slowed — Spinner to 2s a turn, the Progress
   sweep to 4s — and did not stop; both stopped. `base.css` collapses
