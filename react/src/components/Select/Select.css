@@ -1,0 +1,67 @@
+/* Select: a native <select> in Input's frame. The frame — edge, hover,
+   caution and danger, focus ring, read-only ground, disabled, forced
+   colours, the --fld-* sizes — is .lcf-input from Input.css, and the
+   select is its .lcf-input-el, so it reads the suggested contract
+   (--fld-value-fg, --fld-value-style) as the text of an Input does. Only
+   what a select does differently is here. Semantic tokens only. */
+
+/* The outer box: the frame, and the problem line under it — that line
+   is .lcf-field-msg, from Field.css. A select is as wide as its longest
+   option; on a narrow page it shrinks and cuts the shown label with an
+   ellipsis. Measured at 240px with a 335px article name: no sideways
+   scroll, in a Field. */
+.lcf-select {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-inline-size: 0;
+}
+.lcf-select[data-block] { display: flex; inline-size: 100%; }
+
+/* The select fills the frame, padding included, so a click anywhere in
+   the box opens the list; the chevron is drawn over it and lets the
+   click through. */
+.lcf-select-frame {
+  position: relative;
+  padding-inline: 0;
+  cursor: pointer;
+}
+.lcf-select .lcf-select-el {
+  appearance: none;
+  align-self: stretch;
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding-inline: var(--fld-pad) calc(var(--fld-pad) + var(--icon-sm) + var(--s-3));
+  border-radius: inherit;
+  cursor: inherit;
+  text-overflow: ellipsis;
+}
+
+/* Nothing chosen: the placeholder, as an Input's — --fg-subtle, held to
+   3:1 by decision, upright even in a suggested field. */
+.lcf-select[data-empty] .lcf-select-el { color: var(--fg-subtle); font-style: normal; }
+
+/* The open list is ordinary text whatever the box shows: a suggested
+   field's grey italic, or the placeholder's grey, is the box's alone.
+   Where the platform draws the list itself (macOS) it ignores this. */
+.lcf-select-el :is(option, optgroup) {
+  color: var(--fg);
+  font-style: normal;
+  background-color: var(--bg);
+}
+.lcf-select-el option:disabled { color: var(--fg-subtle); }
+
+.lcf-select-chevron {
+  position: absolute;
+  inset-inline-end: var(--fld-pad);
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  inline-size: var(--icon-sm);
+  block-size: var(--icon-sm);
+  stroke-width: var(--icon-stroke);
+  color: var(--fg-muted);
+  pointer-events: none;
+}
+
+/* Read-only shows one option and no chevron: nothing to open. */
+.lcf-select-frame[data-readonly] .lcf-select-el { cursor: default; }

@@ -22,7 +22,8 @@
 /* A form around a section of fields, its buttons in a row below. */
 .ws-form { display: flex; flex-direction: column; gap: var(--s-6); }
 /* An app's own control in the Field "Any control" story: a native select
-   drawn with the tokens, the way an app would before Select exists. */
+   drawn with the tokens and wired by useField() alone, the way an app
+   wires a control the layer does not have. */
 .ws-select {
   min-block-size: var(--field-md);
   padding-inline: var(--s-4);

@@ -383,6 +383,28 @@ function expectations() {
     // sweep's text question did not see it until it asked inputs too.
     { what: 'field/suggested, read-only', fg: '--fg-muted', bg: '--fill-quiet', on: '--bg', min: AA },
     { what: 'field/suggested, read-only on raised', fg: '--fg-muted', bg: '--fill-quiet', on: '--bg-raised', min: AA },
+    // A Select with nothing chosen shows its placeholder in the box,
+    // as an Input does — the same token, named here for the use, so a
+    // palette move that breaks it says which control lost its words.
+    {
+      what: 'select/placeholder',
+      fg: '--fg-subtle',
+      bg: '--bg',
+      min: UI,
+      why: 'nothing chosen yet; never a value, and the label says what to choose'
+    },
+    {
+      what: 'select/placeholder, read-only',
+      fg: '--fg-subtle',
+      bg: '--fill-quiet',
+      on: '--bg',
+      min: UI,
+      why: 'nothing chosen, on the read-only ground'
+    },
+    // The chevron is the one mark that says the box opens: a graphic,
+    // graded as one, on the page and on a card.
+    { what: 'select/chevron', fg: '--fg-muted', bg: '--bg', min: UI, why: 'the mark that says the box opens' },
+    { what: 'select/chevron on raised', fg: '--fg-muted', bg: '--bg-raised', min: UI, why: 'the same, on a card' },
     {
       // outline-offset puts the ring on the PAGE, not on the control, so
       // that is what it has to contrast against. WCAG 2.4.11 wants 3:1

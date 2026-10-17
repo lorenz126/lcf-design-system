@@ -26,6 +26,7 @@ half.
 | ✓ | **J3** NumberField with unit: the reader's separators, min, max, step, commit on blur/Enter/arrows, never clamped or rounded; Input for text; Field for label, description, error and required | `src/components/NumberField`, `Input`, `Field` |
 | ✓ | **J4** Field state (`suggested`, `confirmed`; required-and-empty derived), origin (customer, staff by name, assumed, missing; by e-mail or form), the price-driver `hint`, Enter to confirm and ↺ back to the suggestion | `src/components/Field` |
 | ✓ | The layer's words carry their language (`t.lang`), Alert and Spinner included; the sweep checks it | `src/i18n/context.tsx`, `e2e/audit.ts` |
+| ✓ | Select: the platform's `<select>` in the field frame, in Field unchanged — a placeholder that is never a value, groups, disabled options, a value the list does not offer shown and called wrong, read-only as one option | `src/components/Select` |
 
 ### J3 and J4: where the build departs from the request, for Jonathan to confirm
 
@@ -61,15 +62,30 @@ Open questions:
    the Tab order: as a Tab stop it sat in the forward path of the field
    above it). Agreed as the keyboard way back?
 
+### Select: for Jonathan to confirm
+
+1. **Native, so the open list is the platform's**: options are text —
+   no icons, no second line, no search — and on a phone it is the
+   phone's own picker. Enough for market, product line and unit? Lists
+   that need more go to Combobox.
+2. **A suggestion the list does not offer** ("LI" from an e-mail, a
+   withdrawn product line) is shown as itself and called wrong ("Steht
+   nicht zur Auswahl."), and Enter refuses to confirm it. Should the app
+   map such values before they reach the field instead?
+3. **An optional Select is cleared by choosing its placeholder**
+   ("Bitte wählen…"); a required one cannot go back to it. Agreed, or
+   should optional fields show "Keine Angabe" as a choice of its own?
+
 Before tagging: a manual pass with NVDA, JAWS and VoiceOver (macOS and
-iOS) over Enter-to-confirm, the blur and step announcements, and the
-voice switching on `lang` — no screen reader was available to the build.
+iOS) over Enter-to-confirm, the blur and step announcements, the voice
+switching on `lang`, and a Select's value, placeholder and problem —
+no screen reader was available to the build.
 
 ## Next — Priority 1 (the first Offerttool screen)
 
 | # | component | the hard part |
 |---|---|---|
-| — | Select, Combobox, Textarea | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment, and Field's "Any control" story wires a native select by it alone. Select and Combobox on Radix's primitives where the Nuxt versions hand-rolled listbox keyboard handling; a Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
+| — | Combobox, Textarea | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment; Select follows it. Combobox takes what Select refuses — search, icons and a second line in options, several choices — on Radix's primitives where the Nuxt version hand-rolled listbox keyboard handling. Its trigger is not a `<select>`, so Field's Enter-to-confirm and its `validity` check need a way in (Select needed none: Field already treats a `<select>` as a one-line control). A Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
 | — | Checkbox, Radio, Switch | Ports. Not in Field: their label sits beside a control that comes first. |
 
 ## Then — Priority 1 continued, and media

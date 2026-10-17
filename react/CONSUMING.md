@@ -11,8 +11,8 @@ into that app's `AGENTS.md` or `CLAUDE.md`.
 import { Button } from '@lcf/design/components/Button'
 ```
 
-Available now: Alert, Badge, Button, Field, Input, NumberField, Spinner,
-LcfProvider — and the `i18n`, `theme` and `hooks/useBreakpoint` modules. `ROADMAP.md` in the
+Available now: Alert, Badge, Button, Field, Input, NumberField, Select,
+Spinner, LcfProvider — and the `i18n`, `theme` and `hooks/useBreakpoint` modules. `ROADMAP.md` in the
 package's repository lists what is next and in which order. If what you
 need is not here yet, build it in the app and say so — do not copy a
 component to add a prop; ask for the prop upstream.
@@ -91,6 +91,14 @@ error and `required`, and wires them to the control:
   never per keystroke — and never clamped or rounded: out of range, it
   says so and keeps the number. It posts the canonical number
   (`1234.5`, not `1'234.5`) under `name`.
+- **A choice from a list is `Select`** — the platform's own select:
+  `options` (groups are `{ label, options }`), `value` and
+  `onValueChange` with `null` for nothing chosen. It never chooses for
+  the person: a placeholder comes first, and a required Select left on
+  it is Field's "Pflichtfeld". A value the list does not offer (a
+  suggestion from an e-mail) is shown as itself and called wrong, not
+  replaced. Search, icons in options and several choices are not
+  Select's — build them in the app until Combobox arrives.
 - **A review screen tells each Field what it knows:** `state`
   (`suggested` | `confirmed`), `origin` (`{ source: 'customer', via:
   'email' }`, `{ source: 'staff', by: 'Anna' }`), `hint` for a price
