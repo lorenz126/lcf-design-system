@@ -12,8 +12,8 @@ import { Button } from '@lcf/design/components/Button'
 ```
 
 Available now: Alert, Badge, Button, Checkbox (with CheckboxGroup),
-Field, Input, NumberField, Select, Spinner, LcfProvider — and the
-`i18n`, `theme` and `hooks/useBreakpoint` modules. `ROADMAP.md` in the
+Field, Input, NumberField, Select, Spinner, Textarea, LcfProvider — and
+the `i18n`, `theme` and `hooks/useBreakpoint` modules. `ROADMAP.md` in the
 package's repository lists what is next and in which order. If what you
 need is not here yet, build it in the app and say so — do not copy a
 component to add a prop; ask for the prop upstream.
@@ -87,6 +87,12 @@ error and `required`, and wires them to the control:
 </Field>
 ```
 
+- **Several lines are `Textarea`**: it grows from `rows` to `maxRows`
+  and scrolls after. `characterLimit` shows a count and never blocks;
+  if the app enforces a limit, it says so with the Field's `error`,
+  counted with `countCharacters` from the same import. In a
+  confirmable Field, Ctrl+Enter confirms (Enter is a new line). Leave
+  Field's `suggestion` out for long text: it is ↺'s visible label.
 - **Numbers are `NumberField`, never `Input`.** Its value is a number
   (or null), emitted on blur, Enter, an arrow key or the stepper —
   never per keystroke — and never clamped or rounded: out of range, it
@@ -104,7 +110,7 @@ error and `required`, and wires them to the control:
   (`suggested` | `confirmed`), `origin` (`{ source: 'customer', via:
   'email' }`, `{ source: 'staff', by: 'Anna' }`), `hint` for a price
   driver, `suggestion` as the field shows it. `onConfirm` makes Enter
-  confirm (and never submit) — unless the control says the value is
+  (Ctrl+Enter in a Textarea) confirm (and never submit) — unless the control says the value is
   wrong, which is said instead; pass `onRevert` only while the value
   differs from the suggestion and nobody confirmed it — Escape in the
   control and ↺ call it. The recipe is

@@ -23,7 +23,8 @@ things taking room, duplicate ids, controls with no name, text (typed
 values and a closed select's choice included) too faint where it
 landed, and the layer's words under the wrong `lang`.
 `e2e/fields.spec.ts` drives Field, Input, NumberField, Select and a
-CheckboxGroup in a Field by keyboard in a real engine. The story pass never renders
+CheckboxGroup in a Field by keyboard in a real engine; `e2e/textarea.spec.ts`
+drives Textarea, and measures its fallback against `field-sizing`. The story pass never renders
 the page around a story; the docs pass is what sees the headings, the
 props table, every example's code opened, and the focus rings. Once,
 in the dark/de-CH pass, `e2e/chrome.spec.ts` loads the site itself —

@@ -28,6 +28,7 @@ half.
 | ✓ | The layer's words carry their language (`t.lang`), Alert and Spinner included; the sweep checks it | `src/i18n/context.tsx`, `e2e/audit.ts` |
 | ✓ | Select: the platform's `<select>` in the field frame, in Field unchanged — a placeholder that is never a value, groups, disabled options, a value the list does not offer shown and called wrong, read-only as one option | `src/components/Select` |
 | ✓ | Checkbox (native input, label beside, indeterminate, description, invalid, read-only) and CheckboxGroup: a group of boxes as the one control in a Field — required as "at least one", state, origin, Enter to confirm and Escape back from any box | `src/components/Checkbox` |
+| ✓ | Textarea: grows from `rows` to `maxRows` (`field-sizing`, a measured fallback), a count that reports and never blocks, Ctrl+Enter to confirm in a Field | `src/components/Textarea` |
 
 ### J3 and J4: where the build departs from the request, for Jonathan to confirm
 
@@ -62,6 +63,13 @@ Open questions:
 7. Escape in a field with ↺ goes back to the suggestion (↺ itself left
    the Tab order: as a Tab stop it sat in the forward path of the field
    above it). Agreed as the keyboard way back?
+8. In a Textarea, Ctrl+Enter (or ⌘ Enter) confirms, since Enter is a
+   new line — and Escape goes back to the suggestion, taking everything
+   typed since with it, as in Input. With paragraphs at stake, should
+   Escape in a textarea ask first, or leave the way back to ↺ alone?
+9. Textarea's count says what is left a second after typing stops
+   (GOV.UK's character count). Too chatty for a 2000-character note?
+   The alternative is to say it only in the last tenth and when over.
 
 ### Select: for Jonathan to confirm
 
@@ -98,7 +106,7 @@ no screen reader was available to the build.
 
 | # | component | the hard part |
 |---|---|---|
-| — | Combobox, Textarea | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment; Select follows it. Combobox takes what Select refuses — search, icons and a second line in options, several choices — on Radix's primitives where the Nuxt version hand-rolled listbox keyboard handling. Its trigger is not a `<select>`, so Field's Enter-to-confirm and its `validity` check need a way in (Select needed none: Field already treats a `<select>` as a one-line control). A Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
+| — | Combobox | A port, sitting sitting in Field unchanged through `useField()` — the contract is in its doc comment; Select follows it. Combobox takes what Select refuses — search, icons and a second line in options, several choices — on Radix's primitives where the Nuxt version hand-rolled listbox keyboard handling. Its trigger is not a `<select>`, so Field's Enter-to-confirm and its `validity` check need a way in (Select needed none: Field already treats a `<select>` as a one-line control). A Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
 | — | Radio, Switch | Ports. A lone one is not in a Field: its label sits beside a control that comes first. A radio group sits in a Field the way CheckboxGroup does (a fieldset named by the Field's label, Field's group marker in `Field/context.ts`) and has one Tab stop with arrows; a Switch applies at once, so it has no confirm. |
 
 ## Then — Priority 1 continued, and media

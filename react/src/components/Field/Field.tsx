@@ -51,7 +51,7 @@ export interface FieldProps extends Omit<ComponentPropsWithRef<'div'>, 'id' | 'c
   hintIcon?: ReactNode
   /** The suggested value as the field shows it ("118 m²", from useFormat().unit). Display only: the ↺ button's text and name, and the "Suggestion: …" sentence. */
   suggestion?: string
-  /** Makes the field confirmable: Enter in the control, or the ✓ button, calls this — unless the control reports a problem of its own (its `validity`), which is said instead. Enter then never submits the form. */
+  /** Makes the field confirmable: Enter in the control (Ctrl+Enter or ⌘ Enter in a textarea, where Enter is a new line), or the ✓ button, calls this — unless the control reports a problem of its own (its `validity`), which is said instead. Enter then never submits the form. */
   onConfirm?: () => void
   /** Back to the suggestion. Pass it only while there is something to go back to; ↺ shows exactly when it is given, and Escape in the control calls it. */
   onRevert?: () => void
@@ -59,16 +59,20 @@ export interface FieldProps extends Omit<ComponentPropsWithRef<'div'>, 'id' | 'c
   children: ReactNode
 }
 
-/* Enter confirms in a one-line control, never in a textarea or an
-   editable region, where Enter is a new line. In a group (a
-   CheckboxGroup) it confirms from any of its boxes: Enter does nothing
-   else there but submit the form — measured in Chromium, Enter on a
-   checkbox submits a form that has a submit button. */
+/* The key that confirms. Enter in a one-line control. In a textarea
+   Enter is a new line, so Ctrl+Enter there — or ⌘ Enter, both on every
+   platform, so the one sentence that says it ("Ctrl+Enter confirms.")
+   is true everywhere and the same on the server: no platform sniffing.
+   Never in an editable region, whose own editor owns its keys. In a
+   group (a CheckboxGroup) Enter confirms from any of its boxes: Enter
+   does nothing else there but submit the form — measured in Chromium,
+   Enter on a checkbox submits a form that has a submit button. */
 const NOT_TEXT = new Set(['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'hidden', 'range', 'color'])
-function confirmsOnEnter(el: HTMLElement, member: boolean): boolean {
-  if (member) return el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio')
-  if (el instanceof HTMLSelectElement) return true
-  return el instanceof HTMLInputElement && !NOT_TEXT.has(el.type)
+function confirmKey(el: HTMLElement, member: boolean): 'enter' | 'mod-enter' | null {
+  if (member) return el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio') ? 'enter' : null
+  if (el instanceof HTMLSelectElement) return 'enter'
+  if (el instanceof HTMLTextAreaElement) return 'mod-enter'
+  return el instanceof HTMLInputElement && !NOT_TEXT.has(el.type) ? 'enter' : null
 }
 
 /* The element whose validity speaks for the control: the control
@@ -107,6 +111,11 @@ const hasWords = (error: ReactNode) =>
  *   light).
  * - **One Tab stop per field, and it is the control.** Enter confirms
  *   what is in the box, and a confirmable field never submits on Enter.
+ *   In a textarea, where Enter is a new line, Ctrl+Enter or ⌘ Enter
+ *   confirms, and the description says "Ctrl+Enter" instead of "Enter".
+ *   Found porting Textarea: a confirmable field around one said "Enter
+ *   bestätigt.", Enter made a new line, every modified Enter was
+ *   ignored, and ✓ — out of the Tab order — was the only way to confirm.
  *   ✓ and ↺ are for the pointer, out of the Tab order; Escape in the
  *   control is ↺ for the keyboard, once the control has no edit of its
  *   own to undo. Measured when ↺ was a Tab stop before the control: it
@@ -206,17 +215,21 @@ export function Field({
     help: description != null && description !== false && description !== '' ? `${id}-help` : undefined
   }
   const describedBy = joinIds(ids.error, ids.state, ids.keys, ids.escape, ids.origin, ids.hint, ids.help)
+  // The same, for a control where Enter is a new line.
+  const linesKeysId = ids.keys && `${id}-keys-lines`
+  const describedByMultiline = joinIds(ids.error, ids.state, linesKeysId, ids.escape, ids.origin, ids.hint, ids.help)
 
   const context = useMemo<FieldContextValue>(() => ({
     id,
     labelId,
     describedBy,
+    describedByMultiline,
     invalid: hasError,
     required,
     disabled,
     readOnly,
     size
-  }), [id, labelId, describedBy, hasError, required, disabled, readOnly, size])
+  }), [id, labelId, describedBy, describedByMultiline, hasError, required, disabled, readOnly, size])
 
   useEffect(() => {
     if (process.env.NODE_ENV !== 'production' && error === true) {
@@ -301,21 +314,23 @@ export function Field({
     if (e.defaultPrevented) return
     if (e.key !== 'Enter' && e.key !== 'Escape') return
     if (e.nativeEvent.isComposing || e.keyCode === 229) return
-    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+    if (e.altKey || e.shiftKey) return
+    const mod = e.ctrlKey || e.metaKey
     const target = e.target as HTMLInputElement
     // A box of a group control is the control too.
     const box = target.id === id ? null : control()
     const member = !!box && box !== target && isGroupBox(box) && box.contains(target)
     if ((target.id !== id && !member) || disabled || readOnly || target.readOnly || target.disabled) return
     if (e.key === 'Escape') {
-      if (!revertRef.current) return
+      if (mod || !revertRef.current) return
       // The Escape is spent here: a dialog around the field stays open.
       e.preventDefault()
       e.stopPropagation()
       act(revertRef.current, 'revert')
       return
     }
-    if (!confirmRef.current || !confirmsOnEnter(target, member)) return
+    const key = confirmKey(target, member)
+    if (!confirmRef.current || !key || mod !== (key === 'mod-enter')) return
     // Confirming, not submitting: no implicit submission either.
     e.preventDefault()
     if (refuses(member ? box : target)) return
@@ -450,6 +465,7 @@ export function Field({
           aria-describedby and never a second time in browse mode. */}
       {ids.state && <span id={ids.state} hidden lang={t.lang(stateKey!)}>{stateText}</span>}
       {ids.keys && <span id={ids.keys} hidden lang={t.lang('enterConfirms')}>{t('enterConfirms')}</span>}
+      {linesKeysId && <span id={linesKeysId} hidden lang={t.lang('ctrlEnterConfirms')}>{t('ctrlEnterConfirms')}</span>}
       {ids.escape && <span id={ids.escape} hidden lang={t.lang('escapeReverts')}>{t('escapeReverts')}</span>}
       {ids.origin && <span id={ids.origin} hidden lang={t.lang('originSentence')}>{t('originSentence', { origin: originText! })}</span>}
       {ids.hint && <span id={ids.hint} hidden>{hintText}</span>}

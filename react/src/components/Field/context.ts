@@ -9,6 +9,8 @@ export interface FieldContextValue {
   labelId: string
   /** Field's description ids, in reading order, or undefined. A control puts its own ids first. */
   describedBy: string | undefined
+  /** The same ids for a control where Enter is a new line (Textarea): its confirm sentence says Ctrl+Enter. */
+  describedByMultiline: string | undefined
   /** Field has an app error. */
   invalid: boolean
   required: boolean
@@ -22,8 +24,8 @@ export const FieldContext = createContext<FieldContextValue | null>(null)
 /**
  * The Field around this control, or null outside one.
  *
- * It is what lets any control — Input, NumberField and Select now,
- * Textarea and Combobox next, an app's own control today — sit in a
+ * It is what lets any control — Input, NumberField, Select and Textarea
+ * now, Combobox next, an app's own control today — sit in a
  * Field unchanged. The contract a control follows:
  *
  * - Use `field.id` as the focusable element's id. An `id` prop given
@@ -31,7 +33,8 @@ export const FieldContext = createContext<FieldContextValue | null>(null)
  * - Set `aria-describedby` to the control's own ids (its problem
  *   message, then the app's own `aria-describedby`), followed by
  *   `field.describedBy`, joined with `joinIds` (exported beside
- *   `useField`).
+ *   `useField`). A `<textarea>` takes `field.describedByMultiline`
+ *   instead: there Ctrl+Enter confirms, and the sentence says so.
  * - `required`, `disabled` and `readOnly` belong on the Field: it owns
  *   the word, the asterisk and the actions. Combine them with OR between
  *   the control's prop and the Field's so the native attribute is right
@@ -56,7 +59,8 @@ export const FieldContext = createContext<FieldContextValue | null>(null)
  *   commit: such text is the person's, and is never drawn as the
  *   suggestion.
  * - Spend Enter and Escape on itself only by calling `preventDefault`
- *   (and, for Escape, `stopPropagation`). An unprevented Enter confirms;
+ *   (and, for Escape, `stopPropagation`). An unprevented Enter confirms
+ *   (Ctrl+Enter or ⌘ Enter in a `<textarea>`);
  *   an unprevented Escape goes back to the suggestion while there is
  *   one (`onRevert`).
  * - Read `--fld-value-fg` and `--fld-value-style` on the value text:

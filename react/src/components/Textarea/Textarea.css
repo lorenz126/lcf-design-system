@@ -1,0 +1,121 @@
+/* Textarea: a column — the box, and under it its count. Semantic tokens
+   and --c-* only.
+
+   The box is the <textarea> itself: it has no adornments, so it needs
+   no frame around it, and field-sizing (and the fallback's scrollHeight)
+   measure the element whose edge is drawn. --fld-fs and --fld-pad mean
+   what they mean on Input's frame, set from the box's own data-size;
+   --c-lh, --c-pad-block, --c-rows and --c-max-rows are local. */
+.lcf-textarea {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  vertical-align: top;
+}
+.lcf-textarea[data-block] { display: flex; inline-size: 100%; }
+
+.lcf-textarea-el {
+  --fld-h: var(--field-md);
+  --fld-fs: var(--fs-body);
+  --fld-pad: var(--control-pad-md, var(--s-5));
+  --c-lh: var(--lh-body);
+  --c-tr: var(--tr-body);
+  --c-pad-block: var(--s-3);
+  box-sizing: border-box;
+  /* A width of its own, fixed, so field-sizing grows it DOWN only.
+     Measured in Chromium: with none, the box was 356px wide with its
+     placeholder and 318px with six words typed; with min(20rem, 100%)
+     the percentage made the width the text's again — 67px for
+     "Short.". So it is 20rem, held to its container by max-inline-size
+     here and on the column, and by the Field's own max-inline-size. */
+  inline-size: 20rem;
+  max-inline-size: 100%;
+  /* rows and maxRows, exactly: lines of the ramp's line-height, plus the
+     padding and the edge. */
+  min-block-size: calc(var(--c-rows, 3) * var(--c-lh) + 2 * var(--c-pad-block) + 2 * var(--border-width));
+  max-block-size: calc(var(--c-max-rows, 10) * var(--c-lh) + 2 * var(--c-pad-block) + 2 * var(--border-width));
+  /* The one declaration that grows it where the engine has it. Where it
+     does not, Textarea.tsx measures instead; see its doc comment. */
+  field-sizing: content;
+  overflow-y: auto;
+  /* No drag handle: it grows, and past maxRows it scrolls. A handle
+     would also fix a height that field-sizing then never changes. */
+  resize: none;
+  margin: 0;
+  padding: var(--c-pad-block) var(--fld-pad);
+  border: var(--border-width) solid var(--border-field);
+  /* Input's corner at the same size, so a form's fields match. */
+  border-radius: min(var(--r-control), calc(var(--fld-h) * .4));
+  background: var(--bg);
+  font: var(--w-regular) var(--fld-fs)/var(--c-lh) var(--font-sans);
+  letter-spacing: var(--c-tr);
+  /* The Field contract: grey and italic while suggested. */
+  color: var(--fld-value-fg, var(--fg));
+  font-style: var(--fld-value-style, normal);
+  cursor: text;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              box-shadow   var(--dur-fast) var(--ease-out);
+}
+/* Each size is one step of the type ramp — size, line-height and
+   tracking together — so a row is the ramp's line. */
+.lcf-textarea-el[data-size="sm"] {
+  --fld-h: var(--field-sm);
+  --fld-fs: var(--fs-small);
+  --fld-pad: var(--control-pad-sm, var(--s-4));
+  --c-lh: var(--lh-small);
+  --c-tr: var(--tr-small);
+  --c-pad-block: var(--s-2);
+}
+.lcf-textarea-el[data-size="lg"] {
+  --fld-h: var(--field-lg);
+  --fld-fs: var(--fs-lead);
+  --fld-pad: var(--control-pad-lg, var(--s-6));
+  --c-lh: var(--lh-lead);
+  --c-tr: var(--tr-lead);
+  --c-pad-block: var(--s-4);
+}
+.lcf-textarea[data-block] .lcf-textarea-el { inline-size: 100%; }
+
+/* Firefox draws a placeholder at .54 opacity by default, which takes
+   --fg-subtle under its own 3:1. */
+.lcf-textarea-el::placeholder { color: var(--fg-subtle); opacity: 1; font-style: normal; }
+
+/* Hover moves the edge to --fg-subtle, as Input's does. */
+.lcf-textarea-el:hover:not(:disabled, [readonly], [data-color]) { border-color: var(--fg-subtle); }
+
+/* Caution while required and empty (in a Field), danger while invalid.
+   Danger also doubles the edge, so invalid is not told by hue alone. */
+.lcf-textarea-el[data-color] { border-color: var(--c-border); }
+.lcf-textarea-el[data-color="danger"] { box-shadow: inset 0 0 0 1px var(--c-border); }
+
+/* The one ring colour every control has, invalid ones included. */
+.lcf-textarea-el:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 0;
+}
+.lcf-textarea-el:not([data-color]):focus-visible { border-color: var(--focus-color); }
+
+/* Read-only: the quiet ground; the edge stays a field's edge. */
+.lcf-textarea-el[readonly] { background: var(--fill-quiet); cursor: default; }
+.lcf-textarea-el:disabled { opacity: .4; cursor: not-allowed; }
+
+/* The count: at the end, in figures that do not jump as they change.
+   --fg-muted, and over the limit the danger text — its numbers already
+   say by how much, so the colour is not the only sign. */
+.lcf-textarea-count {
+  align-self: flex-end;
+  font: var(--w-regular) var(--fs-caption)/var(--lh-caption) var(--font-sans);
+  letter-spacing: var(--tr-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-muted);
+}
+.lcf-textarea-count[data-color] { color: var(--c-text); font-weight: var(--w-medium); }
+
+/* Forced colours: the edge is the field, so it must survive the
+   palette swap; system colours keep danger distinguishable by width. */
+@media (forced-colors: active) {
+  .lcf-textarea-el { border-color: CanvasText; }
+  .lcf-textarea-el[data-color="danger"] { border-width: 2px; }
+}
