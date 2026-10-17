@@ -1,9 +1,9 @@
 {
   "name": "@lcf/design",
-  "version": "0.4.0-dev",
+  "version": "0.4.0",
   "private": true,
   "license": "MIT",
-  "description": "LCF Design System \u2014 React components, tokens and the locale layer for internal tools.",
+  "description": "LCF Design System — React components, tokens and the locale layer for internal tools.",
   "repository": {
     "type": "git",
     "url": "https://github.com/lorenz126/lcf-design-system.git",
@@ -48,7 +48,6 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "prepare": "node scripts/build.mjs",
     "storybook": "storybook dev -p 6010",
     "build-storybook": "storybook build -o storybook-static",
     "test": "node scripts/check-contrast.mjs && node scripts/check-stories.mjs && node scripts/check-strings.mjs && vitest run && tsc -p tsconfig.json --noEmit && pnpm build && playwright test",
