@@ -34,6 +34,14 @@
 }
 .ws-select[data-color] { border-color: var(--c-border); }
 .ws-select:focus-visible { outline: var(--focus-width) solid var(--focus-color); outline-offset: 0; }
+/* Children under a "select all" box (Checkbox, Indeterminate): set in by
+   a box and its gap, spaced as the group spaces its boxes. */
+.ws-indent { display: flex; flex-direction: column; gap: inherit; padding-inline-start: var(--s-8); }
+/* A plain table of positions with a box per row (Checkbox, Named by its
+   row): the layer has no Table yet. */
+.ws-table { border-collapse: collapse; font: var(--w-regular) var(--fs-small)/var(--lh-small) var(--font-sans); color: var(--fg); }
+.ws-table td { padding: var(--s-3) var(--s-5); border-block-end: var(--border-width) solid var(--border); vertical-align: top; }
+.ws-table td:last-child { text-align: end; font-variant-numeric: tabular-nums; }
 .ws-backdrop {
   padding: var(--s-9);
   border-radius: var(--r-lg);

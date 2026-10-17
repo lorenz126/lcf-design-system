@@ -374,6 +374,26 @@ function expectations() {
       min: UI,
       why: 'the same, on a card'
     },
+    /* A CHECKBOX IS FOUND THE WAY A TEXT FIELD IS: unticked, by its edge
+       alone, so it draws the same token. Listed under its own name so a
+       change made for one is seen to move the other. Ticked, the box is
+       a filled square and its fill is the boundary; the tick is a mark
+       on that fill. A suggested tick's label is --fg-muted, which
+       text/muted already holds to AA. The caution and danger edges are
+       caution/border and danger/border below. */
+    {
+      what: 'checkbox/edge',
+      fg: '--border-field',
+      bg: '--bg',
+      min: UI,
+      why: 'an unticked box is identified by its edge alone (WCAG 1.4.11)'
+    },
+    { what: 'checkbox/edge on raised', fg: '--border-field', bg: '--bg-raised', min: UI, why: 'the same, on a card' },
+    { what: 'checkbox/ticked', fg: '--primary-solid', bg: '--bg', min: UI, why: 'a ticked box is identified by its fill' },
+    { what: 'checkbox/ticked on raised', fg: '--primary-solid', bg: '--bg-raised', min: UI, why: 'the same, on a card' },
+    { what: 'checkbox/ticked, invalid', fg: '--danger-solid', bg: '--bg', min: UI, why: 'a ticked box is identified by its fill' },
+    { what: 'checkbox/tick', fg: '--primary-on-solid', bg: '--primary-solid', min: UI, why: 'a mark on its own fill, not text' },
+    { what: 'checkbox/tick, invalid', fg: '--danger-on-solid', bg: '--danger-solid', min: UI, why: 'a mark on its own fill, not text' },
     // A read-only field: the value on the quiet fill it takes instead
     // of the page.
     { what: 'field/read-only value', fg: '--fg', bg: '--fill-quiet', on: '--bg', min: AA },

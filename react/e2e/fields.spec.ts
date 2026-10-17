@@ -3,10 +3,12 @@ import { paintSource, type Paint } from './audit'
 import { listen, localeOf, signal, storyId } from './sweep'
 
 /**
- * Field, Input and NumberField in a real engine, driven by the keyboard
- * alone — what jsdom cannot show: `:has()` deriving "required and empty"
- * from the control's own attribute, a Tab order with one stop per field,
- * the selection a Tab leaves, the focus ring as painted, and forced
+ * Field, Input, NumberField and a CheckboxGroup in a Field, in a real
+ * engine, driven by the keyboard alone — what jsdom cannot show:
+ * `:has()` deriving "required and empty" from the control's own
+ * attribute, a Tab order with one stop per field (one per box in a
+ * group), the selection a Tab leaves, Enter on a checkbox (which
+ * submits a form in Chromium), the focus ring as painted, and forced
  * colours. In all three passes, so the announcement is checked in
  * English and in German.
  */
@@ -198,4 +200,103 @@ test('Dense at 390: a form section never scrolls sideways', async ({ page }, inf
   await page.setViewportSize({ width: 390, height: 760 })
   await open(page, 'Field/Dense', globalsOf(info))
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1)
+})
+
+test('a CheckboxGroup in a Field, by keyboard: Space ticks, Enter confirms and never submits, Escape goes back', async ({ page }, info) => {
+  const said = listen(page)
+  const globals = globalsOf(info)
+  const de = localeOf(globals).startsWith('de')
+  await open(page, 'Checkbox/InField', globals)
+  const form = page.locator('form')
+  const work = page.locator('.lcf-field').filter({ has: page.locator('fieldset') })
+  const box = (name: string) => work.getByRole('checkbox', { name })
+  await expect(work).toHaveAttribute('data-state', 'suggested')
+
+  // The number field, then the group's first box: the group is one
+  // field, and each box is a Tab stop of its own.
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Tab')
+  await expect(box('Painting')).toBeFocused()
+  // Its ring, as painted: 2px, 3:1 on the ground it sits on.
+  const ring = await box('Painting').evaluate((el, paintSource) => {
+    const { parse, ratio, ground } = new Function(`return (${paintSource})()`)() as Paint
+    const cs = getComputedStyle(el)
+    return { width: parseFloat(cs.outlineWidth), style: cs.outlineStyle, ratio: ratio(parse(cs.outlineColor)!, ground(el.parentElement!)!) }
+  }, paintSource)
+  expect(ring.style).not.toBe('none')
+  expect(ring.width).toBeGreaterThanOrEqual(2)
+  expect(ring.ratio).toBeGreaterThanOrEqual(3)
+
+  // Enter in a box confirms — and does not submit the form, which a
+  // checkbox's Enter does in Chromium.
+  await page.keyboard.press('Enter')
+  await expect(work).toHaveAttribute('data-state', 'confirmed')
+  await expect(page.locator('[data-lcf-announcer]')).toHaveText(de ? 'Bestätigt.' : 'Confirmed.')
+
+  // Space overrides: the state goes, the way back appears (not a Tab stop).
+  await page.keyboard.press('Space')
+  await expect(box('Painting')).not.toBeChecked()
+  await expect(work).not.toHaveAttribute('data-state')
+  await expect(work.locator('[data-action="revert"]')).toBeVisible()
+  await expect(work.locator('[data-action="revert"]')).toHaveAttribute('tabindex', '-1')
+
+  // Escape goes back to the suggestion, and focus stays on the box.
+  await page.keyboard.press('Escape')
+  await expect(work).toHaveAttribute('data-state', 'suggested')
+  await expect(box('Painting')).toBeChecked()
+  await expect(box('Painting')).toBeFocused()
+
+  // Two boxes on, tick one and confirm the override from there.
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Tab')
+  await expect(box('Wallpapering')).toBeFocused()
+  await page.keyboard.press('Space')
+  await page.keyboard.press('Enter')
+  await expect(work).toHaveAttribute('data-state', 'confirmed')
+  for (const name of ['Painting', 'Filling', 'Wallpapering']) await expect(box(name)).toBeChecked()
+  await expect(box('Scaffolding')).not.toBeChecked()
+
+  await expect(form).toHaveAttribute('data-submitted', '0')
+  expect(signal(said), 'the console').toEqual([])
+})
+
+test('a required CheckboxGroup: the word and a caution edge on every box from :has(), Enter says why, a tick clears both', async ({ page }, info) => {
+  const globals = globalsOf(info)
+  const de = localeOf(globals).startsWith('de')
+  await open(page, 'Checkbox/RequiredGroup', globals)
+  const word = page.locator('.lcf-field-req-word')
+  const boxes = page.getByRole('checkbox')
+  const caution = await token(page, '--caution-border')
+  await expect(word).toBeVisible()
+  for (const b of await boxes.all()) await expect(b).toHaveCSS('border-top-color', caution)
+
+  await page.keyboard.press('Tab')
+  await expect(boxes.first()).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-lcf-announcer]')).toHaveText(
+    de ? 'Access: Bitte mindestens eine Option wählen.' : 'Access: Choose at least one option.'
+  )
+
+  await page.keyboard.press('Space')
+  await expect(word).toBeHidden()
+  await expect(boxes.first()).toHaveCSS('background-color', await token(page, '--primary-solid'))
+  await expect(boxes.nth(1)).toHaveCSS('border-top-color', await token(page, '--border-field'))
+})
+
+test('forced colours: an unticked box keeps its edge, a ticked one a ground of its own and its tick', async ({ page }, info) => {
+  await page.emulateMedia({ forcedColors: 'active' })
+  await open(page, 'Checkbox/States', globalsOf(info))
+  const look = (name: string, n = 0) => page.getByRole('checkbox', { name }).nth(n).evaluate(el => {
+    const cs = getComputedStyle(el)
+    const mark = getComputedStyle(el.parentElement!.querySelector('.lcf-checkbox-mark')!)
+    return { edge: cs.borderTopColor, edgeStyle: cs.borderTopStyle, ground: cs.backgroundColor, tick: mark.stroke }
+  })
+  const clear = await look('Primer', 0)
+  const ticked = await look('Primer', 1)
+  expect(clear.edgeStyle).not.toBe('none')
+  expect(clear.edge).not.toBe(clear.ground)
+  expect(ticked.ground).not.toBe(clear.ground)
+  expect(ticked.tick).not.toBe(ticked.ground)
+  const invalid = await page.getByRole('checkbox', { name: 'Terms accepted' }).first().evaluate(el => parseFloat(getComputedStyle(el).borderTopWidth))
+  expect(invalid).toBeGreaterThanOrEqual(2)
 })

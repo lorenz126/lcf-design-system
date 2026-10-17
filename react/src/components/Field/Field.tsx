@@ -16,7 +16,7 @@ import type { MessageKey } from '../../i18n/messages'
 import { mergeRefs } from '../refs'
 import type { FieldState, Origin, OriginSource, Size } from '../types'
 import { announce, ensureAnnouncer, spokenText } from './announce'
-import { FieldContext, type FieldContextValue } from './context'
+import { FieldContext, isFieldGroup, isGroupBox, type FieldContextValue } from './context'
 import { joinIds } from './ids'
 import { normaliseOrigin, OriginMark, originWords } from './origin'
 
@@ -60,11 +60,25 @@ export interface FieldProps extends Omit<ComponentPropsWithRef<'div'>, 'id' | 'c
 }
 
 /* Enter confirms in a one-line control, never in a textarea or an
-   editable region, where Enter is a new line. */
+   editable region, where Enter is a new line. In a group (a
+   CheckboxGroup) it confirms from any of its boxes: Enter does nothing
+   else there but submit the form — measured in Chromium, Enter on a
+   checkbox submits a form that has a submit button. */
 const NOT_TEXT = new Set(['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'hidden', 'range', 'color'])
-function confirmsOnEnter(el: HTMLElement): boolean {
+function confirmsOnEnter(el: HTMLElement, member: boolean): boolean {
+  if (member) return el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio')
   if (el instanceof HTMLSelectElement) return true
   return el instanceof HTMLInputElement && !NOT_TEXT.has(el.type)
+}
+
+/* The element whose validity speaks for the control: the control
+   itself, or in a group its first member that is not valid. A
+   fieldset's own validity stays valid while a member's custom error is
+   set, and its checkValidity() is true (measured in Chromium), so a
+   required group with nothing chosen would otherwise be confirmed. */
+function speaker(el: HTMLElement | null): HTMLInputElement | null {
+  if (!el || !isGroupBox(el)) return el as HTMLInputElement | null
+  return [...el.querySelectorAll<HTMLInputElement>('input, select, textarea')].find(c => !c.validity.valid) ?? null
 }
 
 const hasWords = (error: ReactNode) =>
@@ -111,6 +125,13 @@ const hasWords = (error: ReactNode) =>
  * - **The layer's words carry their language.** "Pflichtfeld",
  *   "Vorschlag.", "Kunde per E-Mail" are marked with `lang`; the label,
  *   description, error and hint are the app's, and are not.
+ * - **A group is one control.** A CheckboxGroup as the child is a
+ *   `<fieldset>` the label names (`aria-labelledby`, and no `for`: a
+ *   label pointing at a fieldset labels nothing, and pointed at the
+ *   first box it would toggle that box when the group's name is
+ *   clicked). Its boxes keep their own Tab stops, as checkboxes do;
+ *   Enter in any of them confirms, Escape goes back, and a required
+ *   group with nothing chosen is refused like an empty box.
  * - **Refuses:**
  *   - owning or reading the value;
  *   - a suggestion shown as a placeholder (a suggestion is a value that
@@ -122,8 +143,9 @@ const hasWords = (error: ReactNode) =>
  *   - inventing the app's words (`hint` is the app's);
  *   - colour as the only signal;
  *   - being a layout (no horizontal label mode, no grid);
- *   - the checkbox family (their label sits beside a control that comes
- *     first; the Nuxt finding);
+ *   - a lone checkbox (its label sits beside a box that comes first;
+ *     the Nuxt finding) — a CheckboxGroup, even of one, is how a
+ *     checkbox gets a Field's state, origin and words;
  *   - a button in the forward Tab path;
  *   - moving focus when something is wrong.
  */
@@ -158,6 +180,7 @@ export function Field({
   const root = useRef<HTMLDivElement | null>(null)
   const setRef = useMemo(() => mergeRefs(root, ref), [ref])
   const origin = normaliseOrigin(originProp)
+  const group = isFieldGroup(children)
 
   const hasError = hasWords(error)
   const showConfirm = !!onConfirm && state !== 'confirmed' && !disabled && !readOnly
@@ -238,13 +261,29 @@ export function Field({
 
   const control = () => (root.current?.ownerDocument ?? document).getElementById(id) as HTMLInputElement | null
 
+  /* Where focus goes back to after ✓ or ↺: the control, or in a group
+     the box that had it (or the first one that can take it) — a
+     fieldset cannot. */
+  const focusControl = (before: Element | null) => {
+    const el = control()
+    if (!el || !isGroupBox(el)) {
+      el?.focus()
+      return
+    }
+    const target = before instanceof HTMLElement && before.isConnected && el.contains(before)
+      ? before
+      : el.querySelector<HTMLElement>('input:not(:disabled), select:not(:disabled), textarea:not(:disabled), button:not(:disabled)')
+    target?.focus()
+  }
+
   /* Whether the control itself says its value is wrong, and if so, say
      why — with the field's name, as NumberField says a late problem, so
      the same problem from both is one sentence and is queued once. The
      words are the control's own (setCustomValidity, from the table);
      an empty required field has the table's word; anything else native
      is the browser's sentence, in a language the page cannot know. */
-  const refuses = (el: HTMLInputElement | null): boolean => {
+  const refuses = (box: HTMLInputElement | null): boolean => {
+    const el = speaker(box)
     const v = el?.validity
     if (!el || !v || v.valid) return false
     const name = spokenText(el.ownerDocument.getElementById(labelId)).trim()
@@ -264,7 +303,10 @@ export function Field({
     if (e.nativeEvent.isComposing || e.keyCode === 229) return
     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
     const target = e.target as HTMLInputElement
-    if (target.id !== id || disabled || readOnly || target.readOnly || target.disabled) return
+    // A box of a group control is the control too.
+    const box = target.id === id ? null : control()
+    const member = !!box && box !== target && isGroupBox(box) && box.contains(target)
+    if ((target.id !== id && !member) || disabled || readOnly || target.readOnly || target.disabled) return
     if (e.key === 'Escape') {
       if (!revertRef.current) return
       // The Escape is spent here: a dialog around the field stays open.
@@ -273,10 +315,10 @@ export function Field({
       act(revertRef.current, 'revert')
       return
     }
-    if (!confirmRef.current || !confirmsOnEnter(target)) return
+    if (!confirmRef.current || !confirmsOnEnter(target, member)) return
     // Confirming, not submitting: no implicit submission either.
     e.preventDefault()
-    if (refuses(target)) return
+    if (refuses(member ? box : target)) return
     confirmRef.current()
   }
 
@@ -289,9 +331,10 @@ export function Field({
     if (!fn) return
     const doc = root.current?.ownerDocument ?? document
     const el = control()
-    const hadFocus = doc.activeElement !== null && doc.activeElement === el
+    const before = doc.activeElement
+    const hadFocus = !!before && !!el && (before === el || (isGroupBox(el) && el.contains(before)))
     if (which === 'confirm' && (el?.readOnly || el?.disabled || refuses(el))) {
-      el?.focus()
+      focusControl(before)
       return
     }
     acting.current = true
@@ -301,7 +344,7 @@ export function Field({
       acting.current = false
     }
     const now = doc.activeElement
-    if (!now || now === doc.body || root.current?.contains(now)) control()?.focus()
+    if (!now || now === doc.body || root.current?.contains(now)) focusControl(before)
     // Moving focus makes a screen reader read the field again — value
     // and "Vorschlag." — so ↺ only speaks when focus did not move.
     if (which === 'revert' && hadFocus) announce(t('stateSuggested'), t.lang('stateSuggested'))
@@ -312,7 +355,8 @@ export function Field({
   const confirmName = t('confirmValue')
 
   const labelEl = (
-    <label id={labelId} htmlFor={id} className={clsx('lcf-field-label', hideLabel && 'lcf-sr-only')}>
+    // A group is named by aria-labelledby; a fieldset is not labelable.
+    <label id={labelId} htmlFor={group ? undefined : id} className={clsx('lcf-field-label', hideLabel && 'lcf-sr-only')}>
       {label}
       {required && <span className="lcf-field-req" aria-hidden="true">*</span>}
     </label>

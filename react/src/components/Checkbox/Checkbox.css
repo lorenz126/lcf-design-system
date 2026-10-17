@@ -1,0 +1,140 @@
+/* Checkbox: the box first, its label beside it, the description under
+   the label. Semantic tokens and --c-* only; the row always carries a
+   data-color (primary, or danger and caution while it says something).
+
+   --c-box, --c-mark and --c-line are LOCAL, set from the row's own
+   data-size: the box, the tick, and the line the box centres on — the
+   label's line-height, so the box sits on the first line of a label
+   that wraps. */
+.lcf-checkbox {
+  --c-box: 16px;
+  --c-mark: 10px;
+  --c-line: var(--lh-body);
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--s-4);
+  align-items: start;
+  max-inline-size: 100%;
+  vertical-align: top;
+  font: var(--w-regular) var(--fs-body)/var(--c-line) var(--font-sans);
+  letter-spacing: var(--tr-body);
+  color: var(--fg);
+}
+.lcf-checkbox[data-size="sm"] { --c-box: 14px; --c-mark: 8px; --c-line: var(--lh-small); font-size: var(--fs-small); letter-spacing: var(--tr-small); }
+.lcf-checkbox[data-size="lg"] { --c-box: 20px; --c-mark: 12px; --c-line: var(--lh-lead); font-size: var(--fs-lead); letter-spacing: var(--tr-lead); }
+
+/* The input IS the box (appearance: none), so the browser keeps its
+   role, Space, label and form; the tick is drawn over it. */
+.lcf-checkbox-input,
+.lcf-checkbox-mark {
+  grid-area: 1 / 1;
+  inline-size: var(--c-box);
+  block-size: var(--c-box);
+  margin: calc((var(--c-line) - var(--c-box)) / 2) 0 0;
+}
+.lcf-checkbox-input {
+  appearance: none;
+  box-sizing: border-box;
+  /* The edge is what finds an unchecked box: 3:1 (WCAG 1.4.11). */
+  border: var(--border-width) solid var(--border-field);
+  border-radius: var(--r-xs);
+  background: var(--bg);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out),
+              border-color     var(--dur-fast) var(--ease-out);
+}
+.lcf-checkbox-input:hover:not(:disabled) { border-color: var(--fg-subtle); }
+
+/* Danger while invalid, caution while a required group has nothing
+   ticked. Danger doubles the edge, so invalid is not told by hue alone. */
+.lcf-checkbox:is([data-color="danger"], [data-color="caution"]) .lcf-checkbox-input { border-color: var(--c-border); }
+.lcf-checkbox[data-color="danger"] .lcf-checkbox-input { box-shadow: inset 0 0 0 1px var(--c-border); }
+
+.lcf-checkbox[data-readonly] .lcf-checkbox-input { background: var(--fill-quiet); cursor: default; }
+
+/* Ticked or mixed: the solid ground, the tick in its on-solid colour. */
+.lcf-checkbox .lcf-checkbox-input:is(:checked, :indeterminate) {
+  border-color: var(--c-solid);
+  background: var(--c-solid);
+  box-shadow: none;
+}
+
+/* The one ring every control has, outside the box. */
+.lcf-checkbox-input:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 1px;
+}
+
+.lcf-checkbox-mark {
+  /* The box is wider than the 10px grid the tick is drawn on. */
+  padding: calc((var(--c-box) - var(--c-mark)) / 2);
+  box-sizing: border-box;
+  max-inline-size: none;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--c-on-solid);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lcf-checkbox-mark path { opacity: 0; }
+.lcf-checkbox-input:checked:not(:indeterminate) ~ .lcf-checkbox-mark .lcf-checkbox-tick,
+.lcf-checkbox-input:indeterminate ~ .lcf-checkbox-mark .lcf-checkbox-dash { opacity: 1; }
+
+/* The label reaches back over the gap, so the whole first line ticks
+   the box. */
+.lcf-checkbox-label {
+  grid-column: 2;
+  grid-row: 1;
+  margin-inline-start: calc(-1 * var(--s-4));
+  padding-inline-start: var(--s-4);
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+/* Suggested (Field's contract): a ticked box's label is the value, so it
+   turns grey and italic while the group's Field is suggested. */
+.lcf-checkbox-input:is(:checked, :indeterminate) ~ .lcf-checkbox-label {
+  color: var(--fld-value-fg, var(--fg));
+  font-style: var(--fld-value-style, normal);
+}
+.lcf-checkbox-description {
+  grid-column: 2;
+  font: var(--w-regular) var(--fs-caption)/var(--lh-caption) var(--font-sans);
+  letter-spacing: var(--tr-caption);
+  color: var(--fg-muted);
+  overflow-wrap: anywhere;
+}
+
+.lcf-checkbox[data-readonly] .lcf-checkbox-label { cursor: default; }
+.lcf-checkbox[data-disabled] { opacity: .4; }
+.lcf-checkbox[data-disabled] :is(.lcf-checkbox-input, .lcf-checkbox-label) { cursor: not-allowed; }
+
+/* The group: a fieldset with nothing of its own drawn, its boxes in a
+   column. min-inline-size: 0, or a fieldset is as wide as its longest
+   label and pushes the page sideways. */
+.lcf-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.lcf-checkbox-group[data-size="sm"] { gap: var(--s-2); }
+.lcf-checkbox-group[data-size="lg"] { gap: var(--s-4); }
+
+/* Forced colours: the box keeps an edge, a ticked box a ground and a
+   tick in the system's own pair, and danger its width. Not left to the
+   browser: measured in Chromium, forced colours paint a ticked box's
+   ground Canvas like a clear one's and leave the tick's stroke as
+   authored — white on white, a ticked box that looks clear. Every row
+   has a data-color, so these outrank the rules above. */
+@media (forced-colors: active) {
+  .lcf-checkbox-input, .lcf-checkbox-mark { forced-color-adjust: none; }
+  .lcf-checkbox[data-color] .lcf-checkbox-input { border-color: CanvasText; background: Canvas; box-shadow: none; }
+  .lcf-checkbox[data-color="danger"] .lcf-checkbox-input { border-width: 2px; }
+  .lcf-checkbox[data-color] .lcf-checkbox-input:is(:checked, :indeterminate) { border-color: Highlight; background: Highlight; }
+  .lcf-checkbox[data-color] .lcf-checkbox-input:focus-visible { outline-color: CanvasText; }
+  .lcf-checkbox-mark { stroke: HighlightText; }
+}

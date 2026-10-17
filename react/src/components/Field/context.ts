@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { createContext, isValidElement, useContext, type ReactNode } from 'react'
 import type { Size } from '../types'
 
 /** What a Field tells the one control inside it. Facts flow down only. */
@@ -65,6 +65,13 @@ export const FieldContext = createContext<FieldContextValue | null>(null)
  * - Inside a Field only: `data-color="caution"` on the box while the
  *   Field is required, the control empty and not invalid;
  *   `data-color="danger"` while invalid.
+ * - A GROUP of controls (CheckboxGroup) is one control: `field.id` on
+ *   its `<fieldset>`, named by `aria-labelledby={field.labelId}` and
+ *   described by `field.describedBy`; it hides the Field from what is
+ *   inside it (each member is the group's, not the Field's). Enter and
+ *   Escape in any member act for the field, and a confirm reads the
+ *   members' validity — a fieldset's own stays valid while a member's
+ *   is not (measured in Chromium).
  *
  * Never build a CSS selector from these ids: a React 19 useId id is not
  * a valid selector. Use getElementById or a ref.
@@ -72,3 +79,28 @@ export const FieldContext = createContext<FieldContextValue | null>(null)
 export function useField(): FieldContextValue | null {
   return useContext(FieldContext)
 }
+
+/* A group control, marked on its component, so that the Field around
+   it renders its label without `for`: a <label for> pointing at a
+   fieldset labels nothing and is not valid HTML, and pointed at the
+   first member instead it would toggle that member when the group's
+   name is clicked. Read at render from the element Field is given — no
+   value travels up — so it holds only for the group as Field's own
+   child; CheckboxGroup warns when it is wrapped. Internal: an app's own
+   group control is not offered this yet. Symbol.for, so two copies of
+   the module still agree. */
+const GROUP = Symbol.for('lcf.field.group')
+
+/** Internal. Marks a component as a group control for Field. */
+export function markFieldGroup<T extends object>(component: T): T {
+  ;(component as Record<symbol, unknown>)[GROUP] = true
+  return component
+}
+
+/** Internal. Whether Field's child is a marked group control. */
+export function isFieldGroup(node: ReactNode): boolean {
+  return isValidElement(node) && typeof node.type !== 'string' && (node.type as unknown as Record<symbol, unknown>)[GROUP] === true
+}
+
+/** Internal. A group's box: Enter and Escape in any member act for the field. */
+export const isGroupBox = (el: Element) => el.matches('fieldset, [role="group"], [role="radiogroup"]')
