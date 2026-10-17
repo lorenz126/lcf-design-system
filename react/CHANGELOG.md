@@ -94,8 +94,44 @@ minor.
   inside it is not (measured); after ✓ or ↺ focus returns to the box
   that had it. No prop changed, and Input and NumberField behave as
   before. `useField()`'s contract gains the group clause.
+- `FieldContextValue` gains an optional `errorId`: the id of the
+  Field's error sentence while there is one. A group control describes
+  each of its boxes by it (below). Additive; nothing that reads the
+  context changes.
+- **Form controls draw at least 16px on a touch screen** (`pointer:
+  coarse`), from the new token `--fs-control-min`. iOS Safari zooms the
+  page when a control under 16px takes focus; measured on an emulated
+  iPhone 13, Input, Select and Textarea all drew 15px (13px at `sm`).
+  Desktop sizes are unchanged.
 
 ### Fixed
+
+- **Enter in an "other" Input or a Select inside a confirmable
+  CheckboxGroup submitted the form.** Field only counted a group's
+  boxes as the control for Enter, but every member for Escape. Measured
+  in headless Chromium: Enter in the Input moved a form's submits 0→1
+  and did not confirm; Escape there reverted the group's ticks. Now a
+  member follows the rules of a control of its own (Enter confirms and
+  never submits, Ctrl+Enter in a Textarea), and only a box's Escape
+  reverts the group.
+- **A Textarea already over its `characterLimit` said so only to the
+  eye.** Its description gave the limit and nothing more (AX tree of
+  Textarea/Character limit: "Höchstens 160 Zeichen." beside a red
+  "185 / 160") until somebody typed. Over the limit the description now
+  adds "25 Zeichen zu viel." — read on focus, not announced.
+- **The boxes of an invalid CheckboxGroup were "invalid" with no
+  words** (AX tree: `invalid=true`, description ""); the Field's error
+  was on the fieldset only. Each box is now described by the error as
+  well; state, keys and origin are still said once, on the group.
+- **`required` on a Checkbox inside a CheckboxGroup is left off**, with
+  a development warning: natively it made that one box mandatory,
+  blocking the submit while another box was chosen. The group's
+  `required` (at least one) is the one to use.
+- Select keys its groups by place: two groups with the same label
+  logged React's duplicate-key error.
+- Textarea and CheckboxGroup make the family's development checks
+  through the shared hook instead of copies of it; the words are the
+  same.
 
 - **A Field is never wider than its container** (`max-inline-size:
   100%`). Measured with a Textarea in a Field at 300px: the Field took

@@ -3,6 +3,7 @@ import { useId, useState, type FormEvent } from 'react'
 import { fn } from 'storybook/test'
 import { Button } from '../Button/Button'
 import { Field } from '../Field/Field'
+import { Input } from '../Input/Input'
 import { NumberField } from '../NumberField/NumberField'
 import { Checkbox } from './Checkbox'
 import { CheckboxGroup } from './CheckboxGroup'
@@ -54,9 +55,9 @@ export const Showcase: Story = {
 export const States: Story = {
   render: () => (
     <div className="ws-grid" style={{ ['--cols' as string]: 2 }}>
-      <span />
-      <span className="ws-label">clear</span>
-      <span className="ws-label">ticked</span>
+      <span className="ws-corner" />
+      <span className="ws-label ws-col">clear</span>
+      <span className="ws-label ws-col">ticked</span>
       <span className="ws-label">default</span>
       <Checkbox label="Primer" />
       <Checkbox label="Primer" defaultChecked />
@@ -169,6 +170,9 @@ function WorkField() {
         }}
       >
         {WORK.map(w => <Checkbox key={w.value} {...w} />)}
+        {/* "Other" between the boxes is the group's too: Enter there
+            confirms the field and never submits; its Escape is its own. */}
+        <Input aria-label="Other work" placeholder="Other work" name="workOther" size="sm" />
       </CheckboxGroup>
     </Field>
   )
@@ -205,7 +209,7 @@ function WorkForm() {
   )
 }
 
-/** A group in a Field, by the review recipe: Space ticks, Enter in any box confirms and never submits, Escape or ↺ goes back to the suggestion. */
+/** A group in a Field, by the review recipe: Space ticks, Enter in any box — or in the "other" box after them — confirms and never submits, Escape or ↺ in a box goes back to the suggestion. */
 export const InField: Story = { name: 'In a Field', render: () => <WorkForm /> }
 
 /** Required is "at least one": the word and the caution edge on every box while none is ticked, and Enter says why it cannot confirm. */

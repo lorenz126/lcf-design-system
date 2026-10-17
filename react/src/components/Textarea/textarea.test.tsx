@@ -206,6 +206,16 @@ describe('Textarea: the count reports, it never blocks', () => {
     expect(screen.getByRole('textbox')).not.toHaveAttribute('maxlength')
   })
 
+  it('already over the limit, its description says by how much — not only the count, which is for the eye', () => {
+    render(<Field label="SMS"><Textarea characterLimit={5} defaultValue="Seiteneingang" /></Field>, { wrapper: de })
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription('Höchstens 5 Zeichen. 8 Zeichen zu viel.')
+  })
+
+  it('under the limit, its description gives the limit alone', () => {
+    render(<Field label="SMS"><Textarea characterLimit={50} defaultValue="Seiteneingang" /></Field>, { wrapper: de })
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription('Höchstens 50 Zeichen.')
+  })
+
   it('past the limit: the count turns danger; the field stays valid, a confirm goes through, the form submits', async () => {
     const user = userEvent.setup()
     const onConfirm = vi.fn()

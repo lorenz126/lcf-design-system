@@ -333,6 +333,24 @@ test('a CheckboxGroup in a Field, by keyboard: Space ticks, Enter confirms and n
   for (const name of ['Painting', 'Filling', 'Wallpapering']) await expect(box(name)).toBeChecked()
   await expect(box('Scaffolding')).not.toBeChecked()
 
+  // The "other" Input between the boxes: Escape there is its own and
+  // reverts nothing; Enter confirms the group and never submits (found
+  // in review: it submitted the form, measured 0→1).
+  await page.keyboard.press('Tab')
+  await expect(box('Scaffolding')).toBeFocused()
+  await page.keyboard.press('Space')
+  await expect(work).not.toHaveAttribute('data-state')
+  await page.keyboard.press('Tab')
+  const other = work.getByRole('textbox', { name: 'Other work' })
+  await expect(other).toBeFocused()
+  await page.keyboard.type('Plaster')
+  await page.keyboard.press('Escape')
+  await expect(box('Scaffolding')).toBeChecked()
+  await expect(other).toHaveValue('Plaster')
+  await expect(work).not.toHaveAttribute('data-state')
+  await page.keyboard.press('Enter')
+  await expect(work).toHaveAttribute('data-state', 'confirmed')
+
   await expect(form).toHaveAttribute('data-submitted', '0')
   expect(signal(said), 'the console').toEqual([])
 })

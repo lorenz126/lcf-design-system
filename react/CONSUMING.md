@@ -93,6 +93,10 @@ error and `required`, and wires them to the control:
   counted with `countCharacters` from the same import. In a
   confirmable Field, Ctrl+Enter confirms (Enter is a new line). Leave
   Field's `suggestion` out for long text: it is ↺'s visible label.
+- **On a phone, leave the viewport zoomable.** Input, Select and
+  Textarea draw at least 16px under `pointer: coarse`, so iOS does not
+  zoom in on focus; `maximum-scale=1` is not needed and takes pinch
+  zoom away (WCAG 1.4.4).
 - **Numbers are `NumberField`, never `Input`.** Its value is a number
   (or null), emitted on blur, Enter, an arrow key or the stepper —
   never per keystroke — and never clamped or rounded: out of range, it
@@ -121,7 +125,9 @@ error and `required`, and wires them to the control:
   (at least one) like any control. Its value is a `string[]` in the
   order the boxes are rendered — compare it with the suggestion element
   by element. A lone `Checkbox` is never put in a Field; its words go in
-  its own `label` and `description`.
+  its own `label` and `description`. `required` goes on the Field or
+  the group, never on a box. An "other" Input between the boxes
+  confirms on Enter like the boxes do, and never submits.
 
   ```tsx
   <Field label="Leistungen" required origin={{ source: 'customer', via: 'email' }}>

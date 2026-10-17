@@ -12,7 +12,7 @@ import {
 import { useMessages } from '../../i18n/context'
 import { FieldContext, markFieldGroup, useField } from '../Field/context'
 import { joinIds } from '../Field/ids'
-import { resolveControl } from '../Input/InputFrame'
+import { resolveControl, useControlChecks } from '../Input/InputFrame'
 import { mergeRefs } from '../refs'
 import type { Size } from '../types'
 import { CheckboxGroupContext, type CheckboxGroupContextValue } from './group'
@@ -57,7 +57,13 @@ const warn = (msg: string) => {
  *   bestätigt." and the description are said once as focus enters the
  *   group, not again on every box. The Field's context stops at the
  *   group: what is inside belongs to the group, so an Input for "other"
- *   between the boxes does not take the Field's id.
+ *   between the boxes does not take the Field's id. One exception: the
+ *   Field's error also describes every box. Found in review, an AX
+ *   snapshot showed boxes with invalid=true and an empty description —
+ *   a box reached by Shift+Tab or the virtual cursor said "invalid" with
+ *   no reason. Only the error: state, keys and origin stay said once.
+ *   The fieldset carries no `aria-invalid`: ARIA 1.2 does not support it
+ *   on role group, so the boxes say it.
  * - **`required` means at least one.** Native `required` on a checkbox
  *   means THAT box must be ticked. So the group sets a custom validity
  *   on its first box while nothing is chosen ("Bitte mindestens eine
@@ -68,7 +74,9 @@ const warn = (msg: string) => {
  *   "Pflichtfeld." is the first sentence of its description.
  * - **A Tab stop per box**, as checkboxes have, and Space ticks. In a
  *   confirmable Field, Enter in any box confirms and Escape goes back to
- *   the suggestion.
+ *   the suggestion. Enter in an "other" Input or a Select between the
+ *   boxes confirms too and never submits the form (Ctrl+Enter in a
+ *   Textarea); Escape there is that control's own and reverts nothing.
  * - **Disabled is the fieldset's own**, so the browser disables every
  *   box in it, and a disabled box posts nothing.
  * - **Refuses:**
@@ -134,7 +142,7 @@ export function CheckboxGroup({
 
   // A new object every render: the boxes are context consumers, so a
   // reset that re-renders only the group still reaches every box.
-  const context: CheckboxGroupContextValue = { value, toggle, name, size, invalid, caution, disabled, readOnly }
+  const context: CheckboxGroupContextValue = { value, toggle, name, size, invalid, errorId: field?.errorId, caution, disabled, readOnly }
 
   /* The form agrees with the group: while a required group has nothing
      chosen, its first box that can take a value says so, in the table's
@@ -168,23 +176,15 @@ export function CheckboxGroup({
   }, [controlled, defaultValue])
 
   // Development only, and enforced: the sweep fails on console warnings.
-  const ariaLabel = rest['aria-label']
   const ariaLabelledBy = rest['aria-labelledby']
-  useEffect(() => {
-    if (field || ariaLabel || ariaLabelledBy) return
-    warn('CheckboxGroup has no name: put it in a Field, or give it aria-label or aria-labelledby.')
-  }, [field, ariaLabel, ariaLabelledBy])
-  useEffect(() => {
-    if (field && idProp !== undefined && idProp !== field.id) {
-      warn("an `id` on a control inside a Field is ignored — set the Field's `id`; it names the control.")
-    }
-  }, [field, idProp])
-  const inField = !!field
-  useEffect(() => {
-    if (!inField) return
-    const own = [requiredProp && 'required', disabledProp && 'disabled', readOnlyProp && 'readOnly'].filter(Boolean)
-    if (own.length) warn(`${own.join(', ')} on a control inside a Field — set it on the Field; it owns the word, the asterisk and the actions.`)
-  }, [inField, requiredProp, disabledProp, readOnlyProp])
+  useControlChecks('CheckboxGroup', field, root, {
+    id: idProp,
+    required: requiredProp,
+    disabled: disabledProp,
+    readOnly: readOnlyProp,
+    ariaLabel: rest['aria-label'],
+    ariaLabelledBy
+  })
   const labelId = field?.labelId
   useEffect(() => {
     if (!labelId) return

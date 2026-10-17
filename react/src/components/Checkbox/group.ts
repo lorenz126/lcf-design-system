@@ -12,6 +12,8 @@ export interface CheckboxGroupContextValue {
   size: Size
   /** The group's `invalid`, or its Field's error. */
   invalid: boolean
+  /** The Field's error sentence while it has one: every box is described by it too. */
+  errorId: string | undefined
   /** Required by its Field, nothing chosen, not invalid: the caution edge on every box. */
   caution: boolean
   disabled: boolean

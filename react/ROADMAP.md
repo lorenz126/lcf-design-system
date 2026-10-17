@@ -96,6 +96,11 @@ Open questions:
    tick on it measures 2.52:1.
 3. "Pflichtfeld" on a checkbox group means at least one. A rule like
    "at most two" is the app's `error`, not a prop.
+4. An "other" Input between the boxes confirms the group on Enter (it
+   never submits), and its Escape is its own. Agreed, or should Enter
+   there do nothing at all?
+5. On a touch screen every text control draws at least 16px, so iOS
+   does not zoom in on focus. Desktop sizes stay on the ramp.
 
 Before tagging: a manual pass with NVDA, JAWS and VoiceOver (macOS and
 iOS) over Enter-to-confirm, the blur and step announcements, the voice
@@ -106,7 +111,7 @@ no screen reader was available to the build.
 
 | # | component | the hard part |
 |---|---|---|
-| — | Combobox | A port, sitting sitting in Field unchanged through `useField()` — the contract is in its doc comment; Select follows it. Combobox takes what Select refuses — search, icons and a second line in options, several choices — on Radix's primitives where the Nuxt version hand-rolled listbox keyboard handling. Its trigger is not a `<select>`, so Field's Enter-to-confirm and its `validity` check need a way in (Select needed none: Field already treats a `<select>` as a one-line control). A Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
+| — | Combobox | A port, sitting in Field unchanged through `useField()` — the contract is in its doc comment; Select follows it. Combobox takes what Select refuses — search, icons and a second line in options, several choices — on Radix's primitives where the Nuxt version hand-rolled listbox keyboard handling. Its trigger is not a `<select>`, so Field's Enter-to-confirm and its `validity` check need a way in (Select needed none: Field already treats a `<select>` as a one-line control). A Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
 | — | Radio, Switch | Ports. A lone one is not in a Field: its label sits beside a control that comes first. A radio group sits in a Field the way CheckboxGroup does (a fieldset named by the Field's label, Field's group marker in `Field/context.ts`) and has one Tab stop with arrows; a Switch applies at once, so it has no confirm. |
 
 ## Then — Priority 1 continued, and media

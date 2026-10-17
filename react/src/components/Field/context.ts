@@ -11,6 +11,8 @@ export interface FieldContextValue {
   describedBy: string | undefined
   /** The same ids for a control where Enter is a new line (Textarea): its confirm sentence says Ctrl+Enter. */
   describedByMultiline: string | undefined
+  /** The id of the Field's error sentence while there is one (it is also first in `describedBy`). For a group control, whose Field words are said once on the group: each of its boxes is still described by the error, so a box reached on its own is never "invalid" with no words. Optional, added after 0.4.0. */
+  errorId?: string
   /** Field has an app error. */
   invalid: boolean
   required: boolean

@@ -250,6 +250,23 @@ describe('Select: values', () => {
 
   it('is public, with its types', () => {
     expect(SelectEntry.Select).toBe(Select)
+    // Checked by tsc in `pnpm test`: these fail to compile if index.ts
+    // stops exporting the types.
+    const option: SelectEntry.SelectOption = { value: 'x', label: 'X' }
+    const group: SelectEntry.SelectGroup = { label: 'G', options: [option] }
+    const props: SelectEntry.SelectProps = { 'aria-label': 'Markt', options: [group] }
+    render(<SelectEntry.Select {...props} />)
+    expect(screen.getByRole('combobox', { name: 'Markt' })).toBeInTheDocument()
+  })
+
+  it('keys groups by place, so two groups with one label are no duplicate key', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    render(<Select aria-label="Markt" options={[
+      { label: 'Other', options: [{ value: 'a', label: 'A' }] },
+      { label: 'Other', options: [{ value: 'b', label: 'B' }] }
+    ]} />)
+    expect(error).not.toHaveBeenCalled()
+    expect(screen.getAllByRole('group')).toHaveLength(2)
   })
 })
 

@@ -81,6 +81,11 @@
 /* Firefox draws a placeholder at .54 opacity by default, which takes
    --fg-subtle under its own 3:1. */
 .lcf-textarea-el::placeholder { color: var(--fg-subtle); opacity: 1; font-style: normal; }
+/* On a touch screen, never under 16px: iOS zooms the page on focus
+   otherwise (--fs-control-min says why). */
+@media (pointer: coarse) {
+  .lcf-textarea-el { font-size: max(var(--fs-control-min), var(--fld-fs)); }
+}
 
 /* Hover moves the edge to --fg-subtle, as Input's does. */
 .lcf-textarea-el:hover:not(:disabled, [readonly], [data-color]) { border-color: var(--fg-subtle); }

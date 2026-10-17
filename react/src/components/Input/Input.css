@@ -47,6 +47,11 @@
 /* Firefox draws a placeholder at .54 opacity by default, which takes
    --fg-subtle under its own 3:1. */
 .lcf-input-el::placeholder { color: var(--fg-subtle); opacity: 1; font-style: normal; }
+/* On a touch screen, never under 16px: iOS zooms the page on focus
+   otherwise (--fs-control-min says why). Select's box is this element. */
+@media (pointer: coarse) {
+  .lcf-input-el { font-size: max(var(--fs-control-min), var(--fld-fs)); }
+}
 
 /* Hover moves the edge to --fg-subtle (4.74 light, 4.18 dark). */
 .lcf-input:hover:not([data-disabled], [data-readonly], [data-color]) { border-color: var(--fg-subtle); }

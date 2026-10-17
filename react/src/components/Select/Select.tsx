@@ -275,11 +275,12 @@ export function Select<T extends string = string>({
         {placeholderOption}
         {/* The app's value, shown as itself: the box never says another. */}
         {unknown && current !== null && <option value={current}>{current}</option>}
-        {options.map(item => {
+        {options.map((item, i) => {
           if (!('options' in item)) return option(item)
           const holdsCurrent = item.options.some(o => o.value === current)
           return (
-            <optgroup key={`group:${item.label}`} label={item.label} disabled={!!item.disabled && !holdsCurrent}>
+            // By place, not label: nothing makes two groups' labels differ.
+            <optgroup key={`group:${i}`} label={item.label} disabled={!!item.disabled && !holdsCurrent}>
               {item.options.map(o => option(o, !!item.disabled))}
             </optgroup>
           )

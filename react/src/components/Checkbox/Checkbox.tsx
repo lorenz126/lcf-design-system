@@ -59,7 +59,11 @@ const hasContent = (n: ReactNode) => n !== undefined && n !== null && n !== fals
  *   sit on the row. The Nuxt 0.2.0 breaking change: on the wrapper, an
  *   `aria-label` named nothing, and a column of table checkboxes was
  *   read as "checkbox, checkbox, checkbox" with no way to fix it from
- *   outside.
+ *   outside. One exception: `required` on a box of a CheckboxGroup is
+ *   left off, with a warning in development. Natively it means THAT box
+ *   must be ticked, which blocks the submit while another box is
+ *   already chosen (found in review, `input.required` was true on such
+ *   a box); a group's `required`, or its Field's, means at least one.
  * - **The label sits beside the box, after it, and is not Field's.** A
  *   stacked label above a box that comes first is a wrapper with a hole
  *   in it (the Nuxt finding), so a lone Checkbox is not put in a Field.
@@ -161,6 +165,10 @@ export function Checkbox({
   useEffect(() => {
     if (inField) warn('a Checkbox directly in a Field: put it in a CheckboxGroup, so the Field\'s label names the group and the Checkbox\'s label names the box.')
   }, [inField])
+  const requiredHere = member && !!rest.required
+  useEffect(() => {
+    if (requiredHere) warn('required on a Checkbox in a CheckboxGroup is left off — set it on the group or its Field; there it means at least one.')
+  }, [requiredHere])
   const stray = !!group && value === undefined && checkedProp === undefined
   useEffect(() => {
     if (stray) warn('a Checkbox in a CheckboxGroup with neither `value` nor `checked`: give it the `value` it adds to the group.')
@@ -204,12 +212,15 @@ export function Checkbox({
         checked={checked}
         defaultChecked={member ? undefined : defaultChecked}
         disabled={disabled}
+        required={member ? undefined : rest.required}
         aria-readonly={readOnly || undefined}
         // Always written: with no attribute, Chrome reports the native
         // validity — a required group's first box carries a custom
         // validity while nothing is chosen, and the screen shows no error.
         aria-invalid={invalid ? 'true' : 'false'}
-        aria-describedby={joinIds(descriptionId, rest['aria-describedby'])}
+        // A group's Field error too, while there is one (CheckboxGroup):
+        // aria-invalid never comes without its words.
+        aria-describedby={joinIds(descriptionId, rest['aria-describedby'], group?.errorId)}
         onChange={handleChange}
       />
       <svg className="lcf-checkbox-mark" viewBox="0 0 10 10" aria-hidden="true" focusable="false">

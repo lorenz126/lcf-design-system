@@ -48,9 +48,16 @@
   border-radius: var(--r-lg);
   background: linear-gradient(135deg, #0b5cad, #7a3fb0 55%, #d9822b);
 }
+/* On a phone the row labels take a line of their own. A grid of two
+   columns keeps its column headings (.ws-col) over their columns, and
+   drops the empty corner (.ws-corner) they sat beside: found in review,
+   Checkbox/States at 320px stacked "clear" and "ticked" as two lines
+   above rows that had no heading over them. A wider grid wraps to two
+   columns, where no heading can stay over its column. */
 @media (max-width: 640px) {
   .ws-grid { grid-template-columns: repeat(2, max-content); }
-  .ws-grid .ws-label { grid-column: 1 / -1; }
+  .ws-grid .ws-label:not(.ws-col) { grid-column: 1 / -1; }
+  .ws-grid .ws-corner { display: none; }
 }
 
 /* ---- The docs pages, in the system's own type and colours ----

@@ -71,21 +71,27 @@ export function resolveControl(
  * The development checks every control in the family makes, once: a
  * control with no name, an `id` a Field will ignore, and `required`,
  * `disabled` or `readOnly` set on the control where the Field owns them.
- * Shared, so Input, NumberField (through the frame) and Select say the
- * same thing in the same words. Enforced: the sweep fails on console
- * warnings.
+ * Shared, so Input, NumberField (through the frame), Select, Textarea
+ * and CheckboxGroup say the same thing in the same words (found in
+ * review: Textarea and CheckboxGroup had been cut before it and carried
+ * copies). An element with no `labels` (a fieldset) cannot be named by
+ * a `<label for>`, so its no-name sentence does not offer one.
+ * Enforced: the sweep fails on console warnings.
  */
 export function useControlChecks(
   component: string,
   field: FieldContextValue | null,
-  el: RefObject<(HTMLElement & { labels: NodeListOf<HTMLLabelElement> | null }) | null>,
+  el: RefObject<(HTMLElement & { labels?: NodeListOf<HTMLLabelElement> | null }) | null>,
   own: { id?: string; required?: boolean; disabled?: boolean; readOnly?: boolean; ariaLabel?: string; ariaLabelledBy?: string }
 ) {
   const { id, required, disabled, readOnly, ariaLabel, ariaLabelledBy } = own
   useEffect(() => {
     if (field || ariaLabel || ariaLabelledBy) return
     if ((el.current?.labels?.length ?? 0) > 0) return
-    warn(`${component} has no name: put it in a Field, or give it aria-label or a <label for>. A placeholder is not a name.`)
+    const labelable = !!el.current && 'labels' in el.current
+    warn(labelable
+      ? `${component} has no name: put it in a Field, or give it aria-label or a <label for>. A placeholder is not a name.`
+      : `${component} has no name: put it in a Field, or give it aria-label or aria-labelledby.`)
   }, [component, field, el, ariaLabel, ariaLabelledBy])
   useEffect(() => {
     if (field && id !== undefined && id !== field.id) {

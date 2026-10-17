@@ -66,10 +66,16 @@ export interface FieldProps extends Omit<ComponentPropsWithRef<'div'>, 'id' | 'c
    Never in an editable region, whose own editor owns its keys. In a
    group (a CheckboxGroup) Enter confirms from any of its boxes: Enter
    does nothing else there but submit the form — measured in Chromium,
-   Enter on a checkbox submits a form that has a submit button. */
+   Enter on a checkbox submits a form that has a submit button. Any
+   other member (the "other" Input between the boxes, a Select) follows
+   the same rules as a control of its own: found in review, the member
+   branch once returned nothing for them, so Enter in an "Andere: ___"
+   box inside a confirmable group submitted the form (measured in
+   headless Chromium, submits 0→1, onConfirm not called). */
 const NOT_TEXT = new Set(['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'hidden', 'range', 'color'])
+const isBox = (el: HTMLElement) => el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio')
 function confirmKey(el: HTMLElement, member: boolean): 'enter' | 'mod-enter' | null {
-  if (member) return el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio') ? 'enter' : null
+  if (member && isBox(el)) return 'enter'
   if (el instanceof HTMLSelectElement) return 'enter'
   if (el instanceof HTMLTextAreaElement) return 'mod-enter'
   return el instanceof HTMLInputElement && !NOT_TEXT.has(el.type) ? 'enter' : null
@@ -224,12 +230,13 @@ export function Field({
     labelId,
     describedBy,
     describedByMultiline,
+    errorId: ids.error,
     invalid: hasError,
     required,
     disabled,
     readOnly,
     size
-  }), [id, labelId, describedBy, describedByMultiline, hasError, required, disabled, readOnly, size])
+  }), [id, labelId, describedBy, describedByMultiline, ids.error, hasError, required, disabled, readOnly, size])
 
   useEffect(() => {
     if (process.env.NODE_ENV !== 'production' && error === true) {
@@ -322,7 +329,10 @@ export function Field({
     const member = !!box && box !== target && isGroupBox(box) && box.contains(target)
     if ((target.id !== id && !member) || disabled || readOnly || target.readOnly || target.disabled) return
     if (e.key === 'Escape') {
-      if (mod || !revertRef.current) return
+      // In a group only a box reverts it: Escape in the "other" text
+      // box is that box's own, and the group's ticks are not thrown
+      // away from inside it.
+      if (mod || !revertRef.current || (member && !isBox(target))) return
       // The Escape is spent here: a dialog around the field stays open.
       e.preventDefault()
       e.stopPropagation()

@@ -16,7 +16,7 @@ import { useFormat, useMessages } from '../../i18n/context'
 import { announce, ensureAnnouncer } from '../Field/announce'
 import { useField } from '../Field/context'
 import { joinIds } from '../Field/ids'
-import { resolveControl } from '../Input/InputFrame'
+import { resolveControl, useControlChecks } from '../Input/InputFrame'
 import { mergeRefs } from '../refs'
 import type { Size } from '../types'
 import { countCharacters } from './count'
@@ -242,24 +242,14 @@ export function Textarea({
   const color = invalid ? 'danger' : field?.required && empty ? 'caution' : undefined
 
   /* ---- development only, and enforced: the sweep fails on warnings ---- */
-  const ariaLabel = rest['aria-label']
-  const ariaLabelledBy = rest['aria-labelledby']
-  useEffect(() => {
-    if (field || ariaLabel || ariaLabelledBy) return
-    if ((box.current?.labels?.length ?? 0) > 0) return
-    warn('Textarea has no name: put it in a Field, or give it aria-label or a <label for>. A placeholder is not a name.')
-  }, [field, ariaLabel, ariaLabelledBy])
-  useEffect(() => {
-    if (field && idProp !== undefined && idProp !== field.id) {
-      warn("an `id` on a control inside a Field is ignored — set the Field's `id`; it names the control.")
-    }
-  }, [field, idProp])
-  const inField = !!field
-  useEffect(() => {
-    if (!inField) return
-    const mine = [requiredProp && 'required', disabledProp && 'disabled', readOnlyProp && 'readOnly'].filter(Boolean)
-    if (mine.length) warn(`${mine.join(', ')} on a control inside a Field — set it on the Field; it owns the word, the asterisk and the actions.`)
-  }, [inField, requiredProp, disabledProp, readOnlyProp])
+  useControlChecks('Textarea', field, box, {
+    id: idProp,
+    required: requiredProp,
+    disabled: disabledProp,
+    readOnly: readOnlyProp,
+    ariaLabel: rest['aria-label'],
+    ariaLabelledBy: rest['aria-labelledby']
+  })
   useEffect(() => {
     if (maxRowsProp !== undefined && maxRowsProp < rowsProp) {
       warn(`Textarea: maxRows (${maxRowsProp}) is less than rows (${rowsProp}); it stays ${rows} rows high.`)
@@ -305,7 +295,23 @@ export function Textarea({
           <span className="lcf-textarea-count" data-color={over ? 'danger' : undefined} aria-hidden="true" lang={t.lang('characterCount')}>
             {t('characterCount', { count: f.number(count), limit: f.number(limit) })}
           </span>
-          <span id={limitId} hidden lang={t.lang('characterLimit')}>{t('characterLimit', { limit: f.number(limit) })}</span>
+          {/* Over the limit, the description says by how much as well:
+              found in review, a suggestion that arrived 25 over was
+              described only as "Höchstens 160 Zeichen." (AX tree), the
+              count in danger red for the eye alone until someone typed.
+              A description, not a live region: read on focus, never over
+              the typing. */}
+          <span id={limitId} hidden lang={t.lang('characterLimit')}>
+            {t('characterLimit', { limit: f.number(limit) })}
+            {over && (
+              <>
+                {' '}
+                <span lang={t.lang('characterLimitOver')}>
+                  {t('characterLimitOver', { count: f.number(count - limit), n: count - limit })}
+                </span>
+              </>
+            )}
+          </span>
         </>
       )}
     </div>

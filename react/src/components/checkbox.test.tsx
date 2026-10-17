@@ -295,8 +295,14 @@ describe('CheckboxGroup in a Field: one control', () => {
     for (const b of screen.getAllByRole('checkbox')) {
       expect(b).toHaveAttribute('aria-invalid', 'true')
       expect(b.closest('.lcf-checkbox')).toHaveAttribute('data-color', 'danger')
+      // Never "invalid" with no words: the error describes every box
+      // too, after the box's own description.
+      expect(b).toHaveAccessibleDescription(expect.stringMatching(/(^|\. )Nicht beides\.$/))
     }
     expect(screen.getByRole('group')).toHaveAccessibleDescription('Nicht beides.')
+
+    rerender(<Work field={{}} />)
+    for (const b of screen.getAllByRole('checkbox')) expect(b).not.toHaveAccessibleDescription(expect.stringContaining('Nicht beides.'))
   })
 
   it('goes back to its default on a form reset when uncontrolled', async () => {
@@ -449,6 +455,38 @@ describe('CheckboxGroup in a confirmable Field: the keys', () => {
     expect(screen.getByRole('checkbox', { name: 'Malen' })).toHaveFocus()
   })
 
+  it('an "other" Input between the boxes: Enter confirms and never submits; its Escape is its own', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    const onConfirm = vi.fn()
+    const onRevert = vi.fn()
+    render(
+      <form onSubmit={e => { e.preventDefault(); onSubmit() }}>
+        <Field label="Leistungen" state="suggested" onConfirm={onConfirm} onRevert={onRevert}>
+          <CheckboxGroup defaultValue={['paint']}>
+            <Checkbox value="paint" label="Malen" />
+            <Checkbox value="other" label="Andere" />
+            <Input aria-label="Andere Leistung" />
+          </CheckboxGroup>
+        </Field>
+        <button type="submit">Speichern</button>
+      </form>,
+      { wrapper: de }
+    )
+    const other = screen.getByRole('textbox', { name: 'Andere Leistung' })
+    await user.click(other)
+    await user.keyboard('Gips{Enter}')
+    expect(onConfirm).toHaveBeenCalledOnce()
+    expect(onSubmit).not.toHaveBeenCalled()
+    await user.keyboard('{Escape}')
+    expect(onRevert).not.toHaveBeenCalled()
+    expect(other).toHaveValue('Gips')
+    // A box's Escape still goes back.
+    await user.click(screen.getByRole('checkbox', { name: 'Andere' }))
+    await user.keyboard('{Escape}')
+    expect(onRevert).toHaveBeenCalledOnce()
+  })
+
   it('leaves Enter alone in a group whose Field is not confirmable', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn((e: { preventDefault(): void }) => e.preventDefault())
@@ -486,6 +524,18 @@ describe('CheckboxGroup: development warnings', () => {
     expect(lines.some(l => l.includes('ignored'))).toBe(true)
     expect(lines.some(l => l.includes('required on a control inside a Field'))).toBe(true)
     expect(lines.some(l => l.includes('neither `value` nor `checked`'))).toBe(true)
+  })
+
+  it('leaves native required off a box of a group, and warns: there it would mean that box, not at least one', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(
+      <CheckboxGroup aria-label="Räume" defaultValue={['b']}>
+        <Checkbox value="a" label="A" required />
+        <Checkbox value="b" label="B" />
+      </CheckboxGroup>
+    )
+    expect(screen.getByRole('checkbox', { name: 'A' })).not.toBeRequired()
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('required on a Checkbox in a CheckboxGroup'))
   })
 
   it('warns when wrapped inside a Field, where the Field cannot see it is a group', () => {

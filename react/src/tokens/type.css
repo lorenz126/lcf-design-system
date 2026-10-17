@@ -60,6 +60,16 @@
   --fs-display-sm: 40px; --lh-display-sm: 46px; --tr-display-sm: -0.024em;
   --fs-display:    56px; --lh-display:    60px; --tr-display:    -0.027em;
   --fs-display-lg: 72px; --lh-display-lg: 76px; --tr-display-lg: -0.029em;
+
+  /* --- The smallest text a form control draws on a touch screen ---
+     iOS Safari zooms the page when a select, input or textarea under
+     16px takes focus, and stays zoomed after its picker closes
+     (documented WebKit behaviour). Measured in review: on an emulated
+     iPhone 13 every Input, Select and Textarea computed 15px. The
+     controls raise their size to this under (pointer: coarse), so no
+     app is tempted into maximum-scale=1, which takes pinch zoom away
+     (WCAG 1.4.4). Not a ramp step: a floor. */
+  --fs-control-min: 16px;
 }
 
 /* ============================================================
