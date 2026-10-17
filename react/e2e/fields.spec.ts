@@ -3,12 +3,13 @@ import { paintSource, type Paint } from './audit'
 import { listen, localeOf, signal, storyId } from './sweep'
 
 /**
- * Field, Input and NumberField in a real engine, driven by the keyboard
- * alone — what jsdom cannot show: `:has()` deriving "required and empty"
- * from the control's own attribute, a Tab order with one stop per field,
- * the selection a Tab leaves, the focus ring as painted, and forced
- * colours. In all three passes, so the announcement is checked in
- * English and in German.
+ * Field, Input, NumberField and Select in a real engine, driven by the
+ * keyboard alone — what jsdom cannot show: `:has()` deriving "required
+ * and empty" from the control's own attribute, a Tab order with one stop
+ * per field, the selection a Tab leaves, a select's typeahead, the
+ * suggested grey italic as painted, the focus ring as painted, and
+ * forced colours. In all three passes, so the announcement is checked
+ * in English and in German.
  */
 
 async function open(page: Page, exportName: string, globals: string) {
@@ -94,6 +95,79 @@ test('Review, by keyboard: Enter confirms and never submits, typing overrides, E
   expect(signal(said), 'the console').toEqual([])
 })
 
+/* A select is driven by typeahead here, not by the arrows: measured in
+   Chromium on macOS, the arrows on a closed select open the platform's
+   list (which a headless run does not draw) and change nothing, while a
+   letter chooses the next option starting with it on every platform. */
+test('Select in the Review recipe, by keyboard: Enter confirms, a letter overrides, Escape goes back, an empty required choice is refused', async ({ page }, info) => {
+  const said = listen(page)
+  const globals = globalsOf(info)
+  const de = localeOf(globals).startsWith('de')
+  await open(page, 'Select/Review', globals)
+  const form = page.locator('form')
+  const fields = page.locator('.lcf-field')
+  const select = (i: number) => fields.nth(i).locator('select')
+  const announcer = page.locator('[data-lcf-announcer]')
+  await expect(form).toHaveAttribute('data-submitted', '0')
+
+  // Suggested, as painted: grey and italic until the field has focus.
+  const look = (i: number) => select(i).evaluate(e => ({ style: getComputedStyle(e).fontStyle, color: getComputedStyle(e).color }))
+  expect(await look(0)).toEqual({ style: 'italic', color: await token(page, '--fg-muted') })
+
+  // Tab lands on the select itself; focused, the suggestion is ordinary text.
+  await page.keyboard.press('Tab')
+  expect(await active(page)).toBe(await select(0).getAttribute('id'))
+  expect(await look(0)).toEqual({ style: 'normal', color: await token(page, '--fg') })
+
+  // Enter confirms, and does not submit the form around it.
+  await page.keyboard.press('Enter')
+  await expect(fields.nth(0)).toHaveAttribute('data-state', 'confirmed')
+  await expect(announcer).toHaveText(de ? 'Bestätigt.' : 'Confirmed.')
+
+  // Product line: a letter chooses another line — the override. ↺
+  // appears, and the forward pass still goes to the next select.
+  await page.keyboard.press('Tab')
+  expect(await active(page)).toBe(await select(1).getAttribute('id'))
+  await page.keyboard.press('w')
+  await expect(select(1)).toHaveValue('panels')
+  await expect(fields.nth(1)).not.toHaveAttribute('data-state')
+  await expect(fields.nth(1).locator('[data-action="revert"]')).toBeVisible()
+  await page.keyboard.press('Tab')
+  expect(await active(page)).toBe(await select(2).getAttribute('id'))
+
+  // Back once — ↺ is not a Tab stop — and Escape restores the suggestion.
+  await page.keyboard.press('Shift+Tab')
+  expect(await active(page)).toBe(await select(1).getAttribute('id'))
+  await page.keyboard.press('Escape')
+  await expect(select(1)).toHaveValue('baffles')
+  await expect(fields.nth(1)).toHaveAttribute('data-state', 'suggested')
+  expect(await active(page)).toBe(await select(1).getAttribute('id'))
+  await page.keyboard.press('Enter')
+  await expect(fields.nth(1)).toHaveAttribute('data-state', 'confirmed')
+
+  // Article: required and empty — the word and the caution edge, from
+  // :has() on the select's own box. Enter is refused, in words.
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Tab')
+  expect(await active(page)).toBe(await select(3).getAttribute('id'))
+  const word = fields.nth(3).locator('.lcf-field-req-word')
+  await expect(word).toBeVisible()
+  await expect(fields.nth(3).locator('.lcf-input')).toHaveCSS('border-top-color', await token(page, '--caution-border'))
+  await page.keyboard.press('Enter')
+  await expect(announcer).toHaveText(de ? 'Article: Pflichtfeld' : 'Article: Required')
+  await expect(fields.nth(3)).not.toHaveAttribute('data-state')
+
+  // A letter chooses the first gypsum board; the word goes; Enter confirms.
+  await page.keyboard.press('g')
+  await expect(select(3)).toHaveValue('A511')
+  await expect(word).toBeHidden()
+  await page.keyboard.press('Enter')
+  await expect(fields.nth(3)).toHaveAttribute('data-state', 'confirmed')
+
+  await expect(form).toHaveAttribute('data-submitted', '0')
+  expect(signal(said), 'the console').toEqual([])
+})
+
 test('NumberField, by keyboard: arrows on the grid, unreadable text kept, Escape back', async ({ page }, info) => {
   const globals = globalsOf(info)
   const de = localeOf(globals).startsWith('de')
@@ -145,7 +219,7 @@ test('Required: the word and the caution edge come from :has(), and go when it i
 })
 
 test('the focus ring: on the frame, 2px, 3:1 on its ground, the one ring colour on an invalid field too', async ({ page }, info) => {
-  for (const story of ['Field/Base', 'Field/DescriptionAndError']) {
+  for (const story of ['Field/Base', 'Field/DescriptionAndError', 'Select/Base', 'Select/Invalid']) {
     await open(page, story, globalsOf(info))
     await page.keyboard.press('Tab')
     const ring = await page.locator('.lcf-input').first().evaluate((frame, paintSource) => {
@@ -181,6 +255,10 @@ test('forced colours: an invalid field keeps its edge, two pixels wide, and its 
   expect(edge.color).not.toBe('rgba(0, 0, 0, 0)')
   await expect(page.locator('.lcf-field-msg[data-color="danger"]')).toBeVisible()
   await expect(page.locator('.lcf-field-msg[data-color="danger"]')).toHaveText(/\S/)
+  // A Select is drawn in the same frame, and keeps the same edge.
+  const select = await edgeOf('Select/Invalid')
+  expect(select.style).not.toBe('none')
+  expect(select.width).toBeGreaterThanOrEqual(2)
 })
 
 test('Hidden label: required and empty is said by the word, not by the edge alone', async ({ page }, info) => {

@@ -29,4 +29,5 @@
 @import "../components/Field/Field.css" layer(lcf.components);
 @import "../components/Input/Input.css" layer(lcf.components);
 @import "../components/NumberField/NumberField.css" layer(lcf.components);
+@import "../components/Select/Select.css" layer(lcf.components);
 @import "../components/Spinner/Spinner.css" layer(lcf.components);

@@ -8,7 +8,8 @@ import { resolveMessageLangs, resolveMessages, type MessageKey } from '../src/i1
  * at phone width, a closed dialog taking up the whole viewport, a
  * duplicate id under aria-labelledby, a control with no name, and text
  * that clears AA in the token table and not where it actually landed —
- * values typed into a field included, since a value is not a text node.
+ * values typed into a field and the choice a closed select shows
+ * included, since neither is a text node with a box.
  *
  * The sixth is the layer's own: its words in the wrong language. The
  * workshop declares <html lang="en">, and the dark/de-CH pass renders
@@ -249,6 +250,28 @@ export function audit(page: Page, locale: string) {
         const got = ratio(over(fg, bg), bg)
         if (got < 3) faint.push(`${got.toFixed(2)}:1 (needs 3) ${what} placeholder “${el.placeholder.slice(0, 24)}”`)
       }
+    }
+    // What a closed select shows is text too, and no text node the
+    // question above can see: its options have no box while it is
+    // closed. The chosen option's words, in the select's own colour, at
+    // 4.5 — 3.0 when painted --fg-subtle (a Select's placeholder).
+    for (const el of d.querySelectorAll<HTMLSelectElement>('select:not([multiple])')) {
+      const cs = getComputedStyle(el)
+      if (cs.visibility === 'hidden' || cs.display === 'none') continue
+      if (el.closest('[aria-hidden="true"]')) continue
+      let opacity = 1
+      for (let e: Element | null = el; e && e !== d.body; e = e.parentElement) opacity *= parseFloat(getComputedStyle(e).opacity)
+      if (opacity < 0.99) continue
+      const r = el.getBoundingClientRect()
+      if (!r.width || !r.height) continue
+      const text = el.options[el.selectedIndex]?.text.trim() ?? ''
+      if (!/[\p{L}\p{N}]/u.test(text)) continue
+      const bg = ground(el)
+      const fg = parse(cs.color)
+      if (!bg || !fg) continue
+      const got = ratio(over(fg, bg), bg)
+      const need = same(fg, subtle ? subtle.slice(0, 3).join() : '') ? 3 : 4.5
+      if (got < need) faint.push(`${got.toFixed(2)}:1 (needs ${need}) select.${String(el.className).split(' ')[0]} shows “${text.slice(0, 24)}”`)
     }
     if (faint.length) findings.push(`text too faint to read: ${faint.sort().slice(0, 5).join(' · ')}`)
 

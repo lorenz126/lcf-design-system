@@ -12,6 +12,29 @@ minor.
 
 ## Unreleased
 
+### Added
+
+- **Select** (`@lcf/design/components/Select`) — one choice from a list
+  the app hands over whole, sitting in Field unchanged as Input and
+  NumberField do: suggested (grey italic), confirmed, required and
+  empty, origin, hint, Enter to confirm, Escape back to the suggestion.
+  A native `<select>`, not Radix Select: Field's Enter and its
+  `validity` check, form participation and the phone's own picker come
+  with it; the open list cannot be styled (the doc comment has the
+  measurements). `options` with groups (`SelectOption`, `SelectGroup`),
+  `value`/`defaultValue` with `null` for nothing chosen,
+  `onValueChange`, `placeholder`, `readOnly`, `size`, `invalid`,
+  `block`. A placeholder always comes first, so nothing is chosen until
+  somebody chooses; a value the list does not offer is shown as itself
+  with "Steht nicht zur Auswahl." and never replaced by the first
+  option (React's own behaviour); the chosen option is always posted.
+- Message keys `choose` ("Choose…" / "Bitte wählen…") and `notAChoice`
+  ("Not one of the choices." / "Steht nicht zur Auswahl."), en and de.
+- `lcf-check-contrast`: the Select's placeholder and chevron, on the
+  page, on a card and on the read-only ground — 340 pairs.
+- The sweep measures the choice a closed select shows, as it measures
+  typed values: neither is a text node with a box.
+
 ## 0.4.0 — 2026-10-17
 
 ### Breaking

@@ -22,7 +22,7 @@ export const FieldContext = createContext<FieldContextValue | null>(null)
 /**
  * The Field around this control, or null outside one.
  *
- * It is what lets any control — Input and NumberField now, Select,
+ * It is what lets any control — Input, NumberField and Select now,
  * Textarea and Combobox next, an app's own control today — sit in a
  * Field unchanged. The contract a control follows:
  *

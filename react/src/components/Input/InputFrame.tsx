@@ -8,7 +8,8 @@ import {
   type ChangeEvent,
   type ComponentPropsWithRef,
   type MouseEvent,
-  type ReactNode
+  type ReactNode,
+  type RefObject
 } from 'react'
 import { useField, type FieldContextValue } from '../Field/context'
 import { joinIds } from '../Field/ids'
@@ -64,6 +65,39 @@ export function resolveControl(
     disabled: !!(own.disabled || field?.disabled),
     readOnly: !!(own.readOnly || field?.readOnly)
   }
+}
+
+/**
+ * The development checks every control in the family makes, once: a
+ * control with no name, an `id` a Field will ignore, and `required`,
+ * `disabled` or `readOnly` set on the control where the Field owns them.
+ * Shared, so Input, NumberField (through the frame) and Select say the
+ * same thing in the same words. Enforced: the sweep fails on console
+ * warnings.
+ */
+export function useControlChecks(
+  component: string,
+  field: FieldContextValue | null,
+  el: RefObject<(HTMLElement & { labels: NodeListOf<HTMLLabelElement> | null }) | null>,
+  own: { id?: string; required?: boolean; disabled?: boolean; readOnly?: boolean; ariaLabel?: string; ariaLabelledBy?: string }
+) {
+  const { id, required, disabled, readOnly, ariaLabel, ariaLabelledBy } = own
+  useEffect(() => {
+    if (field || ariaLabel || ariaLabelledBy) return
+    if ((el.current?.labels?.length ?? 0) > 0) return
+    warn(`${component} has no name: put it in a Field, or give it aria-label or a <label for>. A placeholder is not a name.`)
+  }, [component, field, el, ariaLabel, ariaLabelledBy])
+  useEffect(() => {
+    if (field && id !== undefined && id !== field.id) {
+      warn("an `id` on a control inside a Field is ignored — set the Field's `id`; it names the control.")
+    }
+  }, [field, id])
+  const inField = !!field
+  useEffect(() => {
+    if (!inField) return
+    const set = [required && 'required', disabled && 'disabled', readOnly && 'readOnly'].filter(Boolean)
+    if (set.length) warn(`${set.join(', ')} on a control inside a Field — set it on the Field; it owns the word, the asterisk and the actions.`)
+  }, [inField, required, disabled, readOnly])
 }
 
 /**
@@ -136,24 +170,15 @@ export function InputFrame({
   const color = invalid ? 'danger' : field?.required && empty ? 'caution' : undefined
 
   // Development only, and enforced: the sweep fails on console warnings.
-  const ariaLabel = rest['aria-label']
   const ariaLabelledBy = labelledBy ?? rest['aria-labelledby']
-  useEffect(() => {
-    if (field || ariaLabel || ariaLabelledBy) return
-    if ((inner.current?.labels?.length ?? 0) > 0) return
-    warn('Input has no name: put it in a Field, or give it aria-label or a <label for>. A placeholder is not a name.')
-  }, [field, ariaLabel, ariaLabelledBy])
-  useEffect(() => {
-    if (field && idProp !== undefined && idProp !== field.id) {
-      warn("an `id` on a control inside a Field is ignored — set the Field's `id`; it names the control.")
-    }
-  }, [field, idProp])
-  const inField = !!field
-  useEffect(() => {
-    if (!inField) return
-    const own = [requiredProp && 'required', disabledProp && 'disabled', readOnlyProp && 'readOnly'].filter(Boolean)
-    if (own.length) warn(`${own.join(', ')} on a control inside a Field — set it on the Field; it owns the word, the asterisk and the actions.`)
-  }, [inField, requiredProp, disabledProp, readOnlyProp])
+  useControlChecks('Input', field, inner, {
+    id: idProp,
+    required: requiredProp,
+    disabled: disabledProp,
+    readOnly: readOnlyProp,
+    ariaLabel: rest['aria-label'],
+    ariaLabelledBy
+  })
   useEffect(() => {
     if (!TYPES.includes(type)) warn(`Input: type="${type}" is not one of ${TYPES.join(', ')}. Numbers, dates and search have components of their own.`)
   }, [type])

@@ -71,6 +71,11 @@ export interface Messages {
   unitPercent: MessageValue
   unitChf: MessageValue
   unitEur: MessageValue
+
+  /* Select: the words in the box while nothing is chosen, and the
+     problem of a value the list does not offer. */
+  choose: MessageValue
+  notAChoice: MessageValue
 }
 
 export type MessageKey = keyof Messages
@@ -127,7 +132,10 @@ export const en: Messages = {
   unitH: 'hours',
   unitPercent: 'percent',
   unitChf: 'Swiss francs',
-  unitEur: 'euros'
+  unitEur: 'euros',
+
+  choose: 'Choose…',
+  notAChoice: 'Not one of the choices.'
 }
 
 /* Swiss and German usage differ in one letter that matters here: ß.
@@ -182,7 +190,10 @@ export const de: Messages = {
   unitPercent: 'Prozent',
   /* In Switzerland the franc needs no country; elsewhere it does. */
   unitChf: 'Franken',
-  unitEur: 'Euro'
+  unitEur: 'Euro',
+
+  choose: 'Bitte wählen…',
+  notAChoice: 'Steht nicht zur Auswahl.'
 }
 
 const deDE: Partial<Messages> = { close: 'Schließen', unitChf: 'Schweizer Franken' }
