@@ -77,6 +77,11 @@ minor.
 - Message keys `ctrlEnterConfirms`, `characterCount`, `characterLimit`,
   `characterLimitLeft`, `characterLimitOver` (en, de). A plural message
   chooses on `n` when it is given, so a count can arrive formatted.
+- Field's **All controls** story: Input, NumberField, Select, a
+  CheckboxGroup and Textarea in one form by one recipe, and an e2e test
+  that drives each the same way — suggested, the confirm key, an
+  override with ↺, Escape back, and "required and empty" from each
+  control's own `data-empty`.
 
 ### Changed
 

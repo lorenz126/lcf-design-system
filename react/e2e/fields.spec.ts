@@ -377,3 +377,63 @@ test('forced colours: an unticked box keeps its edge, a ticked one a ground of i
   const invalid = await page.getByRole('checkbox', { name: 'Terms accepted' }).first().evaluate(el => parseFloat(getComputedStyle(el).borderTopWidth))
   expect(invalid).toBeGreaterThanOrEqual(2)
 })
+
+test('All controls: Input, NumberField, Select, CheckboxGroup and Textarea answer Field the same way', async ({ page }, info) => {
+  const said = listen(page)
+  const globals = globalsOf(info)
+  await open(page, 'Field/AllControls', globals)
+  const form = page.locator('form')
+  const fields = page.locator('.lcf-field')
+  await expect(fields).toHaveCount(5)
+  const kinds = [
+    { control: 'input', confirm: 'Enter', override: 'ControlOrMeta+a 9' },
+    { control: 'input', confirm: 'Enter', override: 'ControlOrMeta+a 9' },
+    { control: 'select', confirm: 'Enter', override: 'a' },
+    { control: 'input[type="checkbox"]', confirm: 'Enter', override: 'Space' },
+    { control: 'textarea', confirm: 'Control+Enter', override: 'ControlOrMeta+a x' }
+  ]
+  for (const [i, k] of kinds.entries()) {
+    const field = fields.nth(i)
+    const control = field.locator(k.control).first()
+    const word = field.locator('.lcf-field-req-word')
+    // Suggested, required but not empty.
+    await expect(field, `field ${i}`).toHaveAttribute('data-state', 'suggested')
+    await expect(word).toBeHidden()
+
+    // The confirm key confirms; the form is not submitted.
+    await control.focus()
+    await page.keyboard.press(k.confirm)
+    await expect(field, `field ${i}`).toHaveAttribute('data-state', 'confirmed')
+
+    // A change overrides: no state, ↺ appears. Leave and come back, so a
+    // NumberField's typed text is committed and Escape is Field's.
+    for (const key of k.override.split(' ')) await page.keyboard.press(key)
+    await control.blur()
+    await expect(field, `field ${i}`).not.toHaveAttribute('data-state')
+    await expect(field.locator('[data-action="revert"]')).toBeVisible()
+    await control.focus()
+    await page.keyboard.press('Escape')
+    await expect(field, `field ${i}`).toHaveAttribute('data-state', 'suggested')
+    await expect(control).toBeFocused()
+  }
+
+  // Required and empty, derived from each control's own data-empty: the
+  // word appears without the app saying so. (A required Select cannot go
+  // back to its placeholder; Select/Review covers it starting empty.)
+  const empty = async (i: number, keys: string[], control: string) => {
+    await fields.nth(i).locator(control).first().focus()
+    for (const key of keys) await page.keyboard.press(key)
+    await fields.nth(i).locator(control).first().blur()
+    await expect(fields.nth(i).locator('.lcf-field-req-word'), `field ${i}`).toBeVisible()
+  }
+  await empty(0, ['ControlOrMeta+a', 'Backspace'], 'input')
+  await empty(1, ['ControlOrMeta+a', 'Backspace'], 'input')
+  await page.getByRole('checkbox', { name: 'Painting' }).uncheck()
+  await expect(fields.nth(3).locator('.lcf-field-req-word')).toBeHidden()
+  await page.getByRole('checkbox', { name: 'Filling' }).uncheck()
+  await expect(fields.nth(3).locator('.lcf-field-req-word')).toBeVisible()
+  await empty(4, ['ControlOrMeta+a', 'Backspace'], 'textarea')
+
+  await expect(form).toHaveAttribute('data-submitted', '0')
+  expect(signal(said), 'the console').toEqual([])
+})

@@ -5,8 +5,12 @@ import { fn } from 'storybook/test'
 import { useFormat } from '../../i18n/context'
 import type { Unit } from '../../i18n/format'
 import { Button } from '../Button/Button'
+import { Checkbox } from '../Checkbox/Checkbox'
+import { CheckboxGroup } from '../Checkbox/CheckboxGroup'
 import { Input } from '../Input/Input'
 import { NumberField } from '../NumberField/NumberField'
+import { Select } from '../Select/Select'
+import { Textarea } from '../Textarea/Textarea'
 import type { Origin, OriginSource } from '../types'
 import { useField } from './context'
 import { Field } from './Field'
@@ -319,3 +323,86 @@ export const AnyControl: Story = {
     </Field>
   )
 }
+
+/* The recipe once more, for any value: the app keeps the value, the
+   suggestion and whether a person confirmed it; Field is told the rest.
+   `same` compares, so a list of ticked boxes can be the value too. */
+function useReview<T>(suggestion: T, same: (a: T, b: T) => boolean = Object.is) {
+  const [value, setValue] = useState<T>(suggestion)
+  const [confirmed, setConfirmed] = useState(false)
+  const atSuggestion = same(value, suggestion)
+  return {
+    value,
+    change: (v: T) => {
+      setValue(v)
+      setConfirmed(false)
+    },
+    field: {
+      state: confirmed ? ('confirmed' as const) : atSuggestion ? ('suggested' as const) : undefined,
+      origin: atSuggestion ? ({ source: 'customer', via: 'email' } as const) : ({ source: 'staff', by: 'Anna' } as const),
+      onConfirm: () => setConfirmed(true),
+      onRevert: !atSuggestion && !confirmed ? () => setValue(suggestion) : undefined
+    }
+  }
+}
+
+const sameList = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i])
+
+function AllControlsForm() {
+  const f = useFormat()
+  const [submitted, setSubmitted] = useState(0)
+  const contact = useReview('Anna Muster')
+  const area = useReview<number | null>(118.5)
+  const market = useReview<string | null>('CH')
+  const work = useReview(['painting', 'filling'], sameList)
+  const note = useReview('Access through the courtyard; the lift is out of order until May.')
+  return (
+    <form
+      className="ws-form"
+      noValidate
+      data-submitted={submitted}
+      onSubmit={e => {
+        e.preventDefault()
+        setSubmitted(n => n + 1)
+      }}
+    >
+      <div className="ws-stack" data-testid="all-controls">
+        <Field block required label="Contact person" suggestion="Anna Muster" {...contact.field}>
+          <Input block value={contact.value} onChange={e => contact.change(e.target.value)} />
+        </Field>
+        <Field block required label="Floor area" suggestion={f.unit(118.5, 'm2')} {...area.field}>
+          <NumberField block unit="m2" min={0} value={area.value} onValueChange={area.change} />
+        </Field>
+        <Field block required label="Market" suggestion="Switzerland" {...market.field}>
+          <Select
+            block
+            value={market.value}
+            onValueChange={market.change}
+            options={[
+              { value: 'CH', label: 'Switzerland' },
+              { value: 'AT', label: 'Austria' },
+              { value: 'DE', label: 'Germany' }
+            ]}
+          />
+        </Field>
+        <Field block required label="Work" suggestion="Painting, Filling" {...work.field}>
+          <CheckboxGroup name="work" value={work.value} onValueChange={work.change}>
+            <Checkbox value="painting" label="Painting" />
+            <Checkbox value="filling" label="Filling" />
+            <Checkbox value="wallpapering" label="Wallpapering" />
+          </CheckboxGroup>
+        </Field>
+        {/* No `suggestion` for long text: it would become ↺'s visible label. */}
+        <Field block required label="Note for the crew" {...note.field}>
+          <Textarea block value={note.value} onChange={e => note.change(e.target.value)} />
+        </Field>
+      </div>
+      <div className="ws-row">
+        <Button type="submit" size="sm">Save offer</Button>
+      </div>
+    </form>
+  )
+}
+
+/** Input, NumberField, Select, a CheckboxGroup and Textarea in one form, each by the same recipe: suggested, required, Enter (Ctrl+Enter in the note) confirms, a change overrides, Escape or ↺ goes back. */
+export const AllControls: Story = { name: 'All controls', render: () => <AllControlsForm /> }
