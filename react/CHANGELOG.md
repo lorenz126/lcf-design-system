@@ -31,9 +31,44 @@ minor.
 - Message keys `choose` ("Choose…" / "Bitte wählen…") and `notAChoice`
   ("Not one of the choices." / "Steht nicht zur Auswahl."), en and de.
 - `lcf-check-contrast`: the Select's placeholder and chevron, on the
-  page, on a card and on the read-only ground — 340 pairs.
+  page, on a card and on the read-only ground — 8 pairs.
 - The sweep measures the choice a closed select shows, as it measures
   typed values: neither is a text node with a box.
+- **Checkbox** and **CheckboxGroup** (`@lcf/design/components/Checkbox`).
+  Checkbox is the native `<input type="checkbox">` drawn with
+  `appearance: none`, its `label` beside the box and its `description`
+  under the label; `checked`/`defaultChecked`/`onCheckedChange`,
+  `indeterminate` (the DOM property, re-applied while the prop says so),
+  `invalid`, `readOnly` (`aria-readonly`, a click that changes nothing),
+  `size`. Every attribute but `className` and `style` lands on the
+  `<input>`, as the Nuxt 0.2.0 change decided. CheckboxGroup is a
+  `<fieldset>` and the one control a Field holds: `value` /
+  `defaultValue` / `onValueChange` as a list in the order the boxes are
+  rendered, `name` posted by each chosen box, `required` meaning at least
+  one (a custom validity on the first box, in the table's words), the
+  Field's label, words, state, origin, size, disabled and read-only.
+  Root attributes `data-size`, `data-color`, `data-disabled`,
+  `data-readonly` (Checkbox) and `data-size`, `data-empty`, `data-color`,
+  `data-readonly` (CheckboxGroup) may be styled.
+- **`chooseAtLeastOne`** message key, English and German: "Choose at
+  least one option." / "Bitte mindestens eine Option wählen." An app
+  that types a full table of its own fails to compile until it supplies
+  it — the intended signal.
+- **14 contrast pairs** for the checkbox: its edge (3.41:1 light, 3.66:1
+  dark) and its ticked fill on the page and on a card, and the tick on
+  its fill, invalid included. With Select's 8, 354 pairs, both themes.
+
+### Changed
+
+- **Field holds a group control.** With a CheckboxGroup as its child,
+  Field's label names the fieldset (`aria-labelledby`) and has no `for`
+  — a label pointing at a fieldset labels nothing; Enter and Escape in
+  any box act for the field (measured: Enter on a checkbox submits a
+  form in Chromium, so a confirmable group spends it); a confirm reads
+  the boxes' validity, because a fieldset's own stays valid while a box
+  inside it is not (measured); after ✓ or ↺ focus returns to the box
+  that had it. No prop changed, and Input and NumberField behave as
+  before. `useField()`'s contract gains the group clause.
 
 ## 0.4.0 — 2026-10-17
 

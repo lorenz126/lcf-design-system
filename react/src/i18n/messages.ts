@@ -32,6 +32,9 @@ export interface Messages {
   belowMin: MessageValue
   aboveMax: MessageValue
   offStep: MessageValue
+  /* CheckboxGroup: a required group with nothing chosen, as the form
+     says it (setCustomValidity) and as Field says it on Enter. */
+  chooseAtLeastOne: MessageValue
 
   /* Field: what a value is and where it came from. Each is said once,
      as a sentence of the control's description, so each ends in a full
@@ -102,6 +105,7 @@ export const en: Messages = {
   belowMin: 'At least {min}.',
   aboveMax: 'At most {max}.',
   offStep: 'In steps of {step}.',
+  chooseAtLeastOne: 'Choose at least one option.',
 
   stateSuggested: 'Suggestion.',
   stateConfirmed: 'Confirmed.',
@@ -159,6 +163,7 @@ export const de: Messages = {
   belowMin: 'Mindestens {min}.',
   aboveMax: 'Höchstens {max}.',
   offStep: 'In Schritten von {step}.',
+  chooseAtLeastOne: 'Bitte mindestens eine Option wählen.',
 
   stateSuggested: 'Vorschlag.',
   stateConfirmed: 'Bestätigt.',

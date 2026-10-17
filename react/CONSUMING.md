@@ -11,8 +11,9 @@ into that app's `AGENTS.md` or `CLAUDE.md`.
 import { Button } from '@lcf/design/components/Button'
 ```
 
-Available now: Alert, Badge, Button, Field, Input, NumberField, Select,
-Spinner, LcfProvider — and the `i18n`, `theme` and `hooks/useBreakpoint` modules. `ROADMAP.md` in the
+Available now: Alert, Badge, Button, Checkbox (with CheckboxGroup),
+Field, Input, NumberField, Select, Spinner, LcfProvider — and the
+`i18n`, `theme` and `hooks/useBreakpoint` modules. `ROADMAP.md` in the
 package's repository lists what is next and in which order. If what you
 need is not here yet, build it in the app and say so — do not copy a
 component to add a prop; ask for the prop upstream.
@@ -108,6 +109,22 @@ error and `required`, and wires them to the control:
   differs from the suggestion and nobody confirmed it — Escape in the
   control and ↺ call it. The recipe is
   Field's "Review" story.
+- **Checkboxes in a Field go in a `CheckboxGroup`**, even one box: the
+  Field's label names the group, each `Checkbox`'s `label` names its
+  box, and the group gets `state`, `origin`, `onConfirm` and `required`
+  (at least one) like any control. Its value is a `string[]` in the
+  order the boxes are rendered — compare it with the suggestion element
+  by element. A lone `Checkbox` is never put in a Field; its words go in
+  its own `label` and `description`.
+
+  ```tsx
+  <Field label="Leistungen" required origin={{ source: 'customer', via: 'email' }}>
+    <CheckboxGroup name="work" value={work} onValueChange={setWork}>
+      <Checkbox value="paint" label="Malen" />
+      <Checkbox value="fill" label="Spachteln" />
+    </CheckboxGroup>
+  </Field>
+  ```
 - **A form that saves drafts sets `noValidate`** (or `formNoValidate`
   on its save button): fields use native `required`, which otherwise
   blocks the submit.

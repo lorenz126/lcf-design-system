@@ -10,7 +10,7 @@ maintenance; this directory is `0.4.0` onward. Read the root
 pnpm test
 ```
 
-In order, failing on the first: contrast (340 pairs, both themes) ·
+In order, failing on the first: contrast (354 pairs, both themes) ·
 stories (every component has stories with a `Showcase`, a doc comment
 on every example, a public path and its CSS in `src/css/index.css`) ·
 strings (no visible text outside the message table) · vitest · tsc ·
@@ -22,8 +22,8 @@ each the same six questions (`e2e/audit.ts`): sideways scroll, hidden
 things taking room, duplicate ids, controls with no name, text (typed
 values and a closed select's choice included) too faint where it
 landed, and the layer's words under the wrong `lang`.
-`e2e/fields.spec.ts` drives Field, Input, NumberField and Select by
-keyboard in a real engine. The story pass never renders
+`e2e/fields.spec.ts` drives Field, Input, NumberField, Select and a
+CheckboxGroup in a Field by keyboard in a real engine. The story pass never renders
 the page around a story; the docs pass is what sees the headings, the
 props table, every example's code opened, and the focus rings. Once,
 in the dark/de-CH pass, `e2e/chrome.spec.ts` loads the site itself —
@@ -118,6 +118,16 @@ a hue, never an intent token by name.
   Field read a stale `onConfirm` on Enter and confirmed 118 while the
   box said 120. A callback read after a child's flush goes through a ref
   set in a layout effect.
+- **A fieldset's validity is always valid.** Measured in Chromium: with
+  a custom error on a box inside it, `fieldset.validity.valid` and
+  `checkValidity()` stay true while `:invalid` matches. Field reads a
+  group's members, not the fieldset, before it confirms.
+- **Enter on a checkbox submits its form** in Chromium when the form has
+  a submit button. A confirmable Field spends it; anywhere else it is
+  native.
+- **React reads a checkbox's change from the click.** `preventDefault`
+  in `onClick` still called `onChange` (measured), so Checkbox's
+  read-only puts the box back through the `checked` setter instead.
 - **Vitest's module cache bakes `import.meta.glob` results in.** Vitest 5
   caches transforms by the file's own content, so a glob over the tree
   (the Introduction's catalogue) kept the old file list when stories

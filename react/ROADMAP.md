@@ -27,6 +27,7 @@ half.
 | ✓ | **J4** Field state (`suggested`, `confirmed`; required-and-empty derived), origin (customer, staff by name, assumed, missing; by e-mail or form), the price-driver `hint`, Enter to confirm and ↺ back to the suggestion | `src/components/Field` |
 | ✓ | The layer's words carry their language (`t.lang`), Alert and Spinner included; the sweep checks it | `src/i18n/context.tsx`, `e2e/audit.ts` |
 | ✓ | Select: the platform's `<select>` in the field frame, in Field unchanged — a placeholder that is never a value, groups, disabled options, a value the list does not offer shown and called wrong, read-only as one option | `src/components/Select` |
+| ✓ | Checkbox (native input, label beside, indeterminate, description, invalid, read-only) and CheckboxGroup: a group of boxes as the one control in a Field — required as "at least one", state, origin, Enter to confirm and Escape back from any box | `src/components/Checkbox` |
 
 ### J3 and J4: where the build departs from the request, for Jonathan to confirm
 
@@ -76,6 +77,18 @@ Open questions:
    ("Bitte wählen…"); a required one cannot go back to it. Agreed, or
    should optional fields show "Keine Angabe" as a choice of its own?
 
+### Checkbox: for Jonathan to confirm
+
+1. A group's value is suggested and confirmed as a whole: Enter in any
+   box confirms the set; one box changed makes the set "edited", with ↺
+   back to the suggested set. Agreed, or is each box its own field?
+2. Suggested, a ticked box's LABEL is grey and italic; the box stays
+   filled in the app's colour. A box filled with the suggested grey
+   (`--fg-muted`) was refused: in dark it is `#a3a3a3`, and the white
+   tick on it measures 2.52:1.
+3. "Pflichtfeld" on a checkbox group means at least one. A rule like
+   "at most two" is the app's `error`, not a prop.
+
 Before tagging: a manual pass with NVDA, JAWS and VoiceOver (macOS and
 iOS) over Enter-to-confirm, the blur and step announcements, the voice
 switching on `lang`, and a Select's value, placeholder and problem —
@@ -86,7 +99,7 @@ no screen reader was available to the build.
 | # | component | the hard part |
 |---|---|---|
 | — | Combobox, Textarea | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment; Select follows it. Combobox takes what Select refuses — search, icons and a second line in options, several choices — on Radix's primitives where the Nuxt version hand-rolled listbox keyboard handling. Its trigger is not a `<select>`, so Field's Enter-to-confirm and its `validity` check need a way in (Select needed none: Field already treats a `<select>` as a one-line control). A Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
-| — | Checkbox, Radio, Switch | Ports. Not in Field: their label sits beside a control that comes first. |
+| — | Radio, Switch | Ports. A lone one is not in a Field: its label sits beside a control that comes first. A radio group sits in a Field the way CheckboxGroup does (a fieldset named by the Field's label, Field's group marker in `Field/context.ts`) and has one Tab stop with arrows; a Switch applies at once, so it has no confirm. |
 
 ## Then — Priority 1 continued, and media
 
