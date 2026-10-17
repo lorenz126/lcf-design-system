@@ -10,7 +10,9 @@ semantic and intent tokens, the message keys, and the exports of
 `i18n`, `theme` and `hooks`. Within `0.x`, a breaking change bumps the
 minor.
 
-## Unreleased — 0.4.0
+## Unreleased
+
+## 0.4.0 — 2026-10-17
 
 ### Breaking
 
@@ -38,6 +40,15 @@ minor.
   `--success-text`, …). Code reading the old names gets nothing.
 
 ### Added
+
+- **Releases carry the built package.** A tag points at a commit with
+  `react/dist` and no `prepare` script (`scripts/release.sh`), so
+  `#v0.4.0&path:/react` installs without a build step. Measured: pnpm
+  12 fails a git dependency that builds itself
+  (`ERR_PNPM_GIT_DEP_PREPARE_NOT_ALLOWED`) unless the app allowlists it.
+- **`lcf-check-strings`** — the check for visible text outside the
+  message table, as a bin. Given paths, it checks an app's own
+  templates: `npx lcf-check-strings src`.
 
 - **Intent tokens** — `--<color>-solid`, `-on-solid`, `-soft`,
   `-on-soft`, `-text`, `-border` for all eight colours. Every value is a

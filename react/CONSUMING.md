@@ -17,6 +17,30 @@ package's repository lists what is next and in which order. If what you
 need is not here yet, build it in the app and say so — do not copy a
 component to add a prop; ask for the prop upstream.
 
+
+## Install
+
+```bash
+pnpm add "github:lorenz126/lcf-design-system#v0.4.0&path:/react"
+```
+
+Pin a tag, never the branch: a tag carries the built package and runs
+nothing on install. Pinned to a commit, the package builds itself, and
+pnpm refuses that unless `pnpm-workspace.yaml` allows it: pnpm 12 under
+`allowBuilds`, keyed by the full spec it prints when it refuses (it
+names the commit, so it changes with every pin); pnpm 10 under
+`onlyBuiltDependencies: ["@lcf/design"]`. Upgrading is
+changing the tag after reading *Breaking* in `CHANGELOG.md`.
+
+Check the app's own templates for untranslated text with the same rule
+the library holds itself to, and its colours with the same contrast
+check:
+
+```bash
+npx lcf-check-strings src
+npx lcf-check-contrast src/theme.css
+```
+
 ## Set up once
 
 ```tsx

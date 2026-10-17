@@ -11,17 +11,31 @@ import { Step, Steps } from './blocks'
 <Step title="Install">
 
 ```bash
-pnpm add "github:lorenz126/lcf-design-system#react&path:/react"
+pnpm add "github:lorenz126/lcf-design-system#v0.4.0&path:/react"
 ```
 
-`#react` follows the branch while 0.4.0 is being built — every install
-takes whatever is newest. Once 0.4.0 is tagged, pin the tag instead
-(`#v0.4.0&path:/react`) and upgrade on purpose.
+A release tag carries the built package, so installing runs nothing —
+no build step, nothing to allow in `allowBuilds` (pnpm 12) or
+`onlyBuiltDependencies` (pnpm 10). Upgrade by changing the tag, after
+reading *Breaking* in the package's `CHANGELOG.md`.
 
-The package is built on install (`prepare`), because a git dependency
-arrives as source. **pnpm** — `&path:/react` installs a subdirectory of
-the repository, and npm has no syntax for that. Verified: the library
-installs, builds and imports from a git URL with this path.
+**pnpm** — `&path:/react` installs a subdirectory of the repository,
+and npm has no syntax for that.
+
+**Pinned to a commit instead of a tag**, the package arrives as source
+and builds itself on install, which pnpm allows only when the app says
+so in `pnpm-workspace.yaml`. pnpm 12 wants the dependency's full
+resolved spec as the key — the bare name is not enough, measured — and
+prints it when it refuses:
+
+```yaml
+allowBuilds:
+  "@lcf/design@https://codeload.github.com/lorenz126/lcf-design-system/tar.gz/<commit>#path:/react": true
+```
+
+The key names the commit, so it changes with every new pin — one more
+reason to pin a tag. pnpm 10 takes the name: `onlyBuiltDependencies:
+["@lcf/design"]`.
 
 </Step>
 <Step title="Styles, once, first">

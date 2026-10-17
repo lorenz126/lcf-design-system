@@ -21,21 +21,43 @@
  * to find every case so far, and the escape hatch for a real exception
  * is a comment on the line — `// check-strings: ok <why>` — so the
  * reason sits beside the exception.
+ *
+ * AN APP CHECKS ITS OWN TEMPLATES WITH THE SAME RULES. Installed, this
+ * is the `lcf-check-strings` bin; given paths — folders or files,
+ * relative to where it is run — it checks those instead of the layer's
+ * components:
+ *
+ *   npx lcf-check-strings src/components src/pages
+ *
+ * .tsx and .jsx, stories and tests skipped, the same escape hatch. What
+ * counts as "the message table" is then the app's own: the check only
+ * says the text is a literal, not where the key should go.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { dirname, join, relative } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const layer = join(dirname(fileURLToPath(import.meta.url)), '..')
+const args = process.argv.slice(2)
+const asApp = args.length > 0
+// Paths in the report are relative to where the reader is: the layer's
+// root for its own check, the app's working directory for an app's.
+const root = asApp ? process.cwd() : layer
+const SOURCE = /\.(tsx|jsx)$/
+const SKIP = /\.(stories|test|spec)\.(tsx|jsx)$/
 const files = []
 const walk = d => {
   for (const f of readdirSync(d)) {
+    if (f === 'node_modules' || f.startsWith('.')) continue
     const p = join(d, f)
     if (statSync(p).isDirectory()) walk(p)
-    else if (/\.tsx$/.test(f) && !/\.(stories|test)\.tsx$/.test(f)) files.push(p)
+    else if (SOURCE.test(f) && !SKIP.test(f)) files.push(p)
   }
 }
-walk(join(root, 'src/components'))
+for (const target of asApp ? args.map(a => resolve(process.cwd(), a)) : [join(layer, 'src/components')]) {
+  if (statSync(target).isDirectory()) walk(target)
+  else if (SOURCE.test(target)) files.push(target)
+}
 
 const found = []
 for (const file of files) {
@@ -57,7 +79,9 @@ for (const file of files) {
 
 if (found.length) {
   console.error(`\n  ${found.length} visible string(s) outside the message table:\n` + found.map(f => `    ${f}`).join('\n') +
-    `\n\n  Add a key to src/i18n/messages.ts and use t('key'), or mark the line\n  // check-strings: ok <reason>\n`)
+    (asApp
+      ? `\n\n  Move each into your app's message table, or mark the line\n  // check-strings: ok <reason>\n`
+      : `\n\n  Add a key to src/i18n/messages.ts and use t('key'), or mark the line\n  // check-strings: ok <reason>\n`))
   process.exit(1)
 }
-console.log(`  ${files.length} component files, no visible text outside the message table`)
+console.log(`  ${files.length} ${asApp ? 'files' : 'component files'}, no visible text outside the message table`)

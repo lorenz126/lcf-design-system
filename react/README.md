@@ -3,10 +3,11 @@
 Components, tokens and a locale layer for internal tools. MIT.
 
 ```bash
-pnpm add "github:lorenz126/lcf-design-system#react&path:/react"
+pnpm add "github:lorenz126/lcf-design-system#v0.4.0&path:/react"
 ```
 
-`#react` follows the branch until 0.4.0 is tagged; then pin the tag.
+A tag carries the built package, so installing builds nothing. Pinned to a
+commit instead, pnpm has to be allowed to build it — see Installation.
 
 **Documentation online:** https://lcf-design-system.vercel.app
 

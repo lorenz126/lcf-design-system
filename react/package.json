@@ -16,6 +16,7 @@
   "files": [
     "dist",
     "scripts/check-contrast.mjs",
+    "scripts/check-strings.mjs",
     "src/tokens",
     "src/css",
     "src/components/**/*.css",
@@ -89,6 +90,7 @@
     "vitest": "^5.0.0"
   },
   "bin": {
-    "lcf-check-contrast": "scripts/check-contrast.mjs"
+    "lcf-check-contrast": "scripts/check-contrast.mjs",
+    "lcf-check-strings": "scripts/check-strings.mjs"
   }
 }

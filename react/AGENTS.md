@@ -33,6 +33,14 @@ Before anything is tagged: `pnpm verify:consumer` — packs the library,
 installs it into an empty Vite + React + Tailwind app, typechecks,
 builds, serves it statically and reads it in a browser.
 
+Tags are made by `bash scripts/release.sh <version>` and nothing else:
+it runs both of the above, then tags a commit of its own that carries
+the built `dist` and no `prepare` script, so an app installs the tag
+without building (pnpm 12 refuses a git dependency's build unless the
+app allowlists it). The branch never carries `dist`. Write the
+`## <version> — <date>` section in CHANGELOG.md first; the script
+refuses without it. Only the owner pushes a tag.
+
 ## Where a thing goes
 
 ```
