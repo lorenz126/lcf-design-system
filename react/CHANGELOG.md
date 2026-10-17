@@ -12,6 +12,36 @@ minor.
 
 ## Unreleased
 
+### Added
+
+- **Textarea** (`@lcf/design/components/Textarea`) — several lines of
+  text, sitting in Field unchanged. Grows with its text from `rows`
+  (default 3) to `maxRows` (default 10), then scrolls: `field-sizing:
+  content` where the engine has it, a measured fallback where it does
+  not — the same heights to the pixel, checked in Chromium with the CSS
+  path switched off. Its width is 20rem (or `block`), never the text's.
+  `characterLimit` shows a count and says what is left a second after
+  the person stops typing; it never blocks — no `maxlength`, no
+  invalid, no refused confirm or submit. `countCharacters` (same path)
+  counts the way the count does, for an app that enforces the limit.
+- **Ctrl+Enter confirms in a textarea.** In a confirmable Field around a
+  `<textarea>`, where Enter is a new line, Ctrl+Enter or ⌘ Enter (both,
+  on every platform) calls `onConfirm`, and the field says "Ctrl+Enter
+  confirms." instead of "Enter confirms.". Before, nothing but the
+  pointer-only ✓ could confirm one.
+- `useField()` gives `describedByMultiline`: Field's description ids
+  with that sentence, for a multi-line control of an app's own.
+- Message keys `ctrlEnterConfirms`, `characterCount`, `characterLimit`,
+  `characterLimitLeft`, `characterLimitOver` (en, de). A plural message
+  chooses on `n` when it is given, so a count can arrive formatted.
+
+### Fixed
+
+- **A Field is never wider than its container** (`max-inline-size:
+  100%`). Measured with a Textarea in a Field at 300px: the Field took
+  the control's 320px as its minimum and the page scrolled 36px
+  sideways.
+
 ## 0.4.0 — 2026-10-17
 
 ### Breaking

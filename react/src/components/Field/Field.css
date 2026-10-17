@@ -5,6 +5,11 @@
   flex-direction: column;
   gap: var(--s-2);
   min-inline-size: 0;
+  /* Never wider than its container, so a control with a width of its
+     own shrinks to fit. Measured with Textarea (20rem) in a Field at a
+     300px viewport: the Field took 320px as its min-content width and
+     the page scrolled 36px sideways. */
+  max-inline-size: 100%;
   vertical-align: top;
 }
 .lcf-field[data-block] { display: flex; inline-size: 100%; }

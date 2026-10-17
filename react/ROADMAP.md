@@ -26,6 +26,7 @@ half.
 | ✓ | **J3** NumberField with unit: the reader's separators, min, max, step, commit on blur/Enter/arrows, never clamped or rounded; Input for text; Field for label, description, error and required | `src/components/NumberField`, `Input`, `Field` |
 | ✓ | **J4** Field state (`suggested`, `confirmed`; required-and-empty derived), origin (customer, staff by name, assumed, missing; by e-mail or form), the price-driver `hint`, Enter to confirm and ↺ back to the suggestion | `src/components/Field` |
 | ✓ | The layer's words carry their language (`t.lang`), Alert and Spinner included; the sweep checks it | `src/i18n/context.tsx`, `e2e/audit.ts` |
+| ✓ | Textarea: grows from `rows` to `maxRows` (`field-sizing`, a measured fallback), a count that reports and never blocks, Ctrl+Enter to confirm in a Field | `src/components/Textarea` |
 
 ### J3 and J4: where the build departs from the request, for Jonathan to confirm
 
@@ -60,6 +61,13 @@ Open questions:
 7. Escape in a field with ↺ goes back to the suggestion (↺ itself left
    the Tab order: as a Tab stop it sat in the forward path of the field
    above it). Agreed as the keyboard way back?
+8. In a Textarea, Ctrl+Enter (or ⌘ Enter) confirms, since Enter is a
+   new line — and Escape goes back to the suggestion, taking everything
+   typed since with it, as in Input. With paragraphs at stake, should
+   Escape in a textarea ask first, or leave the way back to ↺ alone?
+9. Textarea's count says what is left a second after typing stops
+   (GOV.UK's character count). Too chatty for a 2000-character note?
+   The alternative is to say it only in the last tenth and when over.
 
 Before tagging: a manual pass with NVDA, JAWS and VoiceOver (macOS and
 iOS) over Enter-to-confirm, the blur and step announcements, and the
@@ -69,7 +77,7 @@ voice switching on `lang` — no screen reader was available to the build.
 
 | # | component | the hard part |
 |---|---|---|
-| — | Select, Combobox, Textarea | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment, and Field's "Any control" story wires a native select by it alone. Select and Combobox on Radix's primitives where the Nuxt versions hand-rolled listbox keyboard handling; a Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
+| — | Select, Combobox | Ports, each sitting in Field unchanged through `useField()` — the contract is in its doc comment, and Field's "Any control" story wires a native select by it alone. Select and Combobox on Radix's primitives where the Nuxt versions hand-rolled listbox keyboard handling; a Radix Dialog must leave alone an Escape spent by a NumberField (`[data-dirty]`) or by a Field with ↺ (`[data-action="revert"]`). |
 | — | Checkbox, Radio, Switch | Ports. Not in Field: their label sits beside a control that comes first. |
 
 ## Then — Priority 1 continued, and media

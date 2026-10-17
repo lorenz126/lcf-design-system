@@ -40,6 +40,10 @@ export interface Messages {
   stateConfirmed: MessageValue
   suggestionWas: MessageValue
   enterConfirms: MessageValue
+  /* In a textarea Enter is a new line, so Ctrl+Enter confirms there.
+     ⌘ Enter does too, on every platform, so this one sentence is true
+     everywhere and the same on the server. */
+  ctrlEnterConfirms: MessageValue
   escapeReverts: MessageValue
   confirmValue: MessageValue
   backToSuggestionValue: MessageValue
@@ -71,13 +75,26 @@ export interface Messages {
   unitPercent: MessageValue
   unitChf: MessageValue
   unitEur: MessageValue
+
+  /* Textarea's character count. It reports and never blocks. The
+     visible count is aria-hidden; the limit is said once, with the
+     field's description, and what is left after the person stops
+     typing. `{count}` and `{limit}` arrive formatted ("1'830"); `n` is
+     the number itself, for choosing a plural. */
+  characterCount: MessageValue
+  characterLimit: MessageValue
+  characterLimitLeft: MessageValue
+  characterLimitOver: MessageValue
 }
 
 export type MessageKey = keyof Messages
 
+/* The plural is chosen on `n` where the caller passes the number apart
+   from its formatted text ("1'830" is no number to Intl.PluralRules),
+   else on `count`. */
 const plural = (one: string, other: string) =>
   (v: Record<string, string | number>, locale: string) =>
-    (new Intl.PluralRules(locale).select(Number(v.count)) === 'one' ? one : other).replace('{count}', String(v.count))
+    (new Intl.PluralRules(locale).select(Number(v.n ?? v.count)) === 'one' ? one : other).replace('{count}', String(v.count))
 
 export const en: Messages = {
   loading: 'Loading',
@@ -102,6 +119,7 @@ export const en: Messages = {
   stateConfirmed: 'Confirmed.',
   suggestionWas: 'Suggestion: {value}.',
   enterConfirms: 'Enter confirms.',
+  ctrlEnterConfirms: 'Ctrl+Enter confirms.',
   escapeReverts: 'Escape: back to suggestion.',
   confirmValue: 'Confirm',
   backToSuggestionValue: 'Back to suggestion: {value}',
@@ -127,7 +145,12 @@ export const en: Messages = {
   unitH: 'hours',
   unitPercent: 'percent',
   unitChf: 'Swiss francs',
-  unitEur: 'euros'
+  unitEur: 'euros',
+
+  characterCount: '{count} / {limit}',
+  characterLimit: 'Up to {limit} characters.',
+  characterLimitLeft: plural('{count} character left.', '{count} characters left.'),
+  characterLimitOver: plural('{count} character too many.', '{count} characters too many.')
 }
 
 /* Swiss and German usage differ in one letter that matters here: ß.
@@ -156,6 +179,7 @@ export const de: Messages = {
   stateConfirmed: 'Bestätigt.',
   suggestionWas: 'Vorschlag: {value}.',
   enterConfirms: 'Enter bestätigt.',
+  ctrlEnterConfirms: 'Strg+Enter bestätigt.',
   escapeReverts: 'Escape: zurück zum Vorschlag.',
   confirmValue: 'Bestätigen',
   backToSuggestionValue: 'Zurück zum Vorschlag: {value}',
@@ -182,7 +206,12 @@ export const de: Messages = {
   unitPercent: 'Prozent',
   /* In Switzerland the franc needs no country; elsewhere it does. */
   unitChf: 'Franken',
-  unitEur: 'Euro'
+  unitEur: 'Euro',
+
+  characterCount: '{count} / {limit}',
+  characterLimit: 'Höchstens {limit} Zeichen.',
+  characterLimitLeft: 'Noch {count} Zeichen.',
+  characterLimitOver: '{count} Zeichen zu viel.'
 }
 
 const deDE: Partial<Messages> = { close: 'Schließen', unitChf: 'Schweizer Franken' }

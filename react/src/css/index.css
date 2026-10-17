@@ -30,3 +30,4 @@
 @import "../components/Input/Input.css" layer(lcf.components);
 @import "../components/NumberField/NumberField.css" layer(lcf.components);
 @import "../components/Spinner/Spinner.css" layer(lcf.components);
+@import "../components/Textarea/Textarea.css" layer(lcf.components);
